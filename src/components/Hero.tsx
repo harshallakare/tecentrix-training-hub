@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Terminal, Server, ArrowRight } from 'lucide-react';
+import { Terminal, Server, ArrowRight, Award, Users } from 'lucide-react';
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -38,38 +38,46 @@ const Hero = () => {
         <div className="flex flex-col space-y-6 max-w-xl">
           <div className="reveal flex items-center space-x-2 bg-tecentrix-gray/80 backdrop-blur-sm rounded-full pl-2 pr-5 py-2 w-fit border border-tecentrix-blue/20">
             <span className="bg-tecentrix-blue text-white text-xs font-medium rounded-full px-3 py-1">NEW</span>
-            <span className="text-sm text-tecentrix-darkgray">Advanced Linux Security Course Available</span>
+            <span className="text-sm text-tecentrix-darkgray">RHCSA & RHCE Certification Courses Available</span>
           </div>
           
           <h1 className="reveal text-4xl md:text-5xl lg:text-6xl font-bold hero-text-gradient leading-tight">
-            Master Linux Administration Skills
+            Become a Linux Expert with Industry Recognized Training
           </h1>
           
           <p className="reveal text-lg text-tecentrix-darkgray/80 leading-relaxed">
-            Comprehensive training programs designed to transform beginners into Linux experts. Learn from industry professionals with real-world experience.
+            Join our comprehensive RHCSA, RHCE, and advanced Linux programs designed by industry experts with 15+ years of experience. Get hands-on training with real-world scenarios and certified instructors.
           </p>
           
           <div className="reveal flex flex-wrap gap-4 pt-2">
             <Button className="tecentrix-primary-button group">
-              Explore Courses
+              Explore Certification Paths
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button className="tecentrix-outline-button">
-              View Free Resources
+              Free Assessment Test
             </Button>
           </div>
           
-          <div className="reveal flex items-center space-x-4 pt-4">
-            <div className="flex -space-x-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs font-bold text-tecentrix-blue">
-                  {String.fromCharCode(65 + i)}
-                </div>
-              ))}
+          <div className="reveal grid grid-cols-2 gap-4 pt-4">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-full bg-tecentrix-orange/10">
+                <Award className="h-5 w-5 text-tecentrix-orange" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-tecentrix-blue">Red Hat Certified</p>
+                <p className="text-xs text-tecentrix-darkgray">Official Training Partner</p>
+              </div>
             </div>
-            <p className="text-sm text-tecentrix-darkgray">
-              <span className="font-bold">500+</span> students already enrolled
-            </p>
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-full bg-tecentrix-blue/10">
+                <Users className="h-5 w-5 text-tecentrix-blue" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-tecentrix-blue">3000+ Alumni</p>
+                <p className="text-xs text-tecentrix-darkgray">Success Stories</p>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -85,17 +93,14 @@ const Hero = () => {
               </div>
               
               <div className="bg-tecentrix-darkgray p-6 font-mono text-sm text-green-400 space-y-2">
-                <p><span className="text-white">$</span> sudo apt update</p>
-                <p>Reading package lists... Done</p>
-                <p>Building dependency tree... Done</p>
-                <p><span className="text-white">$</span> sudo apt upgrade</p>
-                <p>Reading package lists... Done</p>
-                <p>Building dependency tree... Done</p>
-                <p>Calculating upgrade... Done</p>
-                <p><span className="text-white">$</span> systemctl status nginx</p>
-                <p className="text-green-300">● nginx.service - A high performance web server and a reverse proxy server</p>
-                <p className="text-green-300">   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)</p>
-                <p className="text-green-300">   Active: active (running) since Tue 2023-05-23 14:30:05 UTC; 2 days ago</p>
+                <p><span className="text-white">$</span> sudo systemctl status httpd</p>
+                <p className="text-green-300">● httpd.service - The Apache HTTP Server</p>
+                <p className="text-green-300">   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; vendor preset: disabled)</p>
+                <p className="text-green-300">   Active: active (running) since Mon 2023-05-22 14:30:05 UTC; 3 days ago</p>
+                <p><span className="text-white">$</span> firewall-cmd --permanent --add-service=http</p>
+                <p>success</p>
+                <p><span className="text-white">$</span> firewall-cmd --reload</p>
+                <p>success</p>
                 <p><span className="text-white">$</span> <span className="animate-pulse">_</span></p>
               </div>
             </div>
@@ -105,8 +110,8 @@ const Hero = () => {
                 <Server className="h-6 w-6 text-tecentrix-orange" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Next Session</p>
-                <p className="text-sm font-medium">Server Hardening</p>
+                <p className="text-xs text-gray-500">Upcoming Batch</p>
+                <p className="text-sm font-medium">RHCSA - June 15</p>
               </div>
             </div>
           </div>
@@ -115,7 +120,7 @@ const Hero = () => {
       
       <div className="container mx-auto px-4 mt-16 lg:mt-24">
         <div className="reveal flex flex-wrap justify-center gap-8 md:gap-16 opacity-60">
-          {['Red Hat', 'Ubuntu', 'AWS', 'Google Cloud', 'Docker', 'Kubernetes'].map((partner) => (
+          {['Red Hat', 'Ubuntu', 'AWS', 'IBM', 'Oracle Linux', 'CentOS'].map((partner) => (
             <div key={partner} className="text-xl font-bold text-tecentrix-darkgray/70">
               {partner}
             </div>

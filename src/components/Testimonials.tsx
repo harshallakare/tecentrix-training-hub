@@ -4,31 +4,35 @@ import React, { useEffect, useState } from 'react';
 const testimonials = [
   {
     id: 1,
-    content: "The Advanced Server Administration course transformed my career. The hands-on labs and real-world scenarios prepared me for challenges I now face daily as a Linux administrator.",
-    author: "Michael Chen",
-    role: "Systems Administrator at CloudTech",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+    content: "The RHCE course at Tecentrix completely transformed my career. The hands-on lab sessions and real-world scenarios prepared me for challenges I now face daily. Within two months of certification, I secured a Senior Linux Administrator role with a 40% salary increase.",
+    author: "Rajesh Kumar",
+    role: "Senior Linux Administrator at TechSolutions",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    company: "TechSolutions"
   },
   {
     id: 2,
-    content: "As someone who switched from Windows administration, Tecentrix's Linux Fundamentals course provided the perfect foundation. The instructors were patient and highly knowledgeable.",
-    author: "Sarah Johnson",
-    role: "IT Specialist at GlobalServe",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+    content: "As someone transitioning from Windows administration, Tecentrix's RHCSA course provided the perfect foundation. The instructors were patient and highly knowledgeable. The 24/7 lab access helped me practice concepts even after class hours.",
+    author: "Priya Sharma",
+    role: "System Engineer at CloudWorks IT",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    company: "CloudWorks IT"
   },
   {
     id: 3,
-    content: "The Linux Security Specialist program is comprehensive and rigorous. It covers everything from basic hardening to advanced threat detection. Highly recommended for security professionals.",
-    author: "David Rodriguez",
-    role: "Security Engineer at SecureNet",
-    avatar: "https://randomuser.me/api/portraits/men/62.jpg"
+    content: "The Linux Security Specialist program is comprehensive and rigorous. It covers everything from basic hardening to advanced threat detection. The course material was up-to-date with current security practices, which is crucial in the security field.",
+    author: "Mohammed Ali",
+    role: "Information Security Analyst at SecureNet",
+    avatar: "https://randomuser.me/api/portraits/men/62.jpg",
+    company: "SecureNet"
   },
   {
     id: 4,
-    content: "I've taken courses from several training providers, but Tecentrix stands out. Their teaching methodology and practical approach makes complex concepts accessible.",
-    author: "Jennifer Park",
-    role: "DevOps Engineer at TechInnovate",
-    avatar: "https://randomuser.me/api/portraits/women/26.jpg"
+    content: "I've taken Linux courses from several training providers, but Tecentrix stands out. Their teaching methodology focusing on practical implementations made complex concepts accessible. The placement assistance helped me land a job at a top MNC.",
+    author: "Kavita Desai",
+    role: "DevOps Engineer at TechInnovate Solutions",
+    avatar: "https://randomuser.me/api/portraits/women/26.jpg",
+    company: "TechInnovate Solutions"
   }
 ];
 
@@ -72,12 +76,12 @@ const Testimonials = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Testimonials</h2>
+          <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Success Stories</h2>
           <h3 className="mt-2 text-3xl md:text-4xl font-bold text-tecentrix-blue reveal">
-            What Our Students Say
+            What Our Alumni Say
           </h3>
           <p className="mt-4 text-lg text-tecentrix-darkgray/80 reveal">
-            Don't just take our word for it. Hear from professionals who have transformed their careers with our training.
+            Hear from professionals who have advanced their careers with our Linux certification training programs.
           </p>
         </div>
         
@@ -118,6 +122,7 @@ const Testimonials = () => {
                     <div className="mt-4">
                       <div className="font-semibold text-tecentrix-blue">{testimonial.author}</div>
                       <div className="text-sm text-tecentrix-darkgray/70">{testimonial.role}</div>
+                      <div className="text-sm text-tecentrix-orange mt-1">RHCE Certified Professional</div>
                     </div>
                   </div>
                 </div>
@@ -136,6 +141,24 @@ const Testimonials = () => {
                 aria-label={`View testimonial ${index + 1}`}
               ></button>
             ))}
+          </div>
+          
+          <div className="mt-12 text-center reveal">
+            <p className="text-tecentrix-darkgray mb-4">Join our community of 3000+ certified Linux professionals</p>
+            <div className="flex flex-wrap justify-center gap-6 mt-8">
+              <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Red_Hat_logo.svg/1200px-Red_Hat_logo.svg.png" alt="Red Hat" className="h-8" />
+                <span className="text-sm font-medium">Red Hat Partner</span>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/UbuntuCoF.svg/512px-UbuntuCoF.svg.png" alt="Ubuntu" className="h-8" />
+                <span className="text-sm font-medium">Ubuntu Certified</span>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1024px-Amazon_Web_Services_Logo.svg.png" alt="AWS" className="h-8" />
+                <span className="text-sm font-medium">AWS Training Partner</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
