@@ -1,12 +1,59 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import Hero from '@/components/Hero';
+import Features from '@/components/Features';
+import Courses from '@/components/Courses';
+import Testimonials from '@/components/Testimonials';
+import CTA from '@/components/CTA';
+import Footer from '@/components/Footer';
 
 const Index = () => {
+  useEffect(() => {
+    const handleScroll = () => {
+      const revealElements = document.querySelectorAll(
+        '.reveal, .reveal-right, .reveal-left, .scale-reveal'
+      );
+      
+      revealElements.forEach((element) => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementHeight = element.getBoundingClientRect().height;
+        
+        // Only reveal when element is in viewport
+        if (elementTop < window.innerHeight - elementHeight / 3) {
+          if (element.classList.contains('reveal-right')) {
+            element.classList.add('reveal-right-visible');
+          } else if (element.classList.contains('reveal-left')) {
+            element.classList.add('reveal-left-visible');
+          } else if (element.classList.contains('scale-reveal')) {
+            element.classList.add('scale-reveal-visible');
+          } else {
+            element.classList.add('reveal-visible');
+          }
+        }
+      });
+    };
+    
+    // Initial check on page load
+    setTimeout(handleScroll, 100);
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="overflow-x-hidden">
+      <Navbar />
+      <Hero />
+      <Features />
+      <Courses />
+      <Testimonials />
+      <CTA />
+      <Footer />
     </div>
   );
 };
