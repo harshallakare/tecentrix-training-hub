@@ -41,11 +41,16 @@ const Hero = () => {
             <span className="text-sm text-tecentrix-darkgray">RHCSA & RHCE Certification Courses Available</span>
           </div>
           
-          <div className="reveal mb-2">
+          <div className="reveal mb-2 flex items-center space-x-3">
             <img 
-              src="/lovable-uploads/2167f3bc-5e5f-4921-a824-acab3792d723.png" 
-              alt="Tecentrix Logo" 
-              className="h-16 md:h-20"
+              src="/lovable-uploads/4c595448-842f-4b0f-85ed-498a0f4c4a4c.png" 
+              alt="Tecentrix Icon" 
+              className="h-16 w-16"
+            />
+            <img 
+              src="/lovable-uploads/ecf53e64-9a0d-42a7-9f33-45ff3799daef.png" 
+              alt="Tecentrix Text" 
+              className="h-12 md:h-14"
             />
           </div>
           

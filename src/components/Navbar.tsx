@@ -32,11 +32,16 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center space-x-3">
           <img 
-            src="/lovable-uploads/2167f3bc-5e5f-4921-a824-acab3792d723.png" 
-            alt="Tecentrix Logo" 
-            className="h-10 md:h-12"
+            src="/lovable-uploads/4c595448-842f-4b0f-85ed-498a0f4c4a4c.png" 
+            alt="Tecentrix Icon" 
+            className="h-12 w-12"
+          />
+          <img 
+            src="/lovable-uploads/ecf53e64-9a0d-42a7-9f33-45ff3799daef.png" 
+            alt="Tecentrix Text" 
+            className="h-8 md:h-10"
           />
         </Link>
 
