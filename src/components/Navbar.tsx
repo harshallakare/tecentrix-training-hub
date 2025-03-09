@@ -32,15 +32,12 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="relative h-10 w-10 rounded-full bg-tecentrix-orange flex items-center justify-center">
-            <div className="w-5 h-5 text-white">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4L4 12H10V20H14V12H20L12 4Z" fill="currentColor" />
-              </svg>
-            </div>
-          </div>
-          <span className="text-2xl font-bold text-tecentrix-blue">Tecentrix</span>
+        <Link to="/" className="flex items-center">
+          <img 
+            src="/lovable-uploads/2167f3bc-5e5f-4921-a824-acab3792d723.png" 
+            alt="Tecentrix Logo" 
+            className="h-10 md:h-12"
+          />
         </Link>
 
         {/* Desktop Navigation */}

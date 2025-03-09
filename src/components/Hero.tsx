@@ -41,6 +41,14 @@ const Hero = () => {
             <span className="text-sm text-tecentrix-darkgray">RHCSA & RHCE Certification Courses Available</span>
           </div>
           
+          <div className="reveal mb-2">
+            <img 
+              src="/lovable-uploads/2167f3bc-5e5f-4921-a824-acab3792d723.png" 
+              alt="Tecentrix Logo" 
+              className="h-16 md:h-20"
+            />
+          </div>
+          
           <h1 className="reveal text-4xl md:text-5xl lg:text-6xl font-bold hero-text-gradient leading-tight">
             Become a Linux Expert with Industry Recognized Training
           </h1>
