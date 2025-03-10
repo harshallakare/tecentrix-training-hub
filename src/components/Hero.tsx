@@ -2,9 +2,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Terminal, Server, ArrowRight, Award, Users } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
+  const { content } = useContentStore();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,16 +57,16 @@ const Hero = () => {
           </div>
           
           <h1 className="reveal text-4xl md:text-5xl lg:text-6xl font-bold hero-text-gradient leading-tight">
-            Become a Linux Expert with Industry Recognized Training
+            {content.hero.title}
           </h1>
           
           <p className="reveal text-lg text-tecentrix-darkgray/80 leading-relaxed">
-            Join our comprehensive RHCSA, RHCE, and advanced Linux programs designed by industry experts with 15+ years of experience. Get hands-on training with real-world scenarios and certified instructors.
+            {content.hero.subtitle}
           </p>
           
           <div className="reveal flex flex-wrap gap-4 pt-2">
             <Button className="tecentrix-primary-button group">
-              Explore Certification Paths
+              {content.hero.ctaText}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button className="tecentrix-outline-button">

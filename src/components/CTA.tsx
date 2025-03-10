@@ -2,8 +2,11 @@
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, Phone, Mail } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 
 const CTA = () => {
+  const { content } = useContentStore();
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -36,11 +39,11 @@ const CTA = () => {
         <div className="max-w-4xl mx-auto">
           <div className="reveal flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full pl-2 pr-5 py-2 w-fit mx-auto mb-6">
             <span className="bg-tecentrix-orange text-white text-xs font-medium rounded-full px-3 py-1">SPECIAL OFFER</span>
-            <span className="text-sm text-white">25% early bird discount for June RHCSA batch</span>
+            <span className="text-sm text-white">{content.cta.specialOffer}</span>
           </div>
           
           <h2 className="reveal text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight text-center">
-            Start Your Linux Certification Journey Today
+            {content.cta.title}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">

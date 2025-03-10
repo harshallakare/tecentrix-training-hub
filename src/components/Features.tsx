@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Terminal, Server, Code, BookOpen, Shield, Network, Users, Video, Award, Clock } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 
 const features = [
   {
@@ -36,6 +37,8 @@ const features = [
 ];
 
 const Features = () => {
+  const { content } = useContentStore();
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -70,10 +73,10 @@ const Features = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Why Choose Us</h2>
           <h3 className="mt-2 text-3xl md:text-4xl font-bold text-tecentrix-blue reveal">
-            The Tecentrix Training Advantage
+            {content.features.title}
           </h3>
           <p className="mt-4 text-lg text-tecentrix-darkgray/80 reveal">
-            Our training methodology combines theoretical concepts with extensive hands-on practice, ensuring you're job-ready upon completion.
+            {content.features.subtitle}
           </p>
         </div>
         

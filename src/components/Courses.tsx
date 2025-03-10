@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 
 const courses = [
   {
@@ -59,6 +60,8 @@ const courses = [
 ];
 
 const Courses = () => {
+  const { content } = useContentStore();
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -93,10 +96,10 @@ const Courses = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Certification Courses</h2>
           <h3 className="mt-2 text-3xl md:text-4xl font-bold text-tecentrix-blue reveal">
-            Industry-Recognized Linux Certifications
+            {content.courses.title}
           </h3>
           <p className="mt-4 text-lg text-tecentrix-darkgray/80 reveal">
-            Prepare for globally recognized Red Hat certifications with our comprehensive training programs led by certified instructors.
+            {content.courses.subtitle}
           </p>
         </div>
         
