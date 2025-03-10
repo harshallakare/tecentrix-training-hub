@@ -175,7 +175,12 @@ const Admin = () => {
             />
             <span className="ml-2 text-sm font-medium bg-tecentrix-blue text-white px-2 py-1 rounded-md">Admin</span>
           </div>
-          <Button variant="ghost" onClick={() => setIsAuthenticated(false)}>Logout</Button>
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" onClick={() => window.location.href = '/admin/settings'}>
+              Settings
+            </Button>
+            <Button variant="ghost" onClick={() => setIsAuthenticated(false)}>Logout</Button>
+          </div>
         </div>
       </div>
 
