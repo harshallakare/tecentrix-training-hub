@@ -4,63 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
 
-const courses = [
-  {
-    icon: <Terminal className="h-6 w-6" />,
-    title: "RHCSA Certification",
-    level: "Foundation",
-    duration: "6 Weeks",
-    description: "Red Hat Certified System Administrator course covering essential Linux skills required for RHCSA EX200 exam certification.",
-    modules: ["System Configuration & Management", "File Systems & Storage", "User Administration", "Software Management", "Network Configuration"],
-    highlighted: false,
-    color: "bg-blue-50",
-    iconBg: "bg-blue-100",
-    iconColor: "text-tecentrix-blue",
-    price: "₹35,000"
-  },
-  {
-    icon: <Server className="h-6 w-6" />,
-    title: "RHCE Certification",
-    level: "Advanced",
-    duration: "8 Weeks",
-    description: "Comprehensive Red Hat Certified Engineer training program covering advanced system administration and automation with Ansible.",
-    modules: ["Ansible Automation", "Web Services", "SELinux Configuration", "Advanced Networking", "Troubleshooting Skills"],
-    highlighted: true,
-    color: "bg-orange-50",
-    iconBg: "bg-orange-100",
-    iconColor: "text-tecentrix-orange",
-    price: "₹45,000"
-  },
-  {
-    icon: <Shield className="h-6 w-6" />,
-    title: "Linux Security Specialist",
-    level: "Advanced",
-    duration: "6 Weeks",
-    description: "Master Linux security hardening, penetration testing, intrusion detection systems, and security compliance standards.",
-    modules: ["Security Fundamentals", "Threat Detection", "Firewall Configuration", "SELinux Advanced", "Security Auditing"],
-    highlighted: false,
-    color: "bg-green-50",
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-    price: "₹40,000"
-  },
-  {
-    icon: <Cloud className="h-6 w-6" />,
-    title: "Linux Cloud Administration",
-    level: "Advanced",
-    duration: "8 Weeks",
-    description: "Learn to deploy and manage Linux environments on AWS, Azure, and Google Cloud platforms with DevOps integration.",
-    modules: ["Cloud Architecture", "Containers & Kubernetes", "CI/CD Pipelines", "Infrastructure as Code", "Cloud Security"],
-    highlighted: false,
-    color: "bg-purple-50",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
-    price: "₹50,000"
-  }
-];
+const iconMap = {
+  'Terminal': <Terminal className="h-6 w-6" />,
+  'Server': <Server className="h-6 w-6" />,
+  'Shield': <Shield className="h-6 w-6" />,
+  'Network': <Network className="h-6 w-6" />,
+  'Cloud': <Cloud className="h-6 w-6" />,
+  'Database': <Database className="h-6 w-6" />,
+};
 
 const Courses = () => {
-  const { content } = useContentStore();
+  const { content, coursesList } = useContentStore();
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -90,6 +44,10 @@ const Courses = () => {
     };
   }, []);
 
+  const getIconComponent = (iconName: string) => {
+    return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
+  };
+
   return (
     <section className="section-padding bg-white">
       <div className="container mx-auto px-4">
@@ -104,9 +62,9 @@ const Courses = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {courses.map((course, index) => (
+          {coursesList.map((course, index) => (
             <div 
-              key={index}
+              key={course.id}
               className={`scale-reveal rounded-xl overflow-hidden transition-all duration-300 ${course.highlighted ? 'ring-2 ring-tecentrix-orange shadow-lg' : 'border border-gray-200 shadow-sm hover:shadow-md'}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -114,7 +72,7 @@ const Courses = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center">
                     <div className={`${course.iconBg} p-3 rounded-lg ${course.iconColor}`}>
-                      {course.icon}
+                      {getIconComponent(course.icon)}
                     </div>
                     <div className="ml-4">
                       <h4 className="text-xl font-semibold text-tecentrix-blue">{course.title}</h4>

@@ -1,43 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-
-const testimonials = [
-  {
-    id: 1,
-    content: "The RHCE course at Tecentrix completely transformed my career. The hands-on lab sessions and real-world scenarios prepared me for challenges I now face daily. Within two months of certification, I secured a Senior Linux Administrator role with a 40% salary increase.",
-    author: "Rajesh Kumar",
-    role: "Senior Linux Administrator at TechSolutions",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    company: "TechSolutions"
-  },
-  {
-    id: 2,
-    content: "As someone transitioning from Windows administration, Tecentrix's RHCSA course provided the perfect foundation. The instructors were patient and highly knowledgeable. The 24/7 lab access helped me practice concepts even after class hours.",
-    author: "Priya Sharma",
-    role: "System Engineer at CloudWorks IT",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    company: "CloudWorks IT"
-  },
-  {
-    id: 3,
-    content: "The Linux Security Specialist program is comprehensive and rigorous. It covers everything from basic hardening to advanced threat detection. The course material was up-to-date with current security practices, which is crucial in the security field.",
-    author: "Mohammed Ali",
-    role: "Information Security Analyst at SecureNet",
-    avatar: "https://randomuser.me/api/portraits/men/62.jpg",
-    company: "SecureNet"
-  },
-  {
-    id: 4,
-    content: "I've taken Linux courses from several training providers, but Tecentrix stands out. Their teaching methodology focusing on practical implementations made complex concepts accessible. The placement assistance helped me land a job at a top MNC.",
-    author: "Kavita Desai",
-    role: "DevOps Engineer at TechInnovate Solutions",
-    avatar: "https://randomuser.me/api/portraits/women/26.jpg",
-    company: "TechInnovate Solutions"
-  }
-];
+import { useContentStore } from '@/store/contentStore';
 
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const { testimonialsList } = useContentStore();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,11 +28,11 @@ const Testimonials = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+      setActiveIndex((prevIndex) => (prevIndex + 1) % testimonialsList.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonialsList.length]);
 
   return (
     <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
@@ -87,7 +54,7 @@ const Testimonials = () => {
         
         <div className="max-w-4xl mx-auto">
           <div className="relative h-[400px] md:h-[300px]">
-            {testimonials.map((testimonial, index) => (
+            {testimonialsList.map((testimonial, index) => (
               <div
                 key={testimonial.id}
                 className={`absolute top-0 left-0 right-0 transition-all duration-500 ease-in-out glass-card rounded-xl p-8 md:p-10 ${
@@ -131,7 +98,7 @@ const Testimonials = () => {
           </div>
           
           <div className="flex justify-center space-x-2 mt-8">
-            {testimonials.map((_, index) => (
+            {testimonialsList.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
