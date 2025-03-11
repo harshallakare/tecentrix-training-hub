@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
-import { Lock } from 'lucide-react';
+import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon } from 'lucide-react';
 import Footer from '@/components/Footer';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
+import NavigationManager from '@/components/admin/NavigationManager';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -177,6 +179,7 @@ const Admin = () => {
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="outline" onClick={() => window.location.href = '/admin/settings'}>
+              <SettingsIcon className="mr-2 h-4 w-4" />
               Settings
             </Button>
             <Button variant="ghost" onClick={() => setIsAuthenticated(false)}>Logout</Button>
@@ -187,170 +190,197 @@ const Admin = () => {
       <div className="container mx-auto px-4 py-10 flex-grow">
         <h1 className="text-3xl font-bold text-tecentrix-blue mb-8">Admin Dashboard</h1>
         
-        <Tabs defaultValue="hero" className="w-full">
+        <Tabs defaultValue="content" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="hero">Hero Section</TabsTrigger>
-            <TabsTrigger value="courses">Courses Section</TabsTrigger>
-            <TabsTrigger value="features">Features Section</TabsTrigger>
-            <TabsTrigger value="cta">CTA Section</TabsTrigger>
+            <TabsTrigger value="content">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="navigation">
+              <Navigation className="h-4 w-4 mr-2" />
+              Navigation
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="hero">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Hero Section</CardTitle>
-                <CardDescription>
-                  Update the title, subtitle and call-to-action text
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleHeroUpdate}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="heroTitle">Title</Label>
-                    <Textarea 
-                      id="heroTitle" 
-                      name="heroTitle" 
-                      defaultValue={content.hero.title}
-                      placeholder="Enter the hero title" 
-                      className="min-h-20"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="heroSubtitle">Subtitle</Label>
-                    <Textarea 
-                      id="heroSubtitle" 
-                      name="heroSubtitle" 
-                      defaultValue={content.hero.subtitle}
-                      placeholder="Enter the hero subtitle" 
-                      className="min-h-20"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="heroCTA">CTA Button Text</Label>
-                    <Input 
-                      id="heroCTA" 
-                      name="heroCTA" 
-                      defaultValue={content.hero.ctaText}
-                      placeholder="Enter the call-to-action text" 
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit">Save Changes</Button>
-                </CardFooter>
-              </form>
-            </Card>
+          <TabsContent value="content">
+            <Tabs defaultValue="hero" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="hero">Hero Section</TabsTrigger>
+                <TabsTrigger value="courses">Courses Section</TabsTrigger>
+                <TabsTrigger value="features">Features Section</TabsTrigger>
+                <TabsTrigger value="cta">CTA Section</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="hero">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Edit Hero Section</CardTitle>
+                    <CardDescription>
+                      Update the title, subtitle and call-to-action text
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleHeroUpdate}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="heroTitle">Title</Label>
+                        <Textarea 
+                          id="heroTitle" 
+                          name="heroTitle" 
+                          defaultValue={content.hero.title}
+                          placeholder="Enter the hero title" 
+                          className="min-h-20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="heroSubtitle">Subtitle</Label>
+                        <Textarea 
+                          id="heroSubtitle" 
+                          name="heroSubtitle" 
+                          defaultValue={content.hero.subtitle}
+                          placeholder="Enter the hero subtitle" 
+                          className="min-h-20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="heroCTA">CTA Button Text</Label>
+                        <Input 
+                          id="heroCTA" 
+                          name="heroCTA" 
+                          defaultValue={content.hero.ctaText}
+                          placeholder="Enter the call-to-action text" 
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button type="submit">Save Changes</Button>
+                    </CardFooter>
+                  </form>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="courses">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Edit Courses Section</CardTitle>
+                    <CardDescription>
+                      Update the title and subtitle for the courses section
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleCoursesUpdate}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="coursesTitle">Title</Label>
+                        <Input 
+                          id="coursesTitle" 
+                          name="coursesTitle" 
+                          defaultValue={content.courses.title}
+                          placeholder="Enter the courses section title" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="coursesSubtitle">Subtitle</Label>
+                        <Textarea 
+                          id="coursesSubtitle" 
+                          name="coursesSubtitle" 
+                          defaultValue={content.courses.subtitle}
+                          placeholder="Enter the courses section subtitle" 
+                          className="min-h-20"
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button type="submit">Save Changes</Button>
+                    </CardFooter>
+                  </form>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="features">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Edit Features Section</CardTitle>
+                    <CardDescription>
+                      Update the title and subtitle for the features section
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleFeaturesUpdate}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="featuresTitle">Title</Label>
+                        <Input 
+                          id="featuresTitle" 
+                          name="featuresTitle" 
+                          defaultValue={content.features.title}
+                          placeholder="Enter the features section title" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="featuresSubtitle">Subtitle</Label>
+                        <Textarea 
+                          id="featuresSubtitle" 
+                          name="featuresSubtitle" 
+                          defaultValue={content.features.subtitle}
+                          placeholder="Enter the features section subtitle" 
+                          className="min-h-20"
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button type="submit">Save Changes</Button>
+                    </CardFooter>
+                  </form>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="cta">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Edit CTA Section</CardTitle>
+                    <CardDescription>
+                      Update the title and special offer text for the Call-to-Action section
+                    </CardDescription>
+                  </CardHeader>
+                  <form onSubmit={handleCTAUpdate}>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="ctaTitle">Title</Label>
+                        <Textarea 
+                          id="ctaTitle" 
+                          name="ctaTitle" 
+                          defaultValue={content.cta.title}
+                          placeholder="Enter the CTA section title" 
+                          className="min-h-20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ctaSpecialOffer">Special Offer Text</Label>
+                        <Input 
+                          id="ctaSpecialOffer" 
+                          name="ctaSpecialOffer" 
+                          defaultValue={content.cta.specialOffer}
+                          placeholder="Enter the special offer text" 
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button type="submit">Save Changes</Button>
+                    </CardFooter>
+                  </form>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
           
-          <TabsContent value="courses">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Courses Section</CardTitle>
-                <CardDescription>
-                  Update the title and subtitle for the courses section
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleCoursesUpdate}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="coursesTitle">Title</Label>
-                    <Input 
-                      id="coursesTitle" 
-                      name="coursesTitle" 
-                      defaultValue={content.courses.title}
-                      placeholder="Enter the courses section title" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="coursesSubtitle">Subtitle</Label>
-                    <Textarea 
-                      id="coursesSubtitle" 
-                      name="coursesSubtitle" 
-                      defaultValue={content.courses.subtitle}
-                      placeholder="Enter the courses section subtitle" 
-                      className="min-h-20"
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit">Save Changes</Button>
-                </CardFooter>
-              </form>
-            </Card>
+          <TabsContent value="navigation">
+            <NavigationManager />
           </TabsContent>
-          
-          <TabsContent value="features">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Features Section</CardTitle>
-                <CardDescription>
-                  Update the title and subtitle for the features section
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleFeaturesUpdate}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="featuresTitle">Title</Label>
-                    <Input 
-                      id="featuresTitle" 
-                      name="featuresTitle" 
-                      defaultValue={content.features.title}
-                      placeholder="Enter the features section title" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="featuresSubtitle">Subtitle</Label>
-                    <Textarea 
-                      id="featuresSubtitle" 
-                      name="featuresSubtitle" 
-                      defaultValue={content.features.subtitle}
-                      placeholder="Enter the features section subtitle" 
-                      className="min-h-20"
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit">Save Changes</Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="cta">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit CTA Section</CardTitle>
-                <CardDescription>
-                  Update the title and special offer text for the Call-to-Action section
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleCTAUpdate}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ctaTitle">Title</Label>
-                    <Textarea 
-                      id="ctaTitle" 
-                      name="ctaTitle" 
-                      defaultValue={content.cta.title}
-                      placeholder="Enter the CTA section title" 
-                      className="min-h-20"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ctaSpecialOffer">Special Offer Text</Label>
-                    <Input 
-                      id="ctaSpecialOffer" 
-                      name="ctaSpecialOffer" 
-                      defaultValue={content.cta.specialOffer}
-                      placeholder="Enter the special offer text" 
-                    />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit">Save Changes</Button>
-                </CardFooter>
-              </form>
-            </Card>
+
+          <TabsContent value="analytics">
+            <AnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </div>

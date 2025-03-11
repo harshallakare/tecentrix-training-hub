@@ -3,10 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { useNavigationStore } from '@/store/navigationStore';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { navItems } = useNavigationStore();
+  
+  // Filter out disabled nav items
+  const activeNavItems = navItems.filter(item => item.enabled);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,21 +52,15 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors">
-            Home
-          </Link>
-          <Link to="/courses" className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors">
-            Courses
-          </Link>
-          <Link to="/about" className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors">
-            About
-          </Link>
-          <Link to="/testimonials" className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors">
-            Testimonials
-          </Link>
-          <Link to="/contact" className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors">
-            Contact
-          </Link>
+          {activeNavItems.map((item) => (
+            <Link 
+              key={item.id}
+              to={item.path} 
+              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="hidden md:block">
@@ -84,41 +83,16 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg animate-fade-in">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            <Link 
-              to="/" 
-              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/courses" 
-              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Courses
-            </Link>
-            <Link 
-              to="/about" 
-              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              to="/testimonials" 
-              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Testimonials
-            </Link>
-            <Link 
-              to="/contact" 
-              className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
+            {activeNavItems.map((item) => (
+              <Link 
+                key={item.id}
+                to={item.path} 
+                className="text-tecentrix-darkgray hover:text-tecentrix-blue transition-colors py-2 border-b"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
             <Button 
               className="tecentrix-primary-button w-full"
               onClick={() => setIsMobileMenuOpen(false)}
