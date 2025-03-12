@@ -1,26 +1,53 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  Award as AwardIcon, 
-  BookOpen as BookOpenIcon, 
-  Users as UsersIcon, 
-  Globe as GlobeIcon, 
-  GraduationCap as GraduationCapIcon, 
-  Heart as HeartIcon,
-  Rocket as RocketIcon,
-  BarChart as BarChartIcon,
-  Hand as HandIcon,
-  Star as StarIcon
+  Award, 
+  BookOpen, 
+  Users, 
+  Globe, 
+  GraduationCap, 
+  Heart,
+  Rocket,
+  BarChart,
+  Hand,
+  Star
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
 const About = () => {
   const navigate = useNavigate();
+
+  // Add animation effect on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (entry.target.classList.contains('reveal')) {
+            entry.target.classList.add('reveal-visible');
+          } else if (entry.target.classList.contains('reveal-left')) {
+            entry.target.classList.add('reveal-left-visible');
+          } else if (entry.target.classList.contains('reveal-right')) {
+            entry.target.classList.add('reveal-right-visible');
+          } else if (entry.target.classList.contains('scale-reveal')) {
+            entry.target.classList.add('scale-reveal-visible');
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .scale-reveal').forEach(el => {
+      observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,7 +59,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1 reveal-left">
-                <Badge variant="outline" className="bg-tecentrix-blue/10 text-tecentrix-blue mb-4">About Us</Badge>
+                <Badge variant="blue" className="mb-4">About Us</Badge>
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-tecentrix-blue mb-6">
                   Empowering the Next Generation of Tech Leaders
                 </h1>
@@ -100,7 +127,7 @@ const About = () => {
                 />
               </div>
               <div className="reveal-right">
-                <Badge variant="outline" className="bg-tecentrix-blue/10 text-tecentrix-blue mb-4">Our Vision</Badge>
+                <Badge variant="blue" className="mb-4">Our Vision</Badge>
                 <h2 className="text-3xl font-bold text-tecentrix-blue mb-6">Creating the Future of Tech Education</h2>
                 <div className="prose prose-lg max-w-none text-tecentrix-darkgray/80">
                   <p>
@@ -124,7 +151,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="order-2 lg:order-1 reveal-left">
-                <Badge variant="outline" className="bg-tecentrix-orange/10 text-tecentrix-orange mb-4">Our Journey</Badge>
+                <Badge variant="orange" className="mb-4">Our Journey</Badge>
                 <h3 className="text-3xl font-bold text-tecentrix-blue mb-6">Our Story</h3>
                 <div className="prose prose-lg max-w-none text-tecentrix-darkgray/80">
                   <p>
@@ -153,39 +180,39 @@ const About = () => {
         <section className="py-16 bg-tecentrix-gray section-padding">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 reveal">
-              <Badge variant="outline" className="bg-tecentrix-blue/10 text-tecentrix-blue mb-4">What Drives Us</Badge>
+              <Badge variant="blue" className="mb-4">What Drives Us</Badge>
               <h3 className="text-3xl font-bold text-tecentrix-blue">Our Core Values</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  icon: <BookOpenIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <BookOpen className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Continuous Learning",
                   description: "We practice what we teach. Our team is constantly learning, adapting, and evolving to stay ahead of technological trends."
                 },
                 {
-                  icon: <UsersIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <Users className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Community Focus",
                   description: "We believe in the power of community to accelerate learning and foster innovation through collaboration."
                 },
                 {
-                  icon: <AwardIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <Award className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Excellence",
                   description: "We hold ourselves to the highest standards in course development, instruction, and student support."
                 },
                 {
-                  icon: <GlobeIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <Globe className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Accessibility",
                   description: "We strive to make quality education accessible to everyone, regardless of geographic or socioeconomic barriers."
                 },
                 {
-                  icon: <GraduationCapIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <GraduationCap className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Practical Education",
                   description: "We focus on practical, applicable skills that directly translate to workplace competencies and career advancement."
                 },
                 {
-                  icon: <HeartIcon className="h-10 w-10 text-tecentrix-blue" />,
+                  icon: <Heart className="h-10 w-10 text-tecentrix-blue" />,
                   title: "Student Success",
                   description: "We measure our success by the success of our students, both in their learning journey and career outcomes."
                 }
@@ -206,7 +233,7 @@ const About = () => {
         <section className="py-16 bg-white section-padding">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 reveal">
-              <Badge variant="outline" className="bg-tecentrix-orange/10 text-tecentrix-orange mb-4">Our People</Badge>
+              <Badge variant="orange" className="mb-4">Our People</Badge>
               <h3 className="text-3xl font-bold text-tecentrix-blue">Leadership Team</h3>
               <p className="mt-4 text-lg text-tecentrix-darkgray/80">
                 Our diverse team of experts brings together decades of industry and educational experience.
