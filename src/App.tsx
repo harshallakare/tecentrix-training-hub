@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import { useNavigationStore } from "./store/navigationStore";
 
 const queryClient = new QueryClient();
@@ -20,10 +24,16 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       
+      {/* Static routes for main pages */}
+      <Route path="/courses" element={<Courses />} />
+      <Route path="/courses/:courseId" element={<CourseDetails />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      
       {/* Dynamic routes based on navigation store */}
       {activeNavItems.map(item => {
-        // Skip the home route as it's already defined
-        if (item.path === "/") return null;
+        // Skip the routes that already have dedicated components
+        if (["/", "/courses", "/about", "/contact"].includes(item.path)) return null;
         return <Route key={item.id} path={item.path} element={<Index />} />;
       })}
       
