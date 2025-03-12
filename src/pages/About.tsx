@@ -6,16 +6,16 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  AwardIcon, 
-  BookOpenIcon, 
-  UsersIcon, 
-  GlobeIcon, 
-  GraduationCapIcon, 
-  HeartIcon,
-  RocketIcon,
-  BarChartIcon,
-  HandIcon,
-  StarIcon
+  Award as AwardIcon, 
+  BookOpen as BookOpenIcon, 
+  Users as UsersIcon, 
+  Globe as GlobeIcon, 
+  GraduationCap as GraduationCapIcon, 
+  Heart as HeartIcon,
+  Rocket as RocketIcon,
+  BarChart as BarChartIcon,
+  Hand as HandIcon,
+  Star as StarIcon
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
