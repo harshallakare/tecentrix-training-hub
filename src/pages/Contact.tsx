@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -8,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useSettingsStore } from '@/store/settingsStore';
 import { 
   MapPinIcon, 
   PhoneIcon, 
@@ -19,20 +19,36 @@ import {
   InstagramIcon, 
   TwitterIcon, 
   FacebookIcon, 
-  LinkedinIcon 
+  LinkedinIcon,
+  UserIcon
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const Contact = () => {
+  const { settings } = useSettingsStore();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     subject: '',
     message: '',
+    recipientId: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+    if (settings.inquiryRecipients.length > 0) {
+      const defaultRecipient = settings.inquiryRecipients.find(r => r.isDefault) || settings.inquiryRecipients[0];
+      setFormData(prev => ({ ...prev, recipientId: defaultRecipient.id }));
+    }
+  }, [settings.inquiryRecipients]);
 
-  // Animation effect for elements
   useEffect(() => {
     const revealElements = () => {
       const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .scale-reveal');
@@ -66,15 +82,22 @@ const Contact = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
+    const selectedRecipient = settings.inquiryRecipients.find(r => r.id === formData.recipientId);
+    
     setTimeout(() => {
       setIsSubmitting(false);
       toast.success('Your message has been sent!', {
-        description: 'We will get back to you as soon as possible.'
+        description: selectedRecipient 
+          ? `Your inquiry has been sent to ${selectedRecipient.name}.`
+          : 'We will get back to you as soon as possible.'
       });
       setFormData({
         name: '',
@@ -82,6 +105,7 @@ const Contact = () => {
         phone: '',
         subject: '',
         message: '',
+        recipientId: formData.recipientId,
       });
     }, 1500);
   };
@@ -91,7 +115,6 @@ const Contact = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section */}
         <section className="bg-tecentrix-gray py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center reveal">
@@ -107,7 +130,6 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* Contact Form and Map */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -146,6 +168,7 @@ const Contact = () => {
                           />
                         </div>
                       </div>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label htmlFor="phone" className="text-sm font-medium text-tecentrix-darkgray">
@@ -160,19 +183,47 @@ const Contact = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label htmlFor="subject" className="text-sm font-medium text-tecentrix-darkgray">
-                            Subject*
+                          <label htmlFor="recipient" className="text-sm font-medium text-tecentrix-darkgray flex items-center gap-1">
+                            <UserIcon className="h-3.5 w-3.5 text-tecentrix-orange" />
+                            Send To*
                           </label>
-                          <Input
-                            id="subject"
-                            name="subject"
-                            value={formData.subject}
-                            onChange={handleChange}
-                            required
-                            placeholder="How can we help you?"
-                          />
+                          <Select 
+                            value={formData.recipientId} 
+                            onValueChange={(value) => handleSelectChange('recipientId', value)}
+                            disabled={settings.inquiryRecipients.length === 0}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select department" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {settings.inquiryRecipients.length === 0 ? (
+                                <SelectItem value="none" disabled>No recipients configured</SelectItem>
+                              ) : (
+                                settings.inquiryRecipients.map((recipient) => (
+                                  <SelectItem key={recipient.id} value={recipient.id}>
+                                    {recipient.name} ({recipient.department})
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="subject" className="text-sm font-medium text-tecentrix-darkgray">
+                          Subject*
+                        </label>
+                        <Input
+                          id="subject"
+                          name="subject"
+                          value={formData.subject}
+                          onChange={handleChange}
+                          required
+                          placeholder="How can we help you?"
+                        />
+                      </div>
+                      
                       <div className="space-y-2">
                         <label htmlFor="message" className="text-sm font-medium text-tecentrix-darkgray">
                           Your Message*
@@ -187,10 +238,11 @@ const Contact = () => {
                           className="min-h-32"
                         />
                       </div>
+                      
                       <Button 
                         type="submit" 
                         className="tecentrix-primary-button w-full"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !formData.recipientId || settings.inquiryRecipients.length === 0}
                       >
                         {isSubmitting ? (
                           <span className="flex items-center">
@@ -207,6 +259,12 @@ const Contact = () => {
                           </span>
                         )}
                       </Button>
+                      
+                      {settings.inquiryRecipients.length === 0 && (
+                        <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
+                          Contact form recipients need to be configured in the admin settings.
+                        </div>
+                      )}
                     </form>
                   </CardContent>
                 </Card>
@@ -328,7 +386,6 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* Corporate Information */}
         <section className="py-16 bg-tecentrix-gray">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -384,8 +441,6 @@ const Contact = () => {
             </div>
           </div>
         </section>
-        
-        {/* FAQ section removed to simplify the page */}
       </main>
 
       <Footer />

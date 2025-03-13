@@ -26,6 +26,14 @@ interface SmtpConfig {
   enabled: boolean;
 }
 
+interface InquiryRecipient {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  isDefault?: boolean;
+}
+
 interface Settings {
   companyName: string;
   contactInfo: ContactInfo;
@@ -34,6 +42,7 @@ interface Settings {
   enableBlog: boolean;
   showTestimonials: boolean;
   smtpConfig: SmtpConfig;
+  inquiryRecipients: InquiryRecipient[];
 }
 
 interface SettingsState {
@@ -42,6 +51,9 @@ interface SettingsState {
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
   updateSmtpConfig: (smtpConfig: Partial<SmtpConfig>) => void;
+  addInquiryRecipient: (recipient: InquiryRecipient) => void;
+  updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
+  removeInquiryRecipient: (id: string) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -73,6 +85,27 @@ export const useSettingsStore = create<SettingsState>()(
           secure: true,
           enabled: false,
         },
+        inquiryRecipients: [
+          {
+            id: '1',
+            name: 'Support Team',
+            email: 'support@tecentrix.com',
+            department: 'Support',
+            isDefault: true,
+          },
+          {
+            id: '2',
+            name: 'Sales Department',
+            email: 'sales@tecentrix.com',
+            department: 'Sales',
+          },
+          {
+            id: '3',
+            name: 'Media Relations',
+            email: 'media@tecentrix.com',
+            department: 'PR & Media',
+          }
+        ],
       },
       updateSettings: (newSettings) =>
         set((state) => ({
@@ -97,6 +130,29 @@ export const useSettingsStore = create<SettingsState>()(
           settings: {
             ...state.settings,
             smtpConfig: { ...state.settings.smtpConfig, ...newSmtpConfig },
+          },
+        })),
+      addInquiryRecipient: (recipient) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: [...state.settings.inquiryRecipients, recipient],
+          },
+        })),
+      updateInquiryRecipient: (id, updatedRecipient) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: state.settings.inquiryRecipients.map(r => 
+              r.id === id ? { ...r, ...updatedRecipient } : r
+            ),
+          },
+        })),
+      removeInquiryRecipient: (id) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: state.settings.inquiryRecipients.filter(r => r.id !== id),
           },
         })),
     }),

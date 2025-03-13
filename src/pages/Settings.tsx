@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,13 +6,59 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, Server, Lock, Eye, EyeOff } from 'lucide-react';
+import { 
+  Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, 
+  Server, Lock, Eye, EyeOff, UserPlus, Trash2, Edit, Users, User
+} from 'lucide-react';
 import Footer from '@/components/Footer';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const recipientFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  department: z.string().min(1, "Department is required"),
+  isDefault: z.boolean().default(false),
+});
+
+type RecipientFormValues = z.infer<typeof recipientFormSchema>;
 
 const Settings = () => {
-  const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSmtpConfig } = useSettingsStore();
+  const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSmtpConfig,
+    addInquiryRecipient, updateInquiryRecipient, removeInquiryRecipient } = useSettingsStore();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState(false);
+  const [editingRecipientId, setEditingRecipientId] = useState<string | null>(null);
+
+  const recipientForm = useForm<RecipientFormValues>({
+    resolver: zodResolver(recipientFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      department: "",
+      isDefault: false,
+    },
+  });
 
   const handleGeneralSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +135,93 @@ const Settings = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const onOpenRecipientDialog = (recipientId?: string) => {
+    if (recipientId) {
+      const recipient = settings.inquiryRecipients.find(r => r.id === recipientId);
+      if (recipient) {
+        setEditingRecipientId(recipientId);
+        recipientForm.reset({
+          name: recipient.name,
+          email: recipient.email,
+          department: recipient.department,
+          isDefault: recipient.isDefault || false,
+        });
+      }
+    } else {
+      setEditingRecipientId(null);
+      recipientForm.reset({
+        name: "",
+        email: "",
+        department: "",
+        isDefault: false,
+      });
+    }
+    setIsRecipientDialogOpen(true);
+  };
+
+  const onCloseRecipientDialog = () => {
+    setIsRecipientDialogOpen(false);
+    setEditingRecipientId(null);
+    recipientForm.reset();
+  };
+
+  const onSubmitRecipientForm = (data: RecipientFormValues) => {
+    if (editingRecipientId) {
+      if (data.isDefault) {
+        settings.inquiryRecipients.forEach(r => {
+          if (r.id !== editingRecipientId && r.isDefault) {
+            updateInquiryRecipient(r.id, { isDefault: false });
+          }
+        });
+      }
+      
+      updateInquiryRecipient(editingRecipientId, data);
+      toast({
+        title: "Recipient updated",
+        description: `${data.name} has been updated successfully.`
+      });
+    } else {
+      if (data.isDefault || settings.inquiryRecipients.length === 0) {
+        settings.inquiryRecipients.forEach(r => {
+          if (r.isDefault) {
+            updateInquiryRecipient(r.id, { isDefault: false });
+          }
+        });
+      }
+      
+      const isDefault = settings.inquiryRecipients.length === 0 ? true : data.isDefault;
+      
+      addInquiryRecipient({
+        id: uuidv4(),
+        ...data,
+        isDefault
+      });
+      toast({
+        title: "Recipient added",
+        description: `${data.name} has been added as a contact recipient.`
+      });
+    }
+    onCloseRecipientDialog();
+  };
+
+  const handleDeleteRecipient = (id: string) => {
+    const recipient = settings.inquiryRecipients.find(r => r.id === id);
+    if (recipient) {
+      removeInquiryRecipient(id);
+      toast({
+        title: "Recipient removed",
+        description: `${recipient.name} has been removed from contact recipients.`
+      });
+      
+      if (recipient.isDefault && settings.inquiryRecipients.length > 1) {
+        const remainingRecipients = settings.inquiryRecipients.filter(r => r.id !== id);
+        if (remainingRecipients.length > 0) {
+          updateInquiryRecipient(remainingRecipients[0].id, { isDefault: true });
+        }
+      }
+    }
   };
 
   return (
@@ -243,6 +375,177 @@ const Settings = () => {
                 </div>
                 <Button type="submit">Save Social Links</Button>
               </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-tecentrix-orange" /> 
+                Inquiry Recipients
+              </CardTitle>
+              <CardDescription>
+                Manage who receives inquiries from the contact form
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <Button 
+                  onClick={() => onOpenRecipientDialog()} 
+                  className="flex items-center"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Recipient
+                </Button>
+              </div>
+              
+              {settings.inquiryRecipients.length === 0 ? (
+                <div className="text-center p-6 bg-gray-50 rounded-md">
+                  <p className="text-tecentrix-darkgray/70">No recipients configured yet</p>
+                  <p className="text-sm text-tecentrix-darkgray/60 mt-1">
+                    Add recipients to specify who should receive contact form inquiries
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {settings.inquiryRecipients.map((recipient) => (
+                    <div 
+                      key={recipient.id} 
+                      className="p-4 border rounded-md flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="bg-tecentrix-blue/10 p-2 rounded-full">
+                          <User className="h-5 w-5 text-tecentrix-blue" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-tecentrix-blue">
+                            {recipient.name}
+                            {recipient.isDefault && (
+                              <span className="ml-2 text-xs bg-tecentrix-orange/20 text-tecentrix-orange px-2 py-0.5 rounded-full">
+                                Default
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-sm text-tecentrix-darkgray/70">
+                            {recipient.email} • {recipient.department}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onOpenRecipientDialog(recipient.id)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleDeleteRecipient(recipient.id)}
+                          disabled={settings.inquiryRecipients.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <Dialog open={isRecipientDialogOpen} onOpenChange={setIsRecipientDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingRecipientId ? "Edit Recipient" : "Add New Recipient"}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {editingRecipientId 
+                        ? "Update contact form recipient details" 
+                        : "Configure who should receive inquiries from your contact form"}
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <Form {...recipientForm}>
+                    <form onSubmit={recipientForm.handleSubmit(onSubmitRecipientForm)} className="space-y-4">
+                      <FormField
+                        control={recipientForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Recipient Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g. Support Team" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={recipientForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="e.g. support@tecentrix.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={recipientForm.control}
+                        name="department"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Department</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g. Customer Support" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={recipientForm.control}
+                        name="isDefault"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                              <FormLabel>Default Recipient</FormLabel>
+                              <p className="text-sm text-muted-foreground">
+                                Make this the default recipient for contact inquiries
+                              </p>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <DialogFooter>
+                        <Button type="button" variant="outline" onClick={onCloseRecipientDialog}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {editingRecipientId ? "Update Recipient" : "Add Recipient"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
