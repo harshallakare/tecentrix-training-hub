@@ -195,7 +195,9 @@ const Settings = () => {
       
       addInquiryRecipient({
         id: uuidv4(),
-        ...data,
+        name: data.name,
+        email: data.email,
+        department: data.department,
         isDefault
       });
       toast({
