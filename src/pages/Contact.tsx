@@ -1,13 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { MapPinIcon, PhoneIcon, MailIcon, ClockIcon, SendIcon } from 'lucide-react';
+import { 
+  MapPinIcon, 
+  PhoneIcon, 
+  MailIcon, 
+  ClockIcon, 
+  SendIcon, 
+  BuildingIcon, 
+  GlobeIcon, 
+  InstagramIcon, 
+  TwitterIcon, 
+  FacebookIcon, 
+  LinkedinIcon 
+} from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +31,35 @@ const Contact = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Animation effect for elements
+  useEffect(() => {
+    const revealElements = () => {
+      const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .scale-reveal');
+      for (let i = 0; i < reveals.length; i++) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveals[i].getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < windowHeight - elementVisible) {
+          if (reveals[i].classList.contains('reveal')) {
+            reveals[i].classList.add('reveal-visible');
+          } else if (reveals[i].classList.contains('reveal-left')) {
+            reveals[i].classList.add('reveal-left-visible');
+          } else if (reveals[i].classList.contains('reveal-right')) {
+            reveals[i].classList.add('reveal-right-visible');
+          } else if (reveals[i].classList.contains('scale-reveal')) {
+            reveals[i].classList.add('scale-reveal-visible');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', revealElements);
+    revealElements(); // Call on load
+
+    return () => window.removeEventListener('scroll', revealElements);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -50,69 +92,29 @@ const Contact = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-tecentrix-gray py-16 md:py-20">
+        <section className="bg-tecentrix-gray py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center reveal">
+              <Badge variant="orange" className="mb-4">CONNECT WITH US</Badge>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-tecentrix-blue mb-6">
-                Get in Touch
+                Let's Start a Conversation
               </h1>
               <p className="text-lg text-tecentrix-darkgray/80">
-                Have questions about our courses or services? Looking to partner with us?
-                We'd love to hear from you!
+                Whether you have questions about our programs, want to partner with us, or 
+                are interested in joining our team, we're here to help.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Contact Information */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  icon: <MapPinIcon className="h-10 w-10 text-tecentrix-orange" />,
-                  title: "Our Location",
-                  details: ["123 Tech Avenue", "San Francisco, CA 94105", "United States"]
-                },
-                {
-                  icon: <PhoneIcon className="h-10 w-10 text-tecentrix-orange" />,
-                  title: "Phone Numbers",
-                  details: ["Main: (415) 555-1234", "Support: (415) 555-5678", "Toll-free: 1-800-TECH-EDU"]
-                },
-                {
-                  icon: <MailIcon className="h-10 w-10 text-tecentrix-orange" />,
-                  title: "Email Us",
-                  details: ["General: info@tecentrix.com", "Support: help@tecentrix.com", "Careers: jobs@tecentrix.com"]
-                },
-                {
-                  icon: <ClockIcon className="h-10 w-10 text-tecentrix-orange" />,
-                  title: "Business Hours",
-                  details: ["Monday-Friday: 9AM-6PM PST", "Saturday: 10AM-4PM PST", "Sunday: Closed"]
-                }
-              ].map((item, index) => (
-                <Card key={index} className="scale-reveal h-full border-none shadow-md" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <div className="mb-4">{item.icon}</div>
-                    <h3 className="text-xl font-semibold text-tecentrix-blue mb-3">{item.title}</h3>
-                    <div className="space-y-1 text-tecentrix-darkgray/80">
-                      {item.details.map((detail, i) => (
-                        <p key={i}>{detail}</p>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Contact Form and Map */}
-        <section className="py-16 bg-tecentrix-gray">
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div className="reveal-left">
-                <Card className="border-none shadow-lg">
+                <Card className="border-none shadow-lg h-full">
                   <CardContent className="p-8">
+                    <Badge variant="blue" className="mb-4">GET IN TOUCH</Badge>
                     <h3 className="text-2xl font-bold text-tecentrix-blue mb-6">Send Us a Message</h3>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -209,10 +211,106 @@ const Contact = () => {
                   </CardContent>
                 </Card>
               </div>
-              <div className="reveal-right">
-                <div className="h-full flex flex-col">
-                  <h3 className="text-2xl font-bold text-tecentrix-blue mb-6">Find Us</h3>
-                  <div className="flex-grow bg-white rounded-xl shadow-lg overflow-hidden relative min-h-[400px]">
+              
+              <div className="reveal-right space-y-8">
+                <div>
+                  <Badge variant="blue" className="mb-4">CONTACT INFO</Badge>
+                  <h3 className="text-2xl font-bold text-tecentrix-blue mb-6">How to Reach Us</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.1s' }}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start">
+                          <div className="mr-4">
+                            <MapPinIcon className="h-6 w-6 text-tecentrix-orange" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-tecentrix-blue">Location</h4>
+                            <address className="not-italic text-tecentrix-darkgray/80 mt-1">
+                              123 Tech Avenue<br />
+                              San Francisco, CA 94105<br />
+                              United States
+                            </address>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.2s' }}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start">
+                          <div className="mr-4">
+                            <MailIcon className="h-6 w-6 text-tecentrix-orange" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-tecentrix-blue">Email Us</h4>
+                            <div className="text-tecentrix-darkgray/80 mt-1 space-y-1">
+                              <p>info@tecentrix.com</p>
+                              <p>support@tecentrix.com</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.3s' }}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start">
+                          <div className="mr-4">
+                            <PhoneIcon className="h-6 w-6 text-tecentrix-orange" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-tecentrix-blue">Call Us</h4>
+                            <div className="text-tecentrix-darkgray/80 mt-1 space-y-1">
+                              <p>Main: (415) 555-1234</p>
+                              <p>Support: (415) 555-5678</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.4s' }}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start">
+                          <div className="mr-4">
+                            <ClockIcon className="h-6 w-6 text-tecentrix-orange" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-tecentrix-blue">Hours</h4>
+                            <div className="text-tecentrix-darkgray/80 mt-1 space-y-1">
+                              <p>Monday-Friday: 9AM-6PM</p>
+                              <p>Saturday: 10AM-4PM</p>
+                              <p>Sunday: Closed</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                  <h4 className="font-semibold text-tecentrix-blue mb-4">Follow Us</h4>
+                  <div className="flex space-x-4">
+                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                      <LinkedinIcon className="h-5 w-5 text-tecentrix-blue" />
+                    </a>
+                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                      <TwitterIcon className="h-5 w-5 text-tecentrix-blue" />
+                    </a>
+                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                      <FacebookIcon className="h-5 w-5 text-tecentrix-blue" />
+                    </a>
+                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                      <InstagramIcon className="h-5 w-5 text-tecentrix-blue" />
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="mt-8">
+                  <h4 className="font-semibold text-tecentrix-blue mb-4">Our Location</h4>
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden h-[250px]">
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50470.44097869996!2d-122.44889169235412!3d37.77492951191932!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1656533278879!5m2!1sen!2sus"
                       width="100%"
@@ -222,7 +320,6 @@ const Contact = () => {
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
                       title="Tecentrix Location"
-                      className="absolute inset-0"
                     ></iframe>
                   </div>
                 </div>
@@ -231,51 +328,64 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="py-16 bg-white">
+        {/* Corporate Information */}
+        <section className="py-16 bg-tecentrix-gray">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12 reveal">
-              <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide">Questions & Answers</h2>
-              <h3 className="mt-2 text-3xl font-bold text-tecentrix-blue">Frequently Asked Questions</h3>
-            </div>
-            
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-              {[
-                {
-                  question: "How do I enroll in a course?",
-                  answer: "You can enroll in any course by visiting the course page and clicking the 'Enroll Now' button. Follow the checkout process to complete your registration."
-                },
-                {
-                  question: "What payment methods do you accept?",
-                  answer: "We accept all major credit cards, PayPal, and bank transfers. For corporate training, we also offer invoice payment options."
-                },
-                {
-                  question: "Are courses self-paced or scheduled?",
-                  answer: "We offer both self-paced and scheduled courses. Self-paced courses allow you to learn at your own pace, while scheduled courses follow a specific timeline with live sessions."
-                },
-                {
-                  question: "Do you offer corporate training?",
-                  answer: "Yes, we provide customized corporate training solutions. Contact our sales team to discuss your organization's specific needs."
-                },
-                {
-                  question: "What is your refund policy?",
-                  answer: "We offer a 30-day money-back guarantee for most courses. If you're not satisfied, you can request a full refund within 30 days of purchase."
-                },
-                {
-                  question: "Do I get a certificate upon completion?",
-                  answer: "Yes, all courses include a certificate of completion. Our professional certification courses also provide industry-recognized credentials."
-                }
-              ].map((faq, index) => (
-                <Card key={index} className="scale-reveal border-none shadow-md hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardContent className="p-6">
-                    <h4 className="text-xl font-semibold text-tecentrix-blue mb-2">{faq.question}</h4>
-                    <p className="text-tecentrix-darkgray/80">{faq.answer}</p>
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12 reveal">
+                <Badge variant="orange" className="mb-4">CORPORATE INQUIRIES</Badge>
+                <h3 className="text-2xl font-bold text-tecentrix-blue mb-4">Enterprise Solutions</h3>
+                <p className="text-tecentrix-darkgray/80">
+                  Looking for large-scale training solutions or partnership opportunities? 
+                  Our enterprise team is ready to create a customized plan for your organization.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.1s' }}>
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <BuildingIcon className="h-10 w-10 text-tecentrix-orange mb-4" />
+                    <h4 className="font-semibold text-tecentrix-blue">Corporate Training</h4>
+                    <p className="text-tecentrix-darkgray/80 mt-2">
+                      Custom training programs for your team's specific needs and goals.
+                    </p>
+                    <Button variant="outline" className="mt-4">
+                      Learn More
+                    </Button>
                   </CardContent>
                 </Card>
-              ))}
+                
+                <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.2s' }}>
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <GlobeIcon className="h-10 w-10 text-tecentrix-orange mb-4" />
+                    <h4 className="font-semibold text-tecentrix-blue">Global Partnerships</h4>
+                    <p className="text-tecentrix-darkgray/80 mt-2">
+                      Collaborate with us to expand educational opportunities worldwide.
+                    </p>
+                    <Button variant="outline" className="mt-4">
+                      Partner With Us
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="scale-reveal border-none shadow-md" style={{ animationDelay: '0.3s' }}>
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <MailIcon className="h-10 w-10 text-tecentrix-orange mb-4" />
+                    <h4 className="font-semibold text-tecentrix-blue">Media Inquiries</h4>
+                    <p className="text-tecentrix-darkgray/80 mt-2">
+                      Get in touch with our PR team for interviews, press kits, and more.
+                    </p>
+                    <Button variant="outline" className="mt-4">
+                      Contact PR
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
+        
+        {/* FAQ section removed to simplify the page */}
       </main>
 
       <Footer />
