@@ -15,6 +15,17 @@ interface ContactInfo {
   address: string;
 }
 
+interface SmtpConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  fromEmail: string;
+  fromName: string;
+  secure: boolean;
+  enabled: boolean;
+}
+
 interface Settings {
   companyName: string;
   contactInfo: ContactInfo;
@@ -22,6 +33,7 @@ interface Settings {
   footerText: string;
   enableBlog: boolean;
   showTestimonials: boolean;
+  smtpConfig: SmtpConfig;
 }
 
 interface SettingsState {
@@ -29,6 +41,7 @@ interface SettingsState {
   updateSettings: (settings: Partial<Settings>) => void;
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
+  updateSmtpConfig: (smtpConfig: Partial<SmtpConfig>) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -50,6 +63,16 @@ export const useSettingsStore = create<SettingsState>()(
         footerText: '© 2024 Tecentrix. All rights reserved.',
         enableBlog: true,
         showTestimonials: true,
+        smtpConfig: {
+          host: '',
+          port: 587,
+          username: '',
+          password: '',
+          fromEmail: 'noreply@tecentrix.com',
+          fromName: 'Tecentrix Contact Form',
+          secure: true,
+          enabled: false,
+        },
       },
       updateSettings: (newSettings) =>
         set((state) => ({
@@ -67,6 +90,13 @@ export const useSettingsStore = create<SettingsState>()(
           settings: {
             ...state.settings,
             socialLinks: { ...state.settings.socialLinks, ...newSocialLinks },
+          },
+        })),
+      updateSmtpConfig: (newSmtpConfig) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            smtpConfig: { ...state.settings.smtpConfig, ...newSmtpConfig },
           },
         })),
     }),

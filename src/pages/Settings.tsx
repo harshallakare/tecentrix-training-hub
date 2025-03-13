@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, Server, Lock, Eye, EyeOff } from 'lucide-react';
 import Footer from '@/components/Footer';
 
 const Settings = () => {
-  const { settings, updateSettings, updateContactInfo, updateSocialLinks } = useSettingsStore();
+  const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSmtpConfig } = useSettingsStore();
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleGeneralSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +63,33 @@ const Settings = () => {
       title: "Social links updated",
       description: "Social media links have been saved successfully"
     });
+  };
+
+  const handleSmtpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    const port = parseInt(formData.get('port') as string, 10) || 587;
+    
+    updateSmtpConfig({
+      host: formData.get('host') as string,
+      port,
+      username: formData.get('username') as string,
+      password: formData.get('password') as string,
+      fromEmail: formData.get('fromEmail') as string,
+      fromName: formData.get('fromName') as string,
+      secure: (formData.get('secure') === 'on'),
+      enabled: (formData.get('enabled') === 'on'),
+    });
+
+    toast({
+      title: "Email settings updated",
+      description: "SMTP configuration has been saved successfully"
+    });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -214,6 +242,115 @@ const Settings = () => {
                   />
                 </div>
                 <Button type="submit">Save Social Links</Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Email Settings</CardTitle>
+              <CardDescription>Configure SMTP server for sending emails from contact form</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSmtpSubmit} className="space-y-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Switch
+                    id="enabled"
+                    name="enabled"
+                    defaultChecked={settings.smtpConfig.enabled}
+                  />
+                  <Label htmlFor="enabled">Enable Email Sending</Label>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="host" className="flex items-center gap-2">
+                      <Server className="h-4 w-4" /> SMTP Host
+                    </Label>
+                    <Input
+                      id="host"
+                      name="host"
+                      defaultValue={settings.smtpConfig.host}
+                      placeholder="e.g. smtp.gmail.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="port">SMTP Port</Label>
+                    <Input
+                      id="port"
+                      name="port"
+                      type="number"
+                      defaultValue={settings.smtpConfig.port.toString()}
+                      placeholder="e.g. 587"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">SMTP Username</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      defaultValue={settings.smtpConfig.username}
+                      placeholder="Your SMTP username"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="flex items-center gap-2">
+                      <Lock className="h-4 w-4" /> SMTP Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        defaultValue={settings.smtpConfig.password}
+                        placeholder="Your SMTP password"
+                      />
+                      <button 
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fromEmail">From Email</Label>
+                    <Input
+                      id="fromEmail"
+                      name="fromEmail"
+                      type="email"
+                      defaultValue={settings.smtpConfig.fromEmail}
+                      placeholder="noreply@yourdomain.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fromName">From Name</Label>
+                    <Input
+                      id="fromName"
+                      name="fromName"
+                      defaultValue={settings.smtpConfig.fromName}
+                      placeholder="Your Company Name"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 mt-4">
+                  <Switch
+                    id="secure"
+                    name="secure"
+                    defaultChecked={settings.smtpConfig.secure}
+                  />
+                  <Label htmlFor="secure">Use Secure Connection (TLS/SSL)</Label>
+                </div>
+                
+                <Button type="submit" className="mt-6">Save Email Settings</Button>
               </form>
             </CardContent>
           </Card>
