@@ -12,6 +12,7 @@ import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import WhatsAppButton from "./components/WhatsAppButton";
 import { useNavigationStore } from "./store/navigationStore";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AppRoutes />
+        <WhatsAppButton phoneNumber="+919876543210" message="Hello, I'm interested in your courses!" />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
