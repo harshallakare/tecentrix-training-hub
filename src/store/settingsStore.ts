@@ -34,6 +34,12 @@ interface InquiryRecipient {
   isDefault?: boolean;
 }
 
+interface WhatsAppConfig {
+  enabled: boolean;
+  phoneNumber: string;
+  message: string;
+}
+
 interface Settings {
   companyName: string;
   contactInfo: ContactInfo;
@@ -43,6 +49,7 @@ interface Settings {
   showTestimonials: boolean;
   smtpConfig: SmtpConfig;
   inquiryRecipients: InquiryRecipient[];
+  whatsAppConfig: WhatsAppConfig;
 }
 
 interface SettingsState {
@@ -51,6 +58,7 @@ interface SettingsState {
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
   updateSmtpConfig: (smtpConfig: Partial<SmtpConfig>) => void;
+  updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
   addInquiryRecipient: (recipient: InquiryRecipient) => void;
   updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
   removeInquiryRecipient: (id: string) => void;
@@ -106,6 +114,11 @@ export const useSettingsStore = create<SettingsState>()(
             department: 'PR & Media',
           }
         ],
+        whatsAppConfig: {
+          enabled: true,
+          phoneNumber: '+919876543210',
+          message: 'Hello, I\'m interested in your courses!',
+        },
       },
       updateSettings: (newSettings) =>
         set((state) => ({
@@ -130,6 +143,13 @@ export const useSettingsStore = create<SettingsState>()(
           settings: {
             ...state.settings,
             smtpConfig: { ...state.settings.smtpConfig, ...newSmtpConfig },
+          },
+        })),
+      updateWhatsAppConfig: (newWhatsAppConfig) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            whatsAppConfig: { ...state.settings.whatsAppConfig, ...newWhatsAppConfig },
           },
         })),
       addInquiryRecipient: (recipient) =>

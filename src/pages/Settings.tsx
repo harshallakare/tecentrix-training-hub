@@ -8,7 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, 
-  Server, Lock, Eye, EyeOff, UserPlus, Trash2, Edit, Users, User
+  Server, Lock, Eye, EyeOff, UserPlus, Trash2, Edit, Users, User,
+  MessageCircle
 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,6 +33,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from '@/components/ui/textarea';
 
 const recipientFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -44,7 +46,7 @@ type RecipientFormValues = z.infer<typeof recipientFormSchema>;
 
 const Settings = () => {
   const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSmtpConfig,
-    addInquiryRecipient, updateInquiryRecipient, removeInquiryRecipient } = useSettingsStore();
+    addInquiryRecipient, updateInquiryRecipient, removeInquiryRecipient, updateWhatsAppConfig } = useSettingsStore();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState(false);
@@ -130,6 +132,22 @@ const Settings = () => {
     toast({
       title: "Email settings updated",
       description: "SMTP configuration has been saved successfully"
+    });
+  };
+
+  const handleWhatsAppSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    updateWhatsAppConfig({
+      enabled: (formData.get('whatsappEnabled') === 'on'),
+      phoneNumber: formData.get('whatsappPhone') as string,
+      message: formData.get('whatsappMessage') as string,
+    });
+
+    toast({
+      title: "WhatsApp settings updated",
+      description: "WhatsApp configuration has been saved successfully"
     });
   };
 
@@ -656,6 +674,59 @@ const Settings = () => {
                 </div>
                 
                 <Button type="submit" className="mt-6">Save Email Settings</Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-green-500" /> 
+                WhatsApp Integration
+              </CardTitle>
+              <CardDescription>
+                Configure the WhatsApp button that appears on your site
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleWhatsAppSubmit} className="space-y-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Switch
+                    id="whatsappEnabled"
+                    name="whatsappEnabled"
+                    defaultChecked={settings.whatsAppConfig.enabled}
+                  />
+                  <Label htmlFor="whatsappEnabled">Enable WhatsApp Button</Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="whatsappPhone" className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" /> WhatsApp Phone Number
+                  </Label>
+                  <Input
+                    id="whatsappPhone"
+                    name="whatsappPhone"
+                    defaultValue={settings.whatsAppConfig.phoneNumber}
+                    placeholder="e.g. +919876543210"
+                  />
+                  <p className="text-xs text-gray-500">Include country code with + symbol</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="whatsappMessage">Default Message</Label>
+                  <Textarea
+                    id="whatsappMessage"
+                    name="whatsappMessage"
+                    defaultValue={settings.whatsAppConfig.message}
+                    placeholder="Hello, I'm interested in your courses!"
+                    className="min-h-20"
+                  />
+                  <p className="text-xs text-gray-500">This message will be pre-filled when users click the WhatsApp button</p>
+                </div>
+                
+                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                  Save WhatsApp Settings
+                </Button>
               </form>
             </CardContent>
           </Card>

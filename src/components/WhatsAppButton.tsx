@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { useSettingsStore } from '@/store/settingsStore';
 
-interface WhatsAppButtonProps {
-  phoneNumber: string;
-  message?: string;
-}
-
-const WhatsAppButton = ({ phoneNumber, message = '' }: WhatsAppButtonProps) => {
+const WhatsAppButton = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const { settings } = useSettingsStore();
+  const { whatsAppConfig } = settings;
   
-  const formattedPhoneNumber = phoneNumber.replace(/\D/g, '');
-  const encodedMessage = encodeURIComponent(message);
+  // If WhatsApp integration is disabled, don't render the button
+  if (!whatsAppConfig.enabled) return null;
+  
+  const formattedPhoneNumber = whatsAppConfig.phoneNumber.replace(/\D/g, '');
+  const encodedMessage = encodeURIComponent(whatsAppConfig.message);
   const whatsappUrl = `https://wa.me/${formattedPhoneNumber}?text=${encodedMessage}`;
   
   return (

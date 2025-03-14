@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,7 +54,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AppRoutes />
-        <WhatsAppButton phoneNumber="+919876543210" message="Hello, I'm interested in your courses!" />
+        <WhatsAppButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
