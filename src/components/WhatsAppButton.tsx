@@ -11,7 +11,9 @@ const WhatsAppButton = () => {
   // If WhatsApp integration is disabled, don't render the button
   if (!whatsAppConfig.enabled) return null;
   
-  const formattedPhoneNumber = whatsAppConfig.phoneNumber.replace(/\D/g, '');
+  // Format the phone number properly for WhatsApp API
+  // Remove the + sign if present and any other non-digit characters
+  const formattedPhoneNumber = whatsAppConfig.phoneNumber.replace(/^\+/, '').replace(/\D/g, '');
   const encodedMessage = encodeURIComponent(whatsAppConfig.message);
   const whatsappUrl = `https://wa.me/${formattedPhoneNumber}?text=${encodedMessage}`;
   
