@@ -116,7 +116,7 @@ export const useSettingsStore = create<SettingsState>()(
         ],
         whatsAppConfig: {
           enabled: true,
-          phoneNumber: '+919876543210',
+          phoneNumber: '+918793044999',  // Updated to match console logs
           message: 'Hello, I\'m interested in your courses!',
         },
       },
