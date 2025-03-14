@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -14,6 +14,10 @@ const WhatsAppButton = () => {
   const formattedPhoneNumber = whatsAppConfig.phoneNumber.replace(/\D/g, '');
   const encodedMessage = encodeURIComponent(whatsAppConfig.message);
   const whatsappUrl = `https://wa.me/${formattedPhoneNumber}?text=${encodedMessage}`;
+  
+  // For debugging
+  console.log('WhatsApp URL:', whatsappUrl);
+  console.log('WhatsApp Config:', whatsAppConfig);
   
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
