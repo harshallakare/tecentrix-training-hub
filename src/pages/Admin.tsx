@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
@@ -21,10 +22,11 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const { toast } = useToast();
   const { content, updateHeroContent, updateCoursesContent, updateFeaturesContent, updateCTAContent } = useContentStore();
+  const { settings } = useSettingsStore();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'tecentrix') {
+    if (username === settings.adminCredentials.username && password === settings.adminCredentials.password) {
       setIsAuthenticated(true);
       toast({
         title: "Logged in successfully",

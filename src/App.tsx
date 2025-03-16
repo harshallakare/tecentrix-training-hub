@@ -38,7 +38,7 @@ const AppRoutes = () => {
       })}
       
       {/* Admin route - now consolidated to a single entry point */}
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/*" element={<Admin />} />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

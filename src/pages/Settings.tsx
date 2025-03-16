@@ -34,6 +34,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from '@/components/ui/textarea';
+import PasswordChangeForm from '@/components/admin/PasswordChangeForm';
 
 const recipientFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -250,6 +251,8 @@ const Settings = () => {
         <h1 className="text-3xl font-bold text-tecentrix-blue mb-8">Site Settings</h1>
         
         <div className="grid gap-6">
+          <PasswordChangeForm />
+        
           <Card>
             <CardHeader>
               <CardTitle>General Settings</CardTitle>

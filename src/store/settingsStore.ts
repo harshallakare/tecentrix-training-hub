@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -40,6 +39,11 @@ interface WhatsAppConfig {
   message: string;
 }
 
+interface AdminCredentials {
+  username: string;
+  password: string;
+}
+
 interface Settings {
   companyName: string;
   contactInfo: ContactInfo;
@@ -50,6 +54,7 @@ interface Settings {
   smtpConfig: SmtpConfig;
   inquiryRecipients: InquiryRecipient[];
   whatsAppConfig: WhatsAppConfig;
+  adminCredentials: AdminCredentials;
 }
 
 interface SettingsState {
@@ -59,6 +64,7 @@ interface SettingsState {
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
   updateSmtpConfig: (smtpConfig: Partial<SmtpConfig>) => void;
   updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
+  updateAdminCredentials: (credentials: Partial<AdminCredentials>) => void;
   addInquiryRecipient: (recipient: InquiryRecipient) => void;
   updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
   removeInquiryRecipient: (id: string) => void;
@@ -116,8 +122,12 @@ export const useSettingsStore = create<SettingsState>()(
         ],
         whatsAppConfig: {
           enabled: true,
-          phoneNumber: '+918793044999',  // Updated to match console logs
+          phoneNumber: '+918793044999',
           message: 'Hello, I\'m interested in your courses!',
+        },
+        adminCredentials: {
+          username: 'admin',
+          password: 'tecentrix',
         },
       },
       updateSettings: (newSettings) =>
@@ -150,6 +160,13 @@ export const useSettingsStore = create<SettingsState>()(
           settings: {
             ...state.settings,
             whatsAppConfig: { ...state.settings.whatsAppConfig, ...newWhatsAppConfig },
+          },
+        })),
+      updateAdminCredentials: (newCredentials) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            adminCredentials: { ...state.settings.adminCredentials, ...newCredentials },
           },
         })),
       addInquiryRecipient: (recipient) =>
