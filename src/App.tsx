@@ -7,10 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
-import Settings from "./pages/Settings";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
-import CoursesManagement from "./pages/CoursesManagement";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -39,10 +37,8 @@ const AppRoutes = () => {
         return <Route key={item.id} path={item.path} element={<Index />} />;
       })}
       
-      {/* Admin routes */}
+      {/* Admin route - now consolidated to a single entry point */}
       <Route path="/admin" element={<Admin />} />
-      <Route path="/admin/settings" element={<Settings />} />
-      <Route path="/admin/courses" element={<CoursesManagement />} />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,8 @@ import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, 
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import NavigationManager from '@/components/admin/NavigationManager';
+import CoursesManagement from '@/pages/CoursesManagement';
+import Settings from '@/pages/Settings';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -171,14 +174,6 @@ const Admin = () => {
             <span className="ml-2 text-sm font-medium bg-tecentrix-blue text-white px-2 py-1 rounded-md">Admin</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={() => window.location.href = '/admin/courses'}>
-              <BookOpen className="mr-2 h-4 w-4" />
-              Manage Courses
-            </Button>
-            <Button variant="outline" onClick={() => window.location.href = '/admin/settings'}>
-              <SettingsIcon className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
             <Button variant="ghost" onClick={() => setIsAuthenticated(false)}>Logout</Button>
           </div>
         </div>
@@ -192,6 +187,14 @@ const Admin = () => {
             <TabsTrigger value="content">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Content
+            </TabsTrigger>
+            <TabsTrigger value="courses">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Courses
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              <SettingsIcon className="h-4 w-4 mr-2" />
+              Settings
             </TabsTrigger>
             <TabsTrigger value="navigation">
               <Navigation className="h-4 w-4 mr-2" />
@@ -370,6 +373,14 @@ const Admin = () => {
                 </Card>
               </TabsContent>
             </Tabs>
+          </TabsContent>
+          
+          <TabsContent value="courses">
+            <CoursesManagement />
+          </TabsContent>
+          
+          <TabsContent value="settings">
+            <Settings />
           </TabsContent>
           
           <TabsContent value="navigation">
