@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
+import CoursesManagement from "./pages/CoursesManagement";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -40,6 +42,7 @@ const AppRoutes = () => {
       {/* Admin routes */}
       <Route path="/admin" element={<Admin />} />
       <Route path="/admin/settings" element={<Settings />} />
+      <Route path="/admin/courses" element={<CoursesManagement />} />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

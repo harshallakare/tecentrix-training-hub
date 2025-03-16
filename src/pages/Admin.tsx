@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
-import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon } from 'lucide-react';
+import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen } from 'lucide-react';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import NavigationManager from '@/components/admin/NavigationManager';
@@ -20,10 +19,8 @@ const Admin = () => {
   const { toast } = useToast();
   const { content, updateHeroContent, updateCoursesContent, updateFeaturesContent, updateCTAContent } = useContentStore();
 
-  // Simple authentication
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // This is a simple demo authentication - in a real app, you would use a proper auth system
     if (username === 'admin' && password === 'tecentrix') {
       setIsAuthenticated(true);
       toast({
@@ -39,7 +36,6 @@ const Admin = () => {
     }
   };
 
-  // Handle form submissions
   const handleHeroUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -56,7 +52,6 @@ const Admin = () => {
     });
   };
 
-  // Handle courses update
   const handleCoursesUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -72,7 +67,6 @@ const Admin = () => {
     });
   };
 
-  // Handle features update
   const handleFeaturesUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -88,7 +82,6 @@ const Admin = () => {
     });
   };
 
-  // Handle CTA update
   const handleCTAUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -178,6 +171,10 @@ const Admin = () => {
             <span className="ml-2 text-sm font-medium bg-tecentrix-blue text-white px-2 py-1 rounded-md">Admin</span>
           </div>
           <div className="flex items-center space-x-4">
+            <Button variant="outline" onClick={() => window.location.href = '/admin/courses'}>
+              <BookOpen className="mr-2 h-4 w-4" />
+              Manage Courses
+            </Button>
             <Button variant="outline" onClick={() => window.location.href = '/admin/settings'}>
               <SettingsIcon className="mr-2 h-4 w-4" />
               Settings
