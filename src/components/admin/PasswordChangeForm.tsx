@@ -21,6 +21,9 @@ const PasswordChangeForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log("Current password entered:", currentPassword);
+    console.log("Stored password:", settings.adminCredentials.password);
+    
     // Validate current password
     if (currentPassword !== settings.adminCredentials.password) {
       toast({

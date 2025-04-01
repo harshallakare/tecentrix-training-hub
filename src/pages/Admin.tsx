@@ -24,9 +24,15 @@ const Admin = () => {
   const { content, updateHeroContent, updateCoursesContent, updateFeaturesContent, updateCTAContent } = useContentStore();
   const { settings } = useSettingsStore();
 
+  // Fix the login function to properly compare with credentials from settings
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === settings.adminCredentials.username && password === settings.adminCredentials.password) {
+    console.log("Login attempt with:", username, password);
+    console.log("Expected credentials:", settings.adminCredentials);
+    
+    // Compare the entered credentials with those stored in the settings
+    if (username === settings.adminCredentials.username && 
+        password === settings.adminCredentials.password) {
       setIsAuthenticated(true);
       toast({
         title: "Logged in successfully",
