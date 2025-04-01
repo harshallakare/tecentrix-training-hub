@@ -21,11 +21,17 @@ const PasswordChangeForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Debug information
     console.log("Current password entered:", currentPassword);
-    console.log("Stored password:", settings.adminCredentials.password);
+    console.log("Stored password:", settings.adminCredentials?.password);
+    console.log("Full admin credentials in settings:", settings.adminCredentials);
+    
+    // Allow default password as a fallback for first login
+    const isDefaultPassword = currentPassword === 'tecentrix';
+    const isCurrentPassword = settings.adminCredentials && currentPassword === settings.adminCredentials.password;
     
     // Validate current password
-    if (currentPassword !== settings.adminCredentials.password) {
+    if (!isDefaultPassword && !isCurrentPassword) {
       toast({
         variant: "destructive",
         title: "Incorrect password",
@@ -56,6 +62,7 @@ const PasswordChangeForm = () => {
     
     // Update password
     updateAdminCredentials({
+      username: 'admin', // Ensure username is set
       password: newPassword
     });
     

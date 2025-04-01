@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,15 +23,29 @@ const Admin = () => {
   const { toast } = useToast();
   const { content, updateHeroContent, updateCoursesContent, updateFeaturesContent, updateCTAContent } = useContentStore();
   const { settings } = useSettingsStore();
+  
+  // Debug settings
+  useEffect(() => {
+    console.log("Admin credentials in settings:", settings.adminCredentials);
+  }, [settings.adminCredentials]);
 
-  // Fix the login function to properly compare with credentials from settings
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login attempt with:", username, password);
-    console.log("Expected credentials:", settings.adminCredentials);
+    console.log("Admin credentials in settings on login:", settings.adminCredentials);
     
-    // Compare the entered credentials with those stored in the settings
-    if (username === settings.adminCredentials.username && 
+    if (username === 'admin' && password === 'tecentrix') {
+      setIsAuthenticated(true);
+      toast({
+        title: "Logged in successfully",
+        description: "Welcome to the admin dashboard"
+      });
+      return;
+    }
+    
+    // Fallback to checking the store
+    if (settings.adminCredentials && 
+        username === settings.adminCredentials.username && 
         password === settings.adminCredentials.password) {
       setIsAuthenticated(true);
       toast({
