@@ -37,6 +37,7 @@ interface Course {
   price: string;
   upcomingBatch?: string;
   language?: string;
+  paymentLink?: string;
 }
 
 interface Testimonial {
@@ -106,7 +107,8 @@ export const useContentStore = create<ContentState>()(
           iconColor: "text-tecentrix-blue",
           price: "₹35,000",
           upcomingBatch: "June 15, 2025",
-          language: "English"
+          language: "English",
+          paymentLink: "https://rzp.io/l/tecentrix-rhcsa"
         },
         {
           id: '2',
@@ -122,7 +124,8 @@ export const useContentStore = create<ContentState>()(
           iconColor: "text-tecentrix-orange",
           price: "₹45,000",
           upcomingBatch: "July 10, 2025",
-          language: "English"
+          language: "English",
+          paymentLink: "https://rzp.io/l/tecentrix-rhce"
         },
         {
           id: '3',
@@ -138,7 +141,8 @@ export const useContentStore = create<ContentState>()(
           iconColor: "text-green-600",
           price: "₹40,000",
           upcomingBatch: "August 5, 2025",
-          language: "English"
+          language: "English",
+          paymentLink: "https://rzp.io/l/tecentrix-security"
         },
         {
           id: '4',
@@ -154,7 +158,8 @@ export const useContentStore = create<ContentState>()(
           iconColor: "text-purple-600",
           price: "₹50,000",
           upcomingBatch: "September 1, 2025",
-          language: "English/Hindi"
+          language: "English/Hindi",
+          paymentLink: "https://rzp.io/l/tecentrix-cloud"
         }
       ],
       testimonialsList: [

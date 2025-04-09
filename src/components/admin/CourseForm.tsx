@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages } from 'lucide-react';
+import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
@@ -74,6 +75,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     modules: [''],
     upcomingBatch: '',
     language: 'English',
+    paymentLink: '',
   });
 
   useEffect(() => {
@@ -194,16 +196,31 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
             </div>
           </div>
           
-          <div>
-            <Label htmlFor="price">Price*</Label>
-            <Input
-              id="price"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              placeholder="e.g. ₹35,000"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price">Price*</Label>
+              <Input
+                id="price"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="e.g. ₹35,000"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="paymentLink">Payment Link</Label>
+              <div className="relative">
+                <Input
+                  id="paymentLink"
+                  name="paymentLink"
+                  value={formData.paymentLink}
+                  onChange={handleChange}
+                  placeholder="e.g. https://rzp.io/l/course-name"
+                />
+                <LinkIcon className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">

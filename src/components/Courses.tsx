@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
@@ -50,14 +49,11 @@ const Courses = () => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
   };
 
-  const handleEnroll = () => {
-    // The Razorpay payment link
-    const razorpayLink = "https://rzp.io/l/tecentrix-course";
+  const handleEnroll = (course) => {
+    const paymentLink = course.paymentLink || "https://rzp.io/l/tecentrix-course";
     
-    // Redirect to the Razorpay payment page
-    window.open(razorpayLink, '_blank');
+    window.open(paymentLink, '_blank');
     
-    // Show a toast to let users know they're being redirected
     toast.info("Redirecting to secure payment page", {
       description: "You'll be taken to our payment partner to complete your enrollment."
     });
@@ -127,7 +123,7 @@ const Courses = () => {
                   <div className="flex justify-between items-center">
                     <div className="text-lg font-bold text-tecentrix-blue">{course.price}</div>
                     {course.highlighted ? (
-                      <Button className="tecentrix-secondary-button" onClick={handleEnroll}>Enroll Now</Button>
+                      <Button className="tecentrix-secondary-button" onClick={() => handleEnroll(course)}>Enroll Now</Button>
                     ) : (
                       <Link to={`/courses/${course.id}`}>
                         <Button className="tecentrix-primary-button">Course Details</Button>

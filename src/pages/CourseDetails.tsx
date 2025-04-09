@@ -70,11 +70,11 @@ const CourseDetails = () => {
   };
   
   const handleEnroll = () => {
-    // The Razorpay payment link for this course
-    const razorpayLink = "https://rzp.io/l/tecentrix-course";
+    // Get the course-specific payment link or use a default
+    const paymentLink = course?.paymentLink || "https://rzp.io/l/tecentrix-course";
     
     // Redirect to the Razorpay payment page
-    window.open(razorpayLink, '_blank');
+    window.open(paymentLink, '_blank');
     
     // Show a toast to let users know they're being redirected
     toast.info("Redirecting to secure payment page", {
