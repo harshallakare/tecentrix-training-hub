@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database } from 'lucide-react';
+import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
@@ -24,6 +23,12 @@ const iconOptions = [
   { value: 'Network', label: 'Network', icon: <Network className="h-4 w-4" /> },
   { value: 'Cloud', label: 'Cloud', icon: <Cloud className="h-4 w-4" /> },
   { value: 'Database', label: 'Database', icon: <Database className="h-4 w-4" /> },
+];
+
+const languageOptions = [
+  { value: 'English', label: 'English' },
+  { value: 'Hindi', label: 'Hindi' },
+  { value: 'English/Hindi', label: 'English/Hindi' },
 ];
 
 const colorOptions = [
@@ -67,6 +72,8 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     iconColor: 'text-tecentrix-blue',
     highlighted: false,
     modules: [''],
+    upcomingBatch: '',
+    language: 'English',
   });
 
   useEffect(() => {
@@ -197,6 +204,40 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
               placeholder="e.g. ₹35,000"
               required
             />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="upcomingBatch">Upcoming Batch</Label>
+              <div className="relative">
+                <Input
+                  id="upcomingBatch"
+                  name="upcomingBatch"
+                  value={formData.upcomingBatch}
+                  onChange={handleChange}
+                  placeholder="e.g. June 15, 2025"
+                />
+                <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="language">Language</Label>
+              <Select 
+                value={formData.language} 
+                onValueChange={(value) => handleSelectChange('language', value)}
+              >
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <div>

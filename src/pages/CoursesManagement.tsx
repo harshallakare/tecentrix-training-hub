@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useContentStore } from '@/store/contentStore';
 import CourseForm from '@/components/admin/CourseForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database } from 'lucide-react';
+import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
@@ -149,13 +150,27 @@ const CoursesManagement = () => {
                   </ul>
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between items-center gap-2">
                   <div className="flex items-center">
                     <span className="text-lg font-bold text-tecentrix-blue">{course.price}</span>
                     {course.highlighted && (
                       <span className="ml-3 bg-tecentrix-orange text-white text-xs font-semibold px-3 py-1 rounded-full">
                         Featured Course
                       </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    {course.upcomingBatch && (
+                      <div className="flex items-center text-sm text-tecentrix-darkgray/80">
+                        <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+                        <span>Next Batch: {course.upcomingBatch}</span>
+                      </div>
+                    )}
+                    {course.language && (
+                      <div className="flex items-center text-sm text-tecentrix-darkgray/80">
+                        <Languages className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+                        <span>Language: {course.language}</span>
+                      </div>
                     )}
                   </div>
                 </div>

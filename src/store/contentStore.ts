@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -36,6 +35,8 @@ interface Course {
   iconBg: string;
   iconColor: string;
   price: string;
+  upcomingBatch?: string;
+  language?: string;
 }
 
 interface Testimonial {
@@ -103,7 +104,9 @@ export const useContentStore = create<ContentState>()(
           color: "bg-blue-50",
           iconBg: "bg-blue-100",
           iconColor: "text-tecentrix-blue",
-          price: "₹35,000"
+          price: "₹35,000",
+          upcomingBatch: "June 15, 2025",
+          language: "English"
         },
         {
           id: '2',
@@ -117,7 +120,9 @@ export const useContentStore = create<ContentState>()(
           color: "bg-orange-50",
           iconBg: "bg-orange-100",
           iconColor: "text-tecentrix-orange",
-          price: "₹45,000"
+          price: "₹45,000",
+          upcomingBatch: "July 10, 2025",
+          language: "English"
         },
         {
           id: '3',
@@ -131,7 +136,9 @@ export const useContentStore = create<ContentState>()(
           color: "bg-green-50",
           iconBg: "bg-green-100",
           iconColor: "text-green-600",
-          price: "₹40,000"
+          price: "₹40,000",
+          upcomingBatch: "August 5, 2025",
+          language: "English"
         },
         {
           id: '4',
@@ -145,7 +152,9 @@ export const useContentStore = create<ContentState>()(
           color: "bg-purple-50",
           iconBg: "bg-purple-100",
           iconColor: "text-purple-600",
-          price: "₹50,000"
+          price: "₹50,000",
+          upcomingBatch: "September 1, 2025",
+          language: "English/Hindi"
         }
       ],
       testimonialsList: [
