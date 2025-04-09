@@ -196,14 +196,19 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'tecentrix-settings',
-      merge: (persistedState, currentState) => {
-        // Ensure adminCredentials is always properly initialized
+      merge: (persistedState: any, currentState: SettingsState) => {
+        // Convert to actual state objects - this ensures we're dealing with object types
+        const safePersistedState = typeof persistedState === 'object' && persistedState !== null 
+          ? persistedState as Partial<SettingsState> 
+          : {};
+        
+        // Create merged state with current state as fallback
         const mergedState = {
           ...currentState,
-          ...persistedState,
+          ...(safePersistedState as object),
         };
         
-        // If adminCredentials is missing in the persisted state, use the default
+        // If adminCredentials is missing or incomplete in the persisted state, use the default
         if (!mergedState.settings.adminCredentials) {
           mergedState.settings.adminCredentials = {
             username: 'admin',
