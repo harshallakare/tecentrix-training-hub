@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import { Server, Shield, Network, Terminal, Cloud, Database, 
-  Clock, BarChart, User, Calendar, Award, CheckCircle2 } from 'lucide-react';
+  Clock, BarChart, User, Calendar, Award, CheckCircle2, Languages } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
 
@@ -101,9 +101,16 @@ const CourseDetails = () => {
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-tecentrix-blue mb-6">
                   {course.title}
                 </h1>
-                <p className="text-lg text-tecentrix-darkgray/80 mb-8">
+                <p className="text-lg text-tecentrix-darkgray/80 mb-6">
                   {course.description}
                 </p>
+                
+                {course.upcomingBatch && (
+                  <div className="mb-4 flex items-center bg-white/80 rounded-lg px-4 py-2 inline-block">
+                    <Calendar className="h-5 w-5 text-tecentrix-orange mr-2" />
+                    <span className="font-medium">Next Batch: {course.upcomingBatch}</span>
+                  </div>
+                )}
                 
                 {course.highlighted && (
                   <div className="mb-6 inline-block">
@@ -251,9 +258,18 @@ const CourseDetails = () => {
                           <Calendar className="h-5 w-5 text-tecentrix-orange mr-3" />
                           <div>
                             <p className="text-sm text-tecentrix-darkgray/70">Start Date</p>
-                            <p className="font-medium">Flexible / Self-paced</p>
+                            <p className="font-medium">{course.upcomingBatch || "Flexible / Self-paced"}</p>
                           </div>
                         </div>
+                        {course.language && (
+                          <div className="flex items-center">
+                            <Languages className="h-5 w-5 text-tecentrix-orange mr-3" />
+                            <div>
+                              <p className="text-sm text-tecentrix-darkgray/70">Language</p>
+                              <p className="font-medium">{course.language}</p>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex items-center">
                           <Award className="h-5 w-5 text-tecentrix-orange mr-3" />
                           <div>
@@ -321,7 +337,7 @@ const CourseDetails = () => {
                           {relatedCourse.description}
                         </p>
                         
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-2">
                           <div className="text-lg font-bold text-tecentrix-blue">{relatedCourse.price}</div>
                           <div className="flex space-x-3">
                             <span className="text-xs text-tecentrix-darkgray/70">{relatedCourse.level}</span>
@@ -329,6 +345,13 @@ const CourseDetails = () => {
                             <span className="text-xs text-tecentrix-darkgray/70">{relatedCourse.duration}</span>
                           </div>
                         </div>
+                        
+                        {relatedCourse.upcomingBatch && (
+                          <div className="flex items-center text-xs text-tecentrix-darkgray/80 mt-2">
+                            <Calendar className="h-3 w-3 mr-1 text-tecentrix-blue" />
+                            <span>Next Batch: {relatedCourse.upcomingBatch}</span>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>

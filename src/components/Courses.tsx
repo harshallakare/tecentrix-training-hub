@@ -1,8 +1,9 @@
 
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Server, Shield, Network, Terminal, Cloud, Database } from 'lucide-react';
+import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
+import { Link } from 'react-router-dom';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -108,13 +109,32 @@ const Courses = () => {
                   </ul>
                 </div>
                 
-                <div className="mt-6 flex justify-between items-center">
-                  <div className="text-lg font-bold text-tecentrix-blue">{course.price}</div>
-                  {course.highlighted ? (
-                    <Button className="tecentrix-secondary-button">Enroll Now</Button>
-                  ) : (
-                    <Button className="tecentrix-primary-button">Course Details</Button>
-                  )}
+                <div className="mt-6 flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <div className="text-lg font-bold text-tecentrix-blue">{course.price}</div>
+                    <Link to={`/courses/${course.id}`}>
+                      {course.highlighted ? (
+                        <Button className="tecentrix-secondary-button">Enroll Now</Button>
+                      ) : (
+                        <Button className="tecentrix-primary-button">Course Details</Button>
+                      )}
+                    </Link>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-4 text-sm text-tecentrix-darkgray/80">
+                    {course.upcomingBatch && (
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+                        <span>Next Batch: {course.upcomingBatch}</span>
+                      </div>
+                    )}
+                    {course.language && (
+                      <div className="flex items-center">
+                        <Languages className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+                        <span>Language: {course.language}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
