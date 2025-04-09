@@ -1,11 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const WhatsAppButton = () => {
   const [isHovered, setIsHovered] = useState(false);
   const { settings } = useSettingsStore();
+  
+  // Ensure whatsAppConfig exists before accessing its properties
+  if (!settings || !settings.whatsAppConfig) {
+    console.log('WhatsApp config is not available yet');
+    return null;
+  }
+  
   const { whatsAppConfig } = settings;
   
   // If WhatsApp integration is disabled, don't render the button
