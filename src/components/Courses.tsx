@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -47,6 +48,19 @@ const Courses = () => {
 
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
+  };
+
+  const handleEnroll = () => {
+    // The Razorpay payment link
+    const razorpayLink = "https://rzp.io/l/tecentrix-course";
+    
+    // Redirect to the Razorpay payment page
+    window.open(razorpayLink, '_blank');
+    
+    // Show a toast to let users know they're being redirected
+    toast.info("Redirecting to secure payment page", {
+      description: "You'll be taken to our payment partner to complete your enrollment."
+    });
   };
 
   return (
@@ -112,13 +126,13 @@ const Courses = () => {
                 <div className="mt-6 flex flex-col gap-3">
                   <div className="flex justify-between items-center">
                     <div className="text-lg font-bold text-tecentrix-blue">{course.price}</div>
-                    <Link to={`/courses/${course.id}`}>
-                      {course.highlighted ? (
-                        <Button className="tecentrix-secondary-button">Enroll Now</Button>
-                      ) : (
+                    {course.highlighted ? (
+                      <Button className="tecentrix-secondary-button" onClick={handleEnroll}>Enroll Now</Button>
+                    ) : (
+                      <Link to={`/courses/${course.id}`}>
                         <Button className="tecentrix-primary-button">Course Details</Button>
-                      )}
-                    </Link>
+                      </Link>
+                    )}
                   </div>
                   
                   <div className="flex flex-wrap gap-4 text-sm text-tecentrix-darkgray/80">
