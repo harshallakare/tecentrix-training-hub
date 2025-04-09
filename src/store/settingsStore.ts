@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -195,6 +196,23 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'tecentrix-settings',
+      merge: (persistedState, currentState) => {
+        // Ensure adminCredentials is always properly initialized
+        const mergedState = {
+          ...currentState,
+          ...persistedState,
+        };
+        
+        // If adminCredentials is missing in the persisted state, use the default
+        if (!mergedState.settings.adminCredentials) {
+          mergedState.settings.adminCredentials = {
+            username: 'admin',
+            password: 'tecentrix',
+          };
+        }
+        
+        return mergedState;
+      },
     }
   )
 );

@@ -34,6 +34,7 @@ const Admin = () => {
     console.log("Login attempt with:", username, password);
     console.log("Admin credentials in settings on login:", settings.adminCredentials);
     
+    // Check default credentials first
     if (username === 'admin' && password === 'tecentrix') {
       setIsAuthenticated(true);
       toast({

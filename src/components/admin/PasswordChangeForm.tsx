@@ -96,7 +96,7 @@ const PasswordChangeForm = () => {
             </Label>
             <Input
               id="username"
-              value={settings.adminCredentials.username}
+              value={settings.adminCredentials?.username || 'admin'}
               disabled
               className="bg-gray-50"
             />
