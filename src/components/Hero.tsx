@@ -3,6 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Terminal, Server, ArrowRight, Award, Users } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -27,6 +29,12 @@ const Hero = () => {
       revealElements.forEach((el) => observer.unobserve(el));
     };
   }, []);
+
+  const handleFreeAssessment = () => {
+    toast.info("Free Assessment Test", {
+      description: "Our online assessment will be available shortly. Please check back soon!"
+    });
+  };
 
   return (
     <div ref={heroRef} className="min-h-screen pt-20 flex flex-col justify-center relative overflow-hidden">
@@ -65,11 +73,13 @@ const Hero = () => {
           </p>
           
           <div className="reveal flex flex-wrap gap-4 pt-2">
-            <Button className="tecentrix-primary-button group">
-              {content.hero.ctaText}
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button className="tecentrix-outline-button">
+            <Link to="/courses">
+              <Button className="tecentrix-primary-button group">
+                {content.hero.ctaText}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <Button className="tecentrix-outline-button" onClick={handleFreeAssessment}>
               Free Assessment Test
             </Button>
           </div>
@@ -80,8 +90,8 @@ const Hero = () => {
                 <Award className="h-5 w-5 text-tecentrix-orange" />
               </div>
               <div>
-                <p className="text-sm font-medium text-tecentrix-blue">Red Hat Certified</p>
-                <p className="text-xs text-tecentrix-darkgray">Official Training Partner</p>
+                <p className="text-sm font-medium text-tecentrix-blue">Industry Recognized</p>
+                <p className="text-xs text-tecentrix-darkgray">Professional Certification</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -135,7 +145,7 @@ const Hero = () => {
       
       <div className="container mx-auto px-4 mt-16 lg:mt-24">
         <div className="reveal flex flex-wrap justify-center gap-8 md:gap-16 opacity-60">
-          {['Red Hat', 'Ubuntu', 'AWS', 'IBM', 'Oracle Linux', 'CentOS'].map((partner) => (
+          {['Ubuntu', 'AWS', 'IBM', 'Oracle Linux', 'CentOS'].map((partner) => (
             <div key={partner} className="text-xl font-bold text-tecentrix-darkgray/70">
               {partner}
             </div>
