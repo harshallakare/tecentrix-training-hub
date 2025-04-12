@@ -17,6 +17,8 @@ const iconMap = {
 const Courses = () => {
   const { content, coursesList } = useContentStore();
   
+  const visibleCourses = coursesList.filter(course => course.enabled !== false);
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -73,7 +75,7 @@ const Courses = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {coursesList.map((course, index) => (
+          {visibleCourses.map((course, index) => (
             <div 
               key={course.id}
               className={`scale-reveal rounded-xl overflow-hidden transition-all duration-300 ${course.highlighted ? 'ring-2 ring-tecentrix-orange shadow-lg' : 'border border-gray-200 shadow-sm hover:shadow-md'}`}

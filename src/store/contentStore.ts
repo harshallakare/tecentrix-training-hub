@@ -31,6 +31,7 @@ interface Course {
   description: string;
   modules: string[];
   highlighted: boolean;
+  enabled: boolean;
   color: string;
   iconBg: string;
   iconColor: string;
@@ -102,6 +103,7 @@ export const useContentStore = create<ContentState>()(
           description: "Red Hat Certified System Administrator course covering essential Linux skills required for RHCSA EX200 exam certification.",
           modules: ["System Configuration & Management", "File Systems & Storage", "User Administration", "Software Management", "Network Configuration"],
           highlighted: false,
+          enabled: true,
           color: "bg-blue-50",
           iconBg: "bg-blue-100",
           iconColor: "text-tecentrix-blue",
@@ -119,6 +121,7 @@ export const useContentStore = create<ContentState>()(
           description: "Comprehensive Red Hat Certified Engineer training program covering advanced system administration and automation with Ansible.",
           modules: ["Ansible Automation", "Web Services", "SELinux Configuration", "Advanced Networking", "Troubleshooting Skills"],
           highlighted: true,
+          enabled: true,
           color: "bg-orange-50",
           iconBg: "bg-orange-100",
           iconColor: "text-tecentrix-orange",
@@ -136,6 +139,7 @@ export const useContentStore = create<ContentState>()(
           description: "Master Linux security hardening, penetration testing, intrusion detection systems, and security compliance standards.",
           modules: ["Security Fundamentals", "Threat Detection", "Firewall Configuration", "SELinux Advanced", "Security Auditing"],
           highlighted: false,
+          enabled: true,
           color: "bg-green-50",
           iconBg: "bg-green-100",
           iconColor: "text-green-600",
@@ -153,6 +157,7 @@ export const useContentStore = create<ContentState>()(
           description: "Learn to deploy and manage Linux environments on AWS, Azure, and Google Cloud platforms with DevOps integration.",
           modules: ["Cloud Architecture", "Containers & Kubernetes", "CI/CD Pipelines", "Infrastructure as Code", "Cloud Security"],
           highlighted: false,
+          enabled: true,
           color: "bg-purple-50",
           iconBg: "bg-purple-100",
           iconColor: "text-purple-600",

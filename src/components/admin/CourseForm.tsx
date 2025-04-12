@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Link as LinkIcon } from 'lucide-react';
+import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Link as LinkIcon, Power } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
@@ -72,6 +71,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     iconBg: 'bg-blue-100',
     iconColor: 'text-tecentrix-blue',
     highlighted: false,
+    enabled: true,
     modules: [''],
     upcomingBatch: '',
     language: 'English',
@@ -80,7 +80,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        enabled: initialData.enabled !== undefined ? initialData.enabled : true
+      });
     } else {
       setFormData({
         ...formData,
@@ -96,6 +99,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleEnabledChange = (checked: boolean) => {
+    setFormData({ ...formData, enabled: checked });
   };
 
   const handleHighlightedChange = (checked: boolean) => {
@@ -121,7 +128,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
     if (!formData.title || !formData.duration || !formData.description || !formData.price) {
       toast({
         title: "Validation Error",
@@ -131,7 +137,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       return;
     }
     
-    // Filter out empty modules
     const filteredModules = formData.modules.filter(module => module.trim() !== '');
     if (filteredModules.length === 0) {
       toast({
@@ -142,7 +147,6 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       return;
     }
     
-    // Submit form with cleaned data
     onSubmit({
       ...formData,
       modules: filteredModules,
@@ -270,13 +274,27 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
             />
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="highlighted" 
-              checked={formData.highlighted}
-              onCheckedChange={handleHighlightedChange}
-            />
-            <Label htmlFor="highlighted">Mark as Featured Course</Label>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="enabled" 
+                checked={formData.enabled}
+                onCheckedChange={handleEnabledChange}
+              />
+              <Label htmlFor="enabled" className="flex items-center">
+                <Power className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+                Course Enabled
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="highlighted" 
+                checked={formData.highlighted}
+                onCheckedChange={handleHighlightedChange}
+              />
+              <Label htmlFor="highlighted">Mark as Featured Course</Label>
+            </div>
           </div>
         </div>
         

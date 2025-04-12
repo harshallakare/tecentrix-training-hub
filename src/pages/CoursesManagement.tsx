@@ -1,15 +1,14 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useContentStore } from '@/store/contentStore';
 import CourseForm from '@/components/admin/CourseForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages } from 'lucide-react';
+import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { Switch } from '@/components/ui/switch';
 
-// Icon mapping for displaying the correct icon for each course
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
   'Server': <Server className="h-6 w-6" />,
@@ -27,32 +26,27 @@ const CoursesManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
-  // Get the icon component based on icon name
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
   };
 
-  // Handle opening the form for adding a new course
   const handleAddCourse = () => {
     setCurrentCourse(null);
     setIsEditing(false);
     setIsFormOpen(true);
   };
 
-  // Handle opening the form for editing an existing course
   const handleEditCourse = (course: any) => {
     setCurrentCourse(course);
     setIsEditing(true);
     setIsFormOpen(true);
   };
 
-  // Handle opening the delete confirmation dialog
   const handleDeleteClick = (course: any) => {
     setCurrentCourse(course);
     setIsDeleteDialogOpen(true);
   };
 
-  // Handle confirming deletion of a course
   const handleDeleteConfirm = () => {
     if (currentCourse) {
       deleteCourse(currentCourse.id);
@@ -65,7 +59,6 @@ const CoursesManagement = () => {
     }
   };
 
-  // Handle form submission for both add and edit operations
   const handleFormSubmit = (courseData: any) => {
     if (isEditing) {
       updateCourse(courseData.id, courseData);
@@ -83,6 +76,16 @@ const CoursesManagement = () => {
     setIsFormOpen(false);
   };
 
+  const handleToggleEnabled = (course: any) => {
+    const updatedCourse = { ...course, enabled: !course.enabled };
+    updateCourse(course.id, updatedCourse);
+    
+    toast({
+      title: updatedCourse.enabled ? "Course enabled" : "Course disabled",
+      description: `'${course.title}' is now ${updatedCourse.enabled ? 'visible' : 'hidden'} on the website.`
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
@@ -95,7 +98,7 @@ const CoursesManagement = () => {
 
       <div className="grid grid-cols-1 gap-6">
         {coursesList.map((course) => (
-          <Card key={course.id} className="overflow-hidden">
+          <Card key={course.id} className={`overflow-hidden ${!course.enabled ? 'opacity-75' : ''}`}>
             <CardContent className="p-0">
               <div className={`${course.color} p-6`}>
                 <div className="flex items-start justify-between">
@@ -104,7 +107,14 @@ const CoursesManagement = () => {
                       {getIconComponent(course.icon)}
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-xl font-semibold text-tecentrix-blue">{course.title}</h3>
+                      <div className="flex items-center">
+                        <h3 className="text-xl font-semibold text-tecentrix-blue">{course.title}</h3>
+                        {!course.enabled && (
+                          <span className="ml-2 bg-gray-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                            Hidden
+                          </span>
+                        )}
+                      </div>
                       <div className="flex space-x-3 mt-1">
                         <span className="text-sm text-tecentrix-darkgray/70">{course.level}</span>
                         <span className="text-sm text-tecentrix-darkgray/70">•</span>
@@ -113,6 +123,16 @@ const CoursesManagement = () => {
                     </div>
                   </div>
                   <div className="flex space-x-2">
+                    <div className="flex items-center mr-2">
+                      <Switch 
+                        checked={course.enabled !== false}
+                        onCheckedChange={() => handleToggleEnabled(course)}
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
+                      />
+                      <span className="ml-2 text-sm text-tecentrix-darkgray/70">
+                        {course.enabled !== false ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -180,7 +200,6 @@ const CoursesManagement = () => {
         ))}
       </div>
 
-      {/* Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -199,7 +218,6 @@ const CoursesManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
