@@ -82,6 +82,23 @@ const CourseDetails = () => {
     });
   };
 
+  // Helper function to format batch dates display
+  const renderBatchDates = () => {
+    if (!course.upcomingBatches || course.upcomingBatches.length === 0) return null;
+    
+    return (
+      <div className="mb-4 flex items-center bg-white/80 rounded-lg px-4 py-2 inline-block">
+        <Calendar className="h-5 w-5 text-tecentrix-orange mr-2" />
+        <span className="font-medium">
+          {course.upcomingBatches.length === 1 
+            ? `Next Batch: ${course.upcomingBatches[0]}`
+            : `Next Batches: ${course.upcomingBatches.slice(0, 2).join(', ')}${course.upcomingBatches.length > 2 ? '...' : ''}`
+          }
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -112,12 +129,7 @@ const CourseDetails = () => {
                   {course.description}
                 </p>
                 
-                {course.upcomingBatch && (
-                  <div className="mb-4 flex items-center bg-white/80 rounded-lg px-4 py-2 inline-block">
-                    <Calendar className="h-5 w-5 text-tecentrix-orange mr-2" />
-                    <span className="font-medium">Next Batch: {course.upcomingBatch}</span>
-                  </div>
-                )}
+                {renderBatchDates()}
                 
                 {course.highlighted && (
                   <div className="mb-6 inline-block">
@@ -265,7 +277,11 @@ const CourseDetails = () => {
                           <Calendar className="h-5 w-5 text-tecentrix-orange mr-3" />
                           <div>
                             <p className="text-sm text-tecentrix-darkgray/70">Start Date</p>
-                            <p className="font-medium">{course.upcomingBatch || "Flexible / Self-paced"}</p>
+                            <p className="font-medium">
+                              {course.upcomingBatches && course.upcomingBatches.length > 0
+                                ? course.upcomingBatches[0]
+                                : "Flexible / Self-paced"}
+                            </p>
                           </div>
                         </div>
                         {course.language && (
@@ -316,7 +332,7 @@ const CourseDetails = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {coursesList
-                .filter(c => c.id !== course.id)
+                .filter(c => c.id !== course.id && c.enabled !== false)
                 .slice(0, 3)
                 .map((relatedCourse, index) => (
                   <div 
@@ -353,10 +369,10 @@ const CourseDetails = () => {
                           </div>
                         </div>
                         
-                        {relatedCourse.upcomingBatch && (
+                        {relatedCourse.upcomingBatches && relatedCourse.upcomingBatches.length > 0 && (
                           <div className="flex items-center text-xs text-tecentrix-darkgray/80 mt-2">
                             <Calendar className="h-3 w-3 mr-1 text-tecentrix-blue" />
-                            <span>Next Batch: {relatedCourse.upcomingBatch}</span>
+                            <span>Next Batch: {relatedCourse.upcomingBatches[0]}</span>
                           </div>
                         )}
                       </CardContent>
