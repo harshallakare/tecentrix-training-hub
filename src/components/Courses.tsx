@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
@@ -17,6 +18,7 @@ const iconMap = {
 const Courses = () => {
   const { content, coursesList } = useContentStore();
   
+  // Updated to strictly filter courses where enabled is not false
   const visibleCourses = coursesList.filter(course => course.enabled !== false);
   
   useEffect(() => {

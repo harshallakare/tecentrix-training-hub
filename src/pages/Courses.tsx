@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -27,11 +26,13 @@ const Courses = () => {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('all');
   
+  const enabledCourses = coursesList.filter(course => course.enabled !== false);
+  
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
   };
   
-  const filteredCourses = coursesList.filter(course => {
+  const filteredCourses = enabledCourses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = selectedLevel ? course.level === selectedLevel : true;
@@ -41,7 +42,7 @@ const Courses = () => {
     return matchesSearch && matchesLevel && matchesTab;
   });
   
-  const levels = Array.from(new Set(coursesList.map(course => course.level)));
+  const levels = Array.from(new Set(enabledCourses.map(course => course.level)));
   
   useEffect(() => {
     const observer = new IntersectionObserver(
