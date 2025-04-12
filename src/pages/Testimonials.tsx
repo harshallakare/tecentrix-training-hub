@@ -10,6 +10,8 @@ const Testimonials = () => {
   const { testimonialsList } = useContentStore();
 
   useEffect(() => {
+    document.title = "Testimonials | Tecentrix";
+    
     // Animate testimonials on scroll
     const observer = new IntersectionObserver(
       (entries) => {
@@ -38,6 +40,21 @@ const Testimonials = () => {
       .toUpperCase()
       .substring(0, 2);
   };
+
+  if (!testimonialsList || testimonialsList.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-medium text-gray-600">No testimonials available yet</h2>
+            <p className="mt-2 text-gray-500">Check back soon for student success stories</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

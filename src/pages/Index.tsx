@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
@@ -7,9 +6,13 @@ import Courses from '@/components/Courses';
 import Testimonials from '@/components/Testimonials';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
+import { initializeNavigation } from '@/utils/initializeNavigation';
 
 const Index = () => {
   useEffect(() => {
+    // Initialize navigation items if needed
+    initializeNavigation();
+    
     const handleScroll = () => {
       const revealElements = document.querySelectorAll(
         '.reveal, .reveal-right, .reveal-left, .scale-reveal'

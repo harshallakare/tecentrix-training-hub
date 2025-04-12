@@ -11,6 +11,7 @@ import Courses from "./pages/Courses";
 import CourseDetails from "./pages/CourseDetails";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Testimonials from "./pages/Testimonials"; // Add import for Testimonials page
 import WhatsAppButton from "./components/WhatsAppButton";
 import { useNavigationStore } from "./store/navigationStore";
 
@@ -29,11 +30,12 @@ const AppRoutes = () => {
       <Route path="/courses/:courseId" element={<CourseDetails />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/testimonials" element={<Testimonials />} /> {/* Add explicit route for Testimonials */}
       
       {/* Dynamic routes based on navigation store */}
       {activeNavItems.map(item => {
         // Skip the routes that already have dedicated components
-        if (["/", "/courses", "/about", "/contact"].includes(item.path)) return null;
+        if (["/", "/courses", "/about", "/contact", "/testimonials"].includes(item.path)) return null;
         return <Route key={item.id} path={item.path} element={<Index />} />;
       })}
       
