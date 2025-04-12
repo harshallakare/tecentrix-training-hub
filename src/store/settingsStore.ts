@@ -2,114 +2,114 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface SocialLinks {
-  facebook?: string;
-  twitter?: string;
-  linkedin?: string;
-  youtube?: string;
+export interface CompanyInfo {
+  companyName: string;
+  logo: string;
+  logoText: string;
+  favicon: string;
 }
 
-interface ContactInfo {
+export interface ContactInfo {
   email: string;
   phone: string;
   address: string;
 }
 
-interface SmtpConfig {
+export interface SocialLinks {
+  facebook: string;
+  twitter: string;
+  linkedin: string;
+  instagram: string;
+}
+
+export interface SMTPConfig {
   host: string;
   port: number;
   username: string;
   password: string;
   fromEmail: string;
   fromName: string;
-  secure: boolean;
   enabled: boolean;
+  secure: boolean;
 }
 
-interface InquiryRecipient {
-  id: string;
-  name: string;
-  email: string;
-  department: string;
-  isDefault?: boolean;
+export interface InquiryRecipients {
+  general: string[];
+  admissions: string;
 }
 
-interface WhatsAppConfig {
+export interface WhatsAppConfig {
   enabled: boolean;
   phoneNumber: string;
   message: string;
 }
 
-interface AdminCredentials {
+export interface AdminCredentials {
   username: string;
   password: string;
 }
 
-interface Settings {
+export interface Settings {
   companyName: string;
+  tagline: string;
   contactInfo: ContactInfo;
   socialLinks: SocialLinks;
   footerText: string;
   enableBlog: boolean;
   showTestimonials: boolean;
-  smtpConfig: SmtpConfig;
-  inquiryRecipients: InquiryRecipient[];
+  smtpConfig: SMTPConfig;
+  inquiryRecipients: InquiryRecipients;
   whatsAppConfig: WhatsAppConfig;
   adminCredentials: AdminCredentials;
 }
 
-// Default settings to use when initializing store or handling missing data
+interface SettingsState {
+  settings: Settings;
+  updateSettings: (settings: Partial<Settings>) => void;
+  updateCompanyInfo: (companyInfo: Partial<CompanyInfo>) => void;
+  updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
+  updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
+  updateSMTPConfig: (smtpConfig: Partial<SMTPConfig>) => void;
+  updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
+  updateAdminCredentials: (credentials: AdminCredentials) => void;
+}
+
+// Initialize with default values
 const defaultSettings: Settings = {
   companyName: 'Tecentrix',
+  tagline: 'Expert Linux Training & Certification',
   contactInfo: {
     email: 'info@tecentrix.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Tech Street, Silicon Valley, CA 94025',
+    phone: '+91 80 1234 5678',
+    address: 'Level 5, Tech Park, Bangalore - 560037, Karnataka, India',
   },
   socialLinks: {
     facebook: 'https://facebook.com/tecentrix',
     twitter: 'https://twitter.com/tecentrix',
     linkedin: 'https://linkedin.com/company/tecentrix',
-    youtube: 'https://youtube.com/tecentrix',
+    instagram: 'https://instagram.com/tecentrix',
   },
-  footerText: '© 2024 Tecentrix. All rights reserved.',
-  enableBlog: true,
+  footerText: '© 2025 Tecentrix. All rights reserved.',
+  enableBlog: false,
   showTestimonials: true,
   smtpConfig: {
-    host: '',
+    host: 'smtp.example.com',
     port: 587,
-    username: '',
+    username: 'username@example.com',
     password: '',
-    fromEmail: 'noreply@tecentrix.com',
-    fromName: 'Tecentrix Contact Form',
-    secure: true,
+    fromEmail: 'notifications@tecentrix.com',
+    fromName: 'Tecentrix Notifications',
     enabled: false,
+    secure: true,
   },
-  inquiryRecipients: [
-    {
-      id: '1',
-      name: 'Support Team',
-      email: 'support@tecentrix.com',
-      department: 'Support',
-      isDefault: true,
-    },
-    {
-      id: '2',
-      name: 'Sales Department',
-      email: 'sales@tecentrix.com',
-      department: 'Sales',
-    },
-    {
-      id: '3',
-      name: 'Media Relations',
-      email: 'media@tecentrix.com',
-      department: 'PR & Media',
-    }
-  ],
+  inquiryRecipients: {
+    general: ['info@tecentrix.com'],
+    admissions: 'admissions@tecentrix.com',
+  },
   whatsAppConfig: {
     enabled: true,
-    phoneNumber: '+918793044999',
-    message: 'Hello, I\'m interested in your courses!',
+    phoneNumber: '+919876543210',
+    message: 'Hello, I am interested in your Linux training courses.',
   },
   adminCredentials: {
     username: 'admin',
@@ -117,153 +117,77 @@ const defaultSettings: Settings = {
   },
 };
 
-interface SettingsState {
-  settings: Settings;
-  updateSettings: (settings: Partial<Settings>) => void;
-  updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
-  updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
-  updateSmtpConfig: (smtpConfig: Partial<SmtpConfig>) => void;
-  updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
-  updateAdminCredentials: (credentials: Partial<AdminCredentials>) => void;
-  addInquiryRecipient: (recipient: InquiryRecipient) => void;
-  updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
-  removeInquiryRecipient: (id: string) => void;
-}
-
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       settings: defaultSettings,
-      updateSettings: (newSettings) =>
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        })),
-      updateContactInfo: (newContactInfo) =>
+      updateSettings: (newSettings) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            contactInfo: { ...state.settings.contactInfo, ...newContactInfo },
-          },
+            ...newSettings,
+          }
         })),
-      updateSocialLinks: (newSocialLinks) =>
+      updateCompanyInfo: (companyInfo) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            socialLinks: { ...state.settings.socialLinks, ...newSocialLinks },
-          },
+            companyName: companyInfo.companyName ?? state.settings.companyName,
+            // Add other company info properties as needed
+          }
         })),
-      updateSmtpConfig: (newSmtpConfig) =>
+      updateContactInfo: (contactInfo) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            smtpConfig: { ...state.settings.smtpConfig, ...newSmtpConfig },
-          },
+            contactInfo: {
+              ...state.settings.contactInfo,
+              ...contactInfo,
+            }
+          }
         })),
-      updateWhatsAppConfig: (newWhatsAppConfig) =>
+      updateSocialLinks: (socialLinks) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            whatsAppConfig: { ...state.settings.whatsAppConfig, ...newWhatsAppConfig },
-          },
+            socialLinks: {
+              ...state.settings.socialLinks,
+              ...socialLinks,
+            }
+          }
         })),
-      updateAdminCredentials: (newCredentials) =>
+      updateSMTPConfig: (smtpConfig) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            adminCredentials: { ...state.settings.adminCredentials, ...newCredentials },
-          },
+            smtpConfig: {
+              ...state.settings.smtpConfig,
+              ...smtpConfig,
+            }
+          }
         })),
-      addInquiryRecipient: (recipient) =>
+      updateWhatsAppConfig: (whatsAppConfig) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            inquiryRecipients: [...state.settings.inquiryRecipients, recipient],
-          },
+            whatsAppConfig: {
+              ...state.settings.whatsAppConfig,
+              ...whatsAppConfig,
+            }
+          }
         })),
-      updateInquiryRecipient: (id, updatedRecipient) =>
+      updateAdminCredentials: (credentials) => 
         set((state) => ({
           settings: {
             ...state.settings,
-            inquiryRecipients: state.settings.inquiryRecipients.map(r => 
-              r.id === id ? { ...r, ...updatedRecipient } : r
-            ),
-          },
-        })),
-      removeInquiryRecipient: (id) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            inquiryRecipients: state.settings.inquiryRecipients.filter(r => r.id !== id),
-          },
+            adminCredentials: {
+              ...credentials,
+            }
+          }
         })),
     }),
     {
       name: 'tecentrix-settings',
-      merge: (persistedState: any, currentState: SettingsState) => {
-        // Convert to actual state objects - this ensures we're dealing with object types
-        const safePersistedState = typeof persistedState === 'object' && persistedState !== null 
-          ? persistedState as Partial<SettingsState> 
-          : {};
-        
-        // Create a deep-merged settings object with defaults for any missing fields
-        let mergedSettings: Settings;
-
-        try {
-          // First use the persisted settings if they exist
-          const persistedSettings = safePersistedState.settings || {};
-          
-          // Deep merge with defaults to ensure all fields exist
-          mergedSettings = {
-            companyName: persistedSettings.companyName || defaultSettings.companyName,
-            contactInfo: {
-              email: persistedSettings.contactInfo?.email || defaultSettings.contactInfo.email,
-              phone: persistedSettings.contactInfo?.phone || defaultSettings.contactInfo.phone,
-              address: persistedSettings.contactInfo?.address || defaultSettings.contactInfo.address,
-            },
-            socialLinks: {
-              facebook: persistedSettings.socialLinks?.facebook || defaultSettings.socialLinks.facebook,
-              twitter: persistedSettings.socialLinks?.twitter || defaultSettings.socialLinks.twitter,
-              linkedin: persistedSettings.socialLinks?.linkedin || defaultSettings.socialLinks.linkedin,
-              youtube: persistedSettings.socialLinks?.youtube || defaultSettings.socialLinks.youtube,
-            },
-            footerText: persistedSettings.footerText || defaultSettings.footerText,
-            enableBlog: persistedSettings.enableBlog !== undefined ? persistedSettings.enableBlog : defaultSettings.enableBlog,
-            showTestimonials: persistedSettings.showTestimonials !== undefined ? persistedSettings.showTestimonials : defaultSettings.showTestimonials,
-            smtpConfig: {
-              host: persistedSettings.smtpConfig?.host || defaultSettings.smtpConfig.host,
-              port: persistedSettings.smtpConfig?.port || defaultSettings.smtpConfig.port,
-              username: persistedSettings.smtpConfig?.username || defaultSettings.smtpConfig.username,
-              password: persistedSettings.smtpConfig?.password || defaultSettings.smtpConfig.password,
-              fromEmail: persistedSettings.smtpConfig?.fromEmail || defaultSettings.smtpConfig.fromEmail,
-              fromName: persistedSettings.smtpConfig?.fromName || defaultSettings.smtpConfig.fromName,
-              secure: persistedSettings.smtpConfig?.secure !== undefined ? persistedSettings.smtpConfig.secure : defaultSettings.smtpConfig.secure,
-              enabled: persistedSettings.smtpConfig?.enabled !== undefined ? persistedSettings.smtpConfig.enabled : defaultSettings.smtpConfig.enabled,
-            },
-            inquiryRecipients: persistedSettings.inquiryRecipients?.length 
-              ? persistedSettings.inquiryRecipients 
-              : defaultSettings.inquiryRecipients,
-            whatsAppConfig: {
-              enabled: persistedSettings.whatsAppConfig?.enabled !== undefined 
-                ? persistedSettings.whatsAppConfig.enabled 
-                : defaultSettings.whatsAppConfig.enabled,
-              phoneNumber: persistedSettings.whatsAppConfig?.phoneNumber || defaultSettings.whatsAppConfig.phoneNumber,
-              message: persistedSettings.whatsAppConfig?.message || defaultSettings.whatsAppConfig.message,
-            },
-            adminCredentials: {
-              username: persistedSettings.adminCredentials?.username || defaultSettings.adminCredentials.username,
-              password: persistedSettings.adminCredentials?.password || defaultSettings.adminCredentials.password,
-            },
-          };
-        } catch (error) {
-          console.error('Error merging settings, using defaults', error);
-          mergedSettings = defaultSettings;
-        }
-        
-        return {
-          ...currentState,
-          settings: mergedSettings,
-        };
-      },
     }
   )
 );

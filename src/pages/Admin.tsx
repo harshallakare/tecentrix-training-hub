@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,11 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen } from 'lucide-react';
+import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen, MessageSquare } from 'lucide-react';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import NavigationManager from '@/components/admin/NavigationManager';
 import CoursesManagement from '@/pages/CoursesManagement';
+import TestimonialsManagement from '@/pages/TestimonialsManagement';
 import Settings from '@/pages/Settings';
 
 const Admin = () => {
@@ -24,7 +24,6 @@ const Admin = () => {
   const { content, updateHeroContent, updateCoursesContent, updateFeaturesContent, updateCTAContent } = useContentStore();
   const { settings } = useSettingsStore();
   
-  // Debug settings
   useEffect(() => {
     console.log("Admin credentials in settings:", settings.adminCredentials);
   }, [settings.adminCredentials]);
@@ -34,7 +33,6 @@ const Admin = () => {
     console.log("Login attempt with:", username, password);
     console.log("Admin credentials in settings on login:", settings.adminCredentials);
     
-    // Check default credentials first
     if (username === 'admin' && password === 'tecentrix') {
       setIsAuthenticated(true);
       toast({
@@ -44,7 +42,6 @@ const Admin = () => {
       return;
     }
     
-    // Fallback to checking the store
     if (settings.adminCredentials && 
         username === settings.adminCredentials.username && 
         password === settings.adminCredentials.password) {
@@ -214,6 +211,10 @@ const Admin = () => {
             <TabsTrigger value="courses">
               <BookOpen className="h-4 w-4 mr-2" />
               Courses
+            </TabsTrigger>
+            <TabsTrigger value="testimonials">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Testimonials
             </TabsTrigger>
             <TabsTrigger value="settings">
               <SettingsIcon className="h-4 w-4 mr-2" />
@@ -400,6 +401,10 @@ const Admin = () => {
           
           <TabsContent value="courses">
             <CoursesManagement />
+          </TabsContent>
+          
+          <TabsContent value="testimonials">
+            <TestimonialsManagement />
           </TabsContent>
           
           <TabsContent value="settings">

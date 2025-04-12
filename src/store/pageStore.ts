@@ -81,6 +81,27 @@ Closed on Sundays and Public Holidays
           isPublished: true,
           createdAt: '2023-07-20T11:15:00Z',
           updatedAt: '2023-09-05T09:30:00Z',
+        },
+        {
+          id: '3',
+          title: 'Testimonials',
+          slug: 'testimonials',
+          content: `
+# Student Testimonials
+
+Our students are our greatest ambassadors. Hear what they have to say about their learning experience at Tecentrix.
+
+## Success Stories
+
+From career changers to experienced professionals seeking to advance their skills, our alumni have gone on to work at top technology companies across the globe. Many have seen significant career growth and salary increases after completing our certification programs.
+
+## Industry Recognition
+
+Our training methodologies and quality of instruction have been recognized by leading technology companies and certification bodies worldwide. We pride ourselves on maintaining high standards that prepare our students for real-world challenges.
+          `,
+          isPublished: true,
+          createdAt: '2023-09-10T08:45:00Z',
+          updatedAt: '2023-09-10T08:45:00Z',
         }
       ],
       addPage: (page) => 
