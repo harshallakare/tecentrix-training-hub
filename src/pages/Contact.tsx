@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -43,7 +44,7 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
-    if (settings.inquiryRecipients.length > 0) {
+    if (settings.inquiryRecipients && settings.inquiryRecipients.length > 0) {
       const defaultRecipient = settings.inquiryRecipients.find(r => r.isDefault) || settings.inquiryRecipients[0];
       setFormData(prev => ({ ...prev, recipientId: defaultRecipient.id }));
     }
@@ -190,13 +191,13 @@ const Contact = () => {
                           <Select 
                             value={formData.recipientId} 
                             onValueChange={(value) => handleSelectChange('recipientId', value)}
-                            disabled={settings.inquiryRecipients.length === 0}
+                            disabled={!settings.inquiryRecipients || settings.inquiryRecipients.length === 0}
                           >
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select department" />
                             </SelectTrigger>
                             <SelectContent>
-                              {settings.inquiryRecipients.length === 0 ? (
+                              {!settings.inquiryRecipients || settings.inquiryRecipients.length === 0 ? (
                                 <SelectItem value="none" disabled>No recipients configured</SelectItem>
                               ) : (
                                 settings.inquiryRecipients.map((recipient) => (
@@ -242,7 +243,7 @@ const Contact = () => {
                       <Button 
                         type="submit" 
                         className="tecentrix-primary-button w-full"
-                        disabled={isSubmitting || !formData.recipientId || settings.inquiryRecipients.length === 0}
+                        disabled={isSubmitting || !formData.recipientId || !settings.inquiryRecipients || settings.inquiryRecipients.length === 0}
                       >
                         {isSubmitting ? (
                           <span className="flex items-center">
@@ -260,7 +261,7 @@ const Contact = () => {
                         )}
                       </Button>
                       
-                      {settings.inquiryRecipients.length === 0 && (
+                      {(!settings.inquiryRecipients || settings.inquiryRecipients.length === 0) && (
                         <div className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
                           Contact form recipients need to be configured in the admin settings.
                         </div>

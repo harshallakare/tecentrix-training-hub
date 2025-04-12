@@ -20,6 +20,7 @@ export interface SocialLinks {
   twitter: string;
   linkedin: string;
   instagram: string;
+  youtube?: string; // Added youtube as optional
 }
 
 export interface SMTPConfig {
@@ -33,9 +34,13 @@ export interface SMTPConfig {
   secure: boolean;
 }
 
-export interface InquiryRecipients {
-  general: string[];
-  admissions: string;
+// Changed to a recipient object type
+export interface InquiryRecipient {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  isDefault?: boolean;
 }
 
 export interface WhatsAppConfig {
@@ -58,7 +63,7 @@ export interface Settings {
   enableBlog: boolean;
   showTestimonials: boolean;
   smtpConfig: SMTPConfig;
-  inquiryRecipients: InquiryRecipients;
+  inquiryRecipients: InquiryRecipient[]; // Changed to an array of InquiryRecipient
   whatsAppConfig: WhatsAppConfig;
   adminCredentials: AdminCredentials;
 }
@@ -69,9 +74,13 @@ interface SettingsState {
   updateCompanyInfo: (companyInfo: Partial<CompanyInfo>) => void;
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
-  updateSMTPConfig: (smtpConfig: Partial<SMTPConfig>) => void;
+  updateSMTPConfig: (smtpConfig: Partial<SMTPConfig>) => void; // Added this
   updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
   updateAdminCredentials: (credentials: AdminCredentials) => void;
+  // Added these methods
+  addInquiryRecipient: (recipient: InquiryRecipient) => void;
+  updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
+  removeInquiryRecipient: (id: string) => void;
 }
 
 // Initialize with default values
@@ -88,6 +97,7 @@ const defaultSettings: Settings = {
     twitter: 'https://twitter.com/tecentrix',
     linkedin: 'https://linkedin.com/company/tecentrix',
     instagram: 'https://instagram.com/tecentrix',
+    youtube: 'https://youtube.com/tecentrix', // Added youtube
   },
   footerText: '© 2025 Tecentrix. All rights reserved.',
   enableBlog: false,
@@ -102,10 +112,21 @@ const defaultSettings: Settings = {
     enabled: false,
     secure: true,
   },
-  inquiryRecipients: {
-    general: ['info@tecentrix.com'],
-    admissions: 'admissions@tecentrix.com',
-  },
+  inquiryRecipients: [ // Changed to an array of recipients
+    {
+      id: '1',
+      name: 'General Inquiries',
+      email: 'info@tecentrix.com',
+      department: 'General',
+      isDefault: true
+    },
+    {
+      id: '2',
+      name: 'Admissions',
+      email: 'admissions@tecentrix.com',
+      department: 'Admissions'
+    }
+  ],
   whatsAppConfig: {
     enabled: true,
     phoneNumber: '+919876543210',
@@ -183,6 +204,30 @@ export const useSettingsStore = create<SettingsState>()(
             adminCredentials: {
               ...credentials,
             }
+          }
+        })),
+      // Added new methods for inquiryRecipients
+      addInquiryRecipient: (recipient) => 
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: [...state.settings.inquiryRecipients, recipient]
+          }
+        })),
+      updateInquiryRecipient: (id, updatedRecipient) => 
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: state.settings.inquiryRecipients.map(recipient => 
+              recipient.id === id ? { ...recipient, ...updatedRecipient } : recipient
+            )
+          }
+        })),
+      removeInquiryRecipient: (id) => 
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            inquiryRecipients: state.settings.inquiryRecipients.filter(recipient => recipient.id !== id)
           }
         })),
     }),

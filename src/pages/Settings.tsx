@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useSettingsStore } from '@/store/settingsStore';
+import { useSettingsStore, InquiryRecipient } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,7 +47,7 @@ const recipientFormSchema = z.object({
 type RecipientFormValues = z.infer<typeof recipientFormSchema>;
 
 const Settings = () => {
-  const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSmtpConfig,
+  const { settings, updateSettings, updateContactInfo, updateSocialLinks, updateSMTPConfig,
     addInquiryRecipient, updateInquiryRecipient, removeInquiryRecipient, updateWhatsAppConfig } = useSettingsStore();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
@@ -58,7 +58,7 @@ const Settings = () => {
   const safeSettings = {
     companyName: settings?.companyName || 'Tecentrix',
     contactInfo: settings?.contactInfo || { email: '', phone: '', address: '' },
-    socialLinks: settings?.socialLinks || { facebook: '', twitter: '', linkedin: '', youtube: '' },
+    socialLinks: settings?.socialLinks || { facebook: '', twitter: '', linkedin: '', instagram: '', youtube: '' },
     footerText: settings?.footerText || '© 2024 Tecentrix. All rights reserved.',
     enableBlog: settings?.enableBlog || false,
     showTestimonials: settings?.showTestimonials || false,
@@ -124,6 +124,7 @@ const Settings = () => {
       facebook: formData.get('facebook') as string,
       twitter: formData.get('twitter') as string,
       linkedin: formData.get('linkedin') as string,
+      instagram: formData.get('instagram') as string,
       youtube: formData.get('youtube') as string,
     });
 
@@ -139,7 +140,7 @@ const Settings = () => {
     
     const port = parseInt(formData.get('port') as string, 10) || 587;
     
-    updateSmtpConfig({
+    updateSMTPConfig({
       host: formData.get('host') as string,
       port,
       username: formData.get('username') as string,
@@ -403,6 +404,17 @@ const Settings = () => {
                     name="linkedin"
                     defaultValue={safeSettings.socialLinks.linkedin}
                     placeholder="Enter LinkedIn URL"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagram" className="flex items-center gap-2">
+                    <Linkedin className="h-4 w-4" /> Instagram
+                  </Label>
+                  <Input
+                    id="instagram"
+                    name="instagram"
+                    defaultValue={safeSettings.socialLinks.instagram}
+                    placeholder="Enter Instagram URL"
                   />
                 </div>
                 <div className="space-y-2">
