@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -36,7 +37,7 @@ interface Course {
   iconBg: string;
   iconColor: string;
   price: string;
-  upcomingBatch?: string;
+  upcomingBatches?: string[]; // Changed from upcomingBatch to upcomingBatches array
   language?: string;
   paymentLink?: string;
 }
@@ -108,7 +109,7 @@ export const useContentStore = create<ContentState>()(
           iconBg: "bg-blue-100",
           iconColor: "text-tecentrix-blue",
           price: "₹35,000",
-          upcomingBatch: "June 15, 2025",
+          upcomingBatches: ["June 15, 2025"], // Convert to array
           language: "English",
           paymentLink: "https://rzp.io/l/tecentrix-rhcsa"
         },
@@ -126,7 +127,7 @@ export const useContentStore = create<ContentState>()(
           iconBg: "bg-orange-100",
           iconColor: "text-tecentrix-orange",
           price: "₹45,000",
-          upcomingBatch: "July 10, 2025",
+          upcomingBatches: ["July 10, 2025"], // Convert to array
           language: "English",
           paymentLink: "https://rzp.io/l/tecentrix-rhce"
         },
@@ -144,7 +145,7 @@ export const useContentStore = create<ContentState>()(
           iconBg: "bg-green-100",
           iconColor: "text-green-600",
           price: "₹40,000",
-          upcomingBatch: "August 5, 2025",
+          upcomingBatches: ["August 5, 2025"], // Convert to array
           language: "English",
           paymentLink: "https://rzp.io/l/tecentrix-security"
         },
@@ -162,7 +163,7 @@ export const useContentStore = create<ContentState>()(
           iconBg: "bg-purple-100",
           iconColor: "text-purple-600",
           price: "₹50,000",
-          upcomingBatch: "September 1, 2025",
+          upcomingBatches: ["September 1, 2025"], // Convert to array
           language: "English/Hindi",
           paymentLink: "https://rzp.io/l/tecentrix-cloud"
         }

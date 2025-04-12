@@ -63,6 +63,26 @@ const Courses = () => {
     });
   };
 
+  // Helper function to display batch dates
+  const renderBatchDates = (course) => {
+    // Handle backwards compatibility with old data format
+    const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
+    
+    if (batches.length === 0) return null;
+    
+    return (
+      <div className="flex items-center">
+        <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+        <span>
+          {batches.length === 1 
+            ? `Next Batch: ${batches[0]}`
+            : `Next Batches: ${batches.slice(0, 2).join(', ')}${batches.length > 2 ? '...' : ''}`
+          }
+        </span>
+      </div>
+    );
+  };
+
   return (
     <section className="section-padding bg-white">
       <div className="container mx-auto px-4">
@@ -136,12 +156,7 @@ const Courses = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-4 text-sm text-tecentrix-darkgray/80">
-                    {course.upcomingBatch && (
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
-                        <span>Next Batch: {course.upcomingBatch}</span>
-                      </div>
-                    )}
+                    {renderBatchDates(course)}
                     {course.language && (
                       <div className="flex items-center">
                         <Languages className="h-4 w-4 mr-1.5 text-tecentrix-blue" />

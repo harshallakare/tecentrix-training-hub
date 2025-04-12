@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useContentStore } from '@/store/contentStore';
@@ -84,6 +85,37 @@ const CoursesManagement = () => {
       title: updatedCourse.enabled ? "Course enabled" : "Course disabled",
       description: `'${course.title}' is now ${updatedCourse.enabled ? 'visible' : 'hidden'} on the website.`
     });
+  };
+
+  // Helper function to display batch dates
+  const renderBatchDates = (course) => {
+    // Handle backwards compatibility with old data format
+    const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
+    
+    if (batches.length === 0) return null;
+    
+    if (batches.length === 1) {
+      return (
+        <div className="flex items-center text-sm text-tecentrix-darkgray/80">
+          <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+          <span>Next Batch: {batches[0]}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="flex flex-col space-y-1">
+        <div className="flex items-center text-sm text-tecentrix-darkgray/80">
+          <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+          <span>Upcoming Batches:</span>
+        </div>
+        <ul className="pl-6 text-sm text-tecentrix-darkgray/80 space-y-0.5">
+          {batches.map((batch, index) => (
+            <li key={index} className="list-disc">{batch}</li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   return (
@@ -179,13 +211,8 @@ const CoursesManagement = () => {
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-4">
-                    {course.upcomingBatch && (
-                      <div className="flex items-center text-sm text-tecentrix-darkgray/80">
-                        <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
-                        <span>Next Batch: {course.upcomingBatch}</span>
-                      </div>
-                    )}
+                  <div className="flex flex-col gap-2 w-full md:w-auto">
+                    {renderBatchDates(course)}
                     {course.language && (
                       <div className="flex items-center text-sm text-tecentrix-darkgray/80">
                         <Languages className="h-4 w-4 mr-1.5 text-tecentrix-blue" />

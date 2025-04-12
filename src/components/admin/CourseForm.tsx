@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,9 @@ const iconOptions = [
 const languageOptions = [
   { value: 'English', label: 'English' },
   { value: 'Hindi', label: 'Hindi' },
+  { value: 'Marathi', label: 'Marathi' }, // Added Marathi option
   { value: 'English/Hindi', label: 'English/Hindi' },
+  { value: 'English/Marathi', label: 'English/Marathi' }, // Added English/Marathi option
 ];
 
 const colorOptions = [
@@ -73,16 +76,24 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     highlighted: false,
     enabled: true,
     modules: [''],
-    upcomingBatch: '',
+    upcomingBatches: [''], // Initialize as array with empty string
     language: 'English',
     paymentLink: '',
   });
 
   useEffect(() => {
     if (initialData) {
+      // Handle conversion from old format (upcomingBatch string) to new format (upcomingBatches array)
+      const updatedData = { ...initialData };
+      if (initialData.upcomingBatch && !initialData.upcomingBatches) {
+        updatedData.upcomingBatches = [initialData.upcomingBatch];
+      } else if (!initialData.upcomingBatches) {
+        updatedData.upcomingBatches = [''];
+      }
+
       setFormData({
-        ...initialData,
-        enabled: initialData.enabled !== undefined ? initialData.enabled : true
+        ...updatedData,
+        enabled: updatedData.enabled !== undefined ? updatedData.enabled : true
       });
     } else {
       setFormData({
@@ -115,14 +126,30 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     setFormData({ ...formData, modules: updatedModules });
   };
 
+  const handleBatchChange = (index: number, value: string) => {
+    const updatedBatches = [...formData.upcomingBatches];
+    updatedBatches[index] = value;
+    setFormData({ ...formData, upcomingBatches: updatedBatches });
+  };
+
   const handleAddModule = () => {
     setFormData({ ...formData, modules: [...formData.modules, ''] });
+  };
+
+  const handleAddBatch = () => {
+    setFormData({ ...formData, upcomingBatches: [...formData.upcomingBatches, ''] });
   };
 
   const handleRemoveModule = (index: number) => {
     const updatedModules = [...formData.modules];
     updatedModules.splice(index, 1);
     setFormData({ ...formData, modules: updatedModules });
+  };
+
+  const handleRemoveBatch = (index: number) => {
+    const updatedBatches = [...formData.upcomingBatches];
+    updatedBatches.splice(index, 1);
+    setFormData({ ...formData, upcomingBatches: updatedBatches });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -147,9 +174,13 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
       return;
     }
     
+    // Filter out empty batch dates
+    const filteredBatches = formData.upcomingBatches.filter(batch => batch.trim() !== '');
+    
     onSubmit({
       ...formData,
       modules: filteredModules,
+      upcomingBatches: filteredBatches,
     });
   };
 
@@ -227,38 +258,64 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="upcomingBatch">Upcoming Batch</Label>
-              <div className="relative">
-                <Input
-                  id="upcomingBatch"
-                  name="upcomingBatch"
-                  value={formData.upcomingBatch}
-                  onChange={handleChange}
-                  placeholder="e.g. June 15, 2025"
-                />
-                <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="language">Language</Label>
-              <Select 
-                value={formData.language} 
-                onValueChange={(value) => handleSelectChange('language', value)}
+          {/* Upcoming Batch Dates Section */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <Label>Upcoming Batch Dates</Label>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAddBatch}
+                className="h-8"
               >
-                <SelectTrigger id="language">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languageOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Plus className="h-4 w-4 mr-1" /> Add Batch
+              </Button>
             </div>
+            <div className="space-y-2">
+              {formData.upcomingBatches.map((batch, index) => (
+                <div key={index} className="flex gap-2">
+                  <div className="relative flex-grow">
+                    <Input
+                      value={batch}
+                      onChange={(e) => handleBatchChange(index, e.target.value)}
+                      placeholder={`e.g. June 15, 2025`}
+                    />
+                    <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                  </div>
+                  {formData.upcomingBatches.length > 1 && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleRemoveBatch(index)}
+                      className="h-10 w-10 shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="language">Language</Label>
+            <Select 
+              value={formData.language} 
+              onValueChange={(value) => handleSelectChange('language', value)}
+            >
+              <SelectTrigger id="language">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {languageOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div>
