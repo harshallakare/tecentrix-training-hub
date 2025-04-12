@@ -18,17 +18,21 @@ const PasswordChangeForm = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Safe access to adminCredentials with fallback
+  const adminUsername = settings?.adminCredentials?.username || 'admin';
+  const adminPassword = settings?.adminCredentials?.password || 'tecentrix';
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Debug information
     console.log("Current password entered:", currentPassword);
-    console.log("Stored password:", settings.adminCredentials?.password);
-    console.log("Full admin credentials in settings:", settings.adminCredentials);
+    console.log("Stored password:", adminPassword);
+    console.log("Full admin credentials in settings:", settings?.adminCredentials);
     
     // Allow default password as a fallback for first login
     const isDefaultPassword = currentPassword === 'tecentrix';
-    const isCurrentPassword = settings.adminCredentials && currentPassword === settings.adminCredentials.password;
+    const isCurrentPassword = currentPassword === adminPassword;
     
     // Validate current password
     if (!isDefaultPassword && !isCurrentPassword) {
@@ -96,7 +100,7 @@ const PasswordChangeForm = () => {
             </Label>
             <Input
               id="username"
-              value={settings.adminCredentials?.username || 'admin'}
+              value={adminUsername}
               disabled
               className="bg-gray-50"
             />

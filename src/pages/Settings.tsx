@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,6 +53,25 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState(false);
   const [editingRecipientId, setEditingRecipientId] = useState<string | null>(null);
+
+  // Initialize settings with default values if they don't exist
+  const safeSettings = {
+    companyName: settings?.companyName || 'Tecentrix',
+    contactInfo: settings?.contactInfo || { email: '', phone: '', address: '' },
+    socialLinks: settings?.socialLinks || { facebook: '', twitter: '', linkedin: '', youtube: '' },
+    footerText: settings?.footerText || '© 2024 Tecentrix. All rights reserved.',
+    enableBlog: settings?.enableBlog || false,
+    showTestimonials: settings?.showTestimonials || false,
+    smtpConfig: settings?.smtpConfig || { 
+      host: '', port: 587, username: '', password: '', 
+      fromEmail: '', fromName: '', secure: false, enabled: false 
+    },
+    inquiryRecipients: settings?.inquiryRecipients || [],
+    whatsAppConfig: settings?.whatsAppConfig || { 
+      enabled: false, phoneNumber: '', message: '' 
+    },
+    adminCredentials: settings?.adminCredentials || { username: 'admin', password: 'tecentrix' }
+  };
 
   const recipientForm = useForm<RecipientFormValues>({
     resolver: zodResolver(recipientFormSchema),
@@ -158,7 +178,7 @@ const Settings = () => {
 
   const onOpenRecipientDialog = (recipientId?: string) => {
     if (recipientId) {
-      const recipient = settings.inquiryRecipients.find(r => r.id === recipientId);
+      const recipient = safeSettings.inquiryRecipients.find(r => r.id === recipientId);
       if (recipient) {
         setEditingRecipientId(recipientId);
         recipientForm.reset({
@@ -189,7 +209,7 @@ const Settings = () => {
   const onSubmitRecipientForm = (data: RecipientFormValues) => {
     if (editingRecipientId) {
       if (data.isDefault) {
-        settings.inquiryRecipients.forEach(r => {
+        safeSettings.inquiryRecipients.forEach(r => {
           if (r.id !== editingRecipientId && r.isDefault) {
             updateInquiryRecipient(r.id, { isDefault: false });
           }
@@ -202,15 +222,15 @@ const Settings = () => {
         description: `${data.name} has been updated successfully.`
       });
     } else {
-      if (data.isDefault || settings.inquiryRecipients.length === 0) {
-        settings.inquiryRecipients.forEach(r => {
+      if (data.isDefault || safeSettings.inquiryRecipients.length === 0) {
+        safeSettings.inquiryRecipients.forEach(r => {
           if (r.isDefault) {
             updateInquiryRecipient(r.id, { isDefault: false });
           }
         });
       }
       
-      const isDefault = settings.inquiryRecipients.length === 0 ? true : data.isDefault;
+      const isDefault = safeSettings.inquiryRecipients.length === 0 ? true : data.isDefault;
       
       addInquiryRecipient({
         id: uuidv4(),
@@ -228,7 +248,7 @@ const Settings = () => {
   };
 
   const handleDeleteRecipient = (id: string) => {
-    const recipient = settings.inquiryRecipients.find(r => r.id === id);
+    const recipient = safeSettings.inquiryRecipients.find(r => r.id === id);
     if (recipient) {
       removeInquiryRecipient(id);
       toast({
@@ -236,8 +256,8 @@ const Settings = () => {
         description: `${recipient.name} has been removed from contact recipients.`
       });
       
-      if (recipient.isDefault && settings.inquiryRecipients.length > 1) {
-        const remainingRecipients = settings.inquiryRecipients.filter(r => r.id !== id);
+      if (recipient.isDefault && safeSettings.inquiryRecipients.length > 1) {
+        const remainingRecipients = safeSettings.inquiryRecipients.filter(r => r.id !== id);
         if (remainingRecipients.length > 0) {
           updateInquiryRecipient(remainingRecipients[0].id, { isDefault: true });
         }
@@ -265,7 +285,7 @@ const Settings = () => {
                   <Input
                     id="companyName"
                     name="companyName"
-                    defaultValue={settings.companyName}
+                    defaultValue={safeSettings.companyName}
                     placeholder="Enter company name"
                   />
                 </div>
@@ -274,7 +294,7 @@ const Settings = () => {
                   <Input
                     id="footerText"
                     name="footerText"
-                    defaultValue={settings.footerText}
+                    defaultValue={safeSettings.footerText}
                     placeholder="Enter footer text"
                   />
                 </div>
@@ -282,7 +302,7 @@ const Settings = () => {
                   <Switch
                     id="enableBlog"
                     name="enableBlog"
-                    defaultChecked={settings.enableBlog}
+                    defaultChecked={safeSettings.enableBlog}
                   />
                   <Label htmlFor="enableBlog">Enable Blog</Label>
                 </div>
@@ -290,7 +310,7 @@ const Settings = () => {
                   <Switch
                     id="showTestimonials"
                     name="showTestimonials"
-                    defaultChecked={settings.showTestimonials}
+                    defaultChecked={safeSettings.showTestimonials}
                   />
                   <Label htmlFor="showTestimonials">Show Testimonials</Label>
                 </div>
@@ -314,7 +334,7 @@ const Settings = () => {
                     id="email"
                     name="email"
                     type="email"
-                    defaultValue={settings.contactInfo.email}
+                    defaultValue={safeSettings.contactInfo.email}
                     placeholder="Enter contact email"
                   />
                 </div>
@@ -325,7 +345,7 @@ const Settings = () => {
                   <Input
                     id="phone"
                     name="phone"
-                    defaultValue={settings.contactInfo.phone}
+                    defaultValue={safeSettings.contactInfo.phone}
                     placeholder="Enter contact phone"
                   />
                 </div>
@@ -336,7 +356,7 @@ const Settings = () => {
                   <Input
                     id="address"
                     name="address"
-                    defaultValue={settings.contactInfo.address}
+                    defaultValue={safeSettings.contactInfo.address}
                     placeholder="Enter business address"
                   />
                 </div>
@@ -359,7 +379,7 @@ const Settings = () => {
                   <Input
                     id="facebook"
                     name="facebook"
-                    defaultValue={settings.socialLinks.facebook}
+                    defaultValue={safeSettings.socialLinks.facebook}
                     placeholder="Enter Facebook URL"
                   />
                 </div>
@@ -370,7 +390,7 @@ const Settings = () => {
                   <Input
                     id="twitter"
                     name="twitter"
-                    defaultValue={settings.socialLinks.twitter}
+                    defaultValue={safeSettings.socialLinks.twitter}
                     placeholder="Enter Twitter URL"
                   />
                 </div>
@@ -381,7 +401,7 @@ const Settings = () => {
                   <Input
                     id="linkedin"
                     name="linkedin"
-                    defaultValue={settings.socialLinks.linkedin}
+                    defaultValue={safeSettings.socialLinks.linkedin}
                     placeholder="Enter LinkedIn URL"
                   />
                 </div>
@@ -392,7 +412,7 @@ const Settings = () => {
                   <Input
                     id="youtube"
                     name="youtube"
-                    defaultValue={settings.socialLinks.youtube}
+                    defaultValue={safeSettings.socialLinks.youtube}
                     placeholder="Enter YouTube URL"
                   />
                 </div>
@@ -422,7 +442,7 @@ const Settings = () => {
                 </Button>
               </div>
               
-              {settings.inquiryRecipients.length === 0 ? (
+              {safeSettings.inquiryRecipients.length === 0 ? (
                 <div className="text-center p-6 bg-gray-50 rounded-md">
                   <p className="text-tecentrix-darkgray/70">No recipients configured yet</p>
                   <p className="text-sm text-tecentrix-darkgray/60 mt-1">
@@ -431,7 +451,7 @@ const Settings = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {settings.inquiryRecipients.map((recipient) => (
+                  {safeSettings.inquiryRecipients.map((recipient) => (
                     <div 
                       key={recipient.id} 
                       className="p-4 border rounded-md flex justify-between items-center"
@@ -468,7 +488,7 @@ const Settings = () => {
                           variant="outline"
                           className="text-red-500 hover:text-red-700"
                           onClick={() => handleDeleteRecipient(recipient.id)}
-                          disabled={settings.inquiryRecipients.length === 1}
+                          disabled={safeSettings.inquiryRecipients.length === 1}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Delete</span>
@@ -583,7 +603,7 @@ const Settings = () => {
                   <Switch
                     id="enabled"
                     name="enabled"
-                    defaultChecked={settings.smtpConfig.enabled}
+                    defaultChecked={safeSettings.smtpConfig.enabled}
                   />
                   <Label htmlFor="enabled">Enable Email Sending</Label>
                 </div>
@@ -596,7 +616,7 @@ const Settings = () => {
                     <Input
                       id="host"
                       name="host"
-                      defaultValue={settings.smtpConfig.host}
+                      defaultValue={safeSettings.smtpConfig.host}
                       placeholder="e.g. smtp.gmail.com"
                     />
                   </div>
@@ -606,7 +626,7 @@ const Settings = () => {
                       id="port"
                       name="port"
                       type="number"
-                      defaultValue={settings.smtpConfig.port.toString()}
+                      defaultValue={safeSettings.smtpConfig.port.toString()}
                       placeholder="e.g. 587"
                     />
                   </div>
@@ -618,7 +638,7 @@ const Settings = () => {
                     <Input
                       id="username"
                       name="username"
-                      defaultValue={settings.smtpConfig.username}
+                      defaultValue={safeSettings.smtpConfig.username}
                       placeholder="Your SMTP username"
                     />
                   </div>
@@ -631,7 +651,7 @@ const Settings = () => {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        defaultValue={settings.smtpConfig.password}
+                        defaultValue={safeSettings.smtpConfig.password}
                         placeholder="Your SMTP password"
                       />
                       <button 
@@ -652,7 +672,7 @@ const Settings = () => {
                       id="fromEmail"
                       name="fromEmail"
                       type="email"
-                      defaultValue={settings.smtpConfig.fromEmail}
+                      defaultValue={safeSettings.smtpConfig.fromEmail}
                       placeholder="noreply@yourdomain.com"
                     />
                   </div>
@@ -661,7 +681,7 @@ const Settings = () => {
                     <Input
                       id="fromName"
                       name="fromName"
-                      defaultValue={settings.smtpConfig.fromName}
+                      defaultValue={safeSettings.smtpConfig.fromName}
                       placeholder="Your Company Name"
                     />
                   </div>
@@ -671,7 +691,7 @@ const Settings = () => {
                   <Switch
                     id="secure"
                     name="secure"
-                    defaultChecked={settings.smtpConfig.secure}
+                    defaultChecked={safeSettings.smtpConfig.secure}
                   />
                   <Label htmlFor="secure">Use Secure Connection (TLS/SSL)</Label>
                 </div>
@@ -697,7 +717,7 @@ const Settings = () => {
                   <Switch
                     id="whatsappEnabled"
                     name="whatsappEnabled"
-                    defaultChecked={settings.whatsAppConfig.enabled}
+                    defaultChecked={safeSettings.whatsAppConfig?.enabled || false}
                   />
                   <Label htmlFor="whatsappEnabled">Enable WhatsApp Button</Label>
                 </div>
@@ -709,7 +729,7 @@ const Settings = () => {
                   <Input
                     id="whatsappPhone"
                     name="whatsappPhone"
-                    defaultValue={settings.whatsAppConfig.phoneNumber}
+                    defaultValue={safeSettings.whatsAppConfig?.phoneNumber || ''}
                     placeholder="e.g. +919876543210"
                   />
                   <p className="text-xs text-gray-500">Include country code with + symbol</p>
@@ -720,7 +740,7 @@ const Settings = () => {
                   <Textarea
                     id="whatsappMessage"
                     name="whatsappMessage"
-                    defaultValue={settings.whatsAppConfig.message}
+                    defaultValue={safeSettings.whatsAppConfig?.message || ''}
                     placeholder="Hello, I'm interested in your courses!"
                     className="min-h-20"
                   />

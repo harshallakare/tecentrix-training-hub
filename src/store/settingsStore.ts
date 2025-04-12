@@ -58,6 +58,65 @@ interface Settings {
   adminCredentials: AdminCredentials;
 }
 
+// Default settings to use when initializing store or handling missing data
+const defaultSettings: Settings = {
+  companyName: 'Tecentrix',
+  contactInfo: {
+    email: 'info@tecentrix.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Tech Street, Silicon Valley, CA 94025',
+  },
+  socialLinks: {
+    facebook: 'https://facebook.com/tecentrix',
+    twitter: 'https://twitter.com/tecentrix',
+    linkedin: 'https://linkedin.com/company/tecentrix',
+    youtube: 'https://youtube.com/tecentrix',
+  },
+  footerText: '© 2024 Tecentrix. All rights reserved.',
+  enableBlog: true,
+  showTestimonials: true,
+  smtpConfig: {
+    host: '',
+    port: 587,
+    username: '',
+    password: '',
+    fromEmail: 'noreply@tecentrix.com',
+    fromName: 'Tecentrix Contact Form',
+    secure: true,
+    enabled: false,
+  },
+  inquiryRecipients: [
+    {
+      id: '1',
+      name: 'Support Team',
+      email: 'support@tecentrix.com',
+      department: 'Support',
+      isDefault: true,
+    },
+    {
+      id: '2',
+      name: 'Sales Department',
+      email: 'sales@tecentrix.com',
+      department: 'Sales',
+    },
+    {
+      id: '3',
+      name: 'Media Relations',
+      email: 'media@tecentrix.com',
+      department: 'PR & Media',
+    }
+  ],
+  whatsAppConfig: {
+    enabled: true,
+    phoneNumber: '+918793044999',
+    message: 'Hello, I\'m interested in your courses!',
+  },
+  adminCredentials: {
+    username: 'admin',
+    password: 'tecentrix',
+  },
+};
+
 interface SettingsState {
   settings: Settings;
   updateSettings: (settings: Partial<Settings>) => void;
@@ -74,63 +133,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      settings: {
-        companyName: 'Tecentrix',
-        contactInfo: {
-          email: 'info@tecentrix.com',
-          phone: '+1 (555) 123-4567',
-          address: '123 Tech Street, Silicon Valley, CA 94025',
-        },
-        socialLinks: {
-          facebook: 'https://facebook.com/tecentrix',
-          twitter: 'https://twitter.com/tecentrix',
-          linkedin: 'https://linkedin.com/company/tecentrix',
-          youtube: 'https://youtube.com/tecentrix',
-        },
-        footerText: '© 2024 Tecentrix. All rights reserved.',
-        enableBlog: true,
-        showTestimonials: true,
-        smtpConfig: {
-          host: '',
-          port: 587,
-          username: '',
-          password: '',
-          fromEmail: 'noreply@tecentrix.com',
-          fromName: 'Tecentrix Contact Form',
-          secure: true,
-          enabled: false,
-        },
-        inquiryRecipients: [
-          {
-            id: '1',
-            name: 'Support Team',
-            email: 'support@tecentrix.com',
-            department: 'Support',
-            isDefault: true,
-          },
-          {
-            id: '2',
-            name: 'Sales Department',
-            email: 'sales@tecentrix.com',
-            department: 'Sales',
-          },
-          {
-            id: '3',
-            name: 'Media Relations',
-            email: 'media@tecentrix.com',
-            department: 'PR & Media',
-          }
-        ],
-        whatsAppConfig: {
-          enabled: true,
-          phoneNumber: '+918793044999',
-          message: 'Hello, I\'m interested in your courses!',
-        },
-        adminCredentials: {
-          username: 'admin',
-          password: 'tecentrix',
-        },
-      },
+      settings: defaultSettings,
       updateSettings: (newSettings) =>
         set((state) => ({
           settings: { ...state.settings, ...newSettings },
@@ -202,21 +205,64 @@ export const useSettingsStore = create<SettingsState>()(
           ? persistedState as Partial<SettingsState> 
           : {};
         
-        // Create merged state with current state as fallback
-        const mergedState = {
-          ...currentState,
-          ...(safePersistedState as object),
-        };
-        
-        // If adminCredentials is missing or incomplete in the persisted state, use the default
-        if (!mergedState.settings.adminCredentials) {
-          mergedState.settings.adminCredentials = {
-            username: 'admin',
-            password: 'tecentrix',
+        // Create a deep-merged settings object with defaults for any missing fields
+        let mergedSettings: Settings;
+
+        try {
+          // First use the persisted settings if they exist
+          const persistedSettings = safePersistedState.settings || {};
+          
+          // Deep merge with defaults to ensure all fields exist
+          mergedSettings = {
+            companyName: persistedSettings.companyName || defaultSettings.companyName,
+            contactInfo: {
+              email: persistedSettings.contactInfo?.email || defaultSettings.contactInfo.email,
+              phone: persistedSettings.contactInfo?.phone || defaultSettings.contactInfo.phone,
+              address: persistedSettings.contactInfo?.address || defaultSettings.contactInfo.address,
+            },
+            socialLinks: {
+              facebook: persistedSettings.socialLinks?.facebook || defaultSettings.socialLinks.facebook,
+              twitter: persistedSettings.socialLinks?.twitter || defaultSettings.socialLinks.twitter,
+              linkedin: persistedSettings.socialLinks?.linkedin || defaultSettings.socialLinks.linkedin,
+              youtube: persistedSettings.socialLinks?.youtube || defaultSettings.socialLinks.youtube,
+            },
+            footerText: persistedSettings.footerText || defaultSettings.footerText,
+            enableBlog: persistedSettings.enableBlog !== undefined ? persistedSettings.enableBlog : defaultSettings.enableBlog,
+            showTestimonials: persistedSettings.showTestimonials !== undefined ? persistedSettings.showTestimonials : defaultSettings.showTestimonials,
+            smtpConfig: {
+              host: persistedSettings.smtpConfig?.host || defaultSettings.smtpConfig.host,
+              port: persistedSettings.smtpConfig?.port || defaultSettings.smtpConfig.port,
+              username: persistedSettings.smtpConfig?.username || defaultSettings.smtpConfig.username,
+              password: persistedSettings.smtpConfig?.password || defaultSettings.smtpConfig.password,
+              fromEmail: persistedSettings.smtpConfig?.fromEmail || defaultSettings.smtpConfig.fromEmail,
+              fromName: persistedSettings.smtpConfig?.fromName || defaultSettings.smtpConfig.fromName,
+              secure: persistedSettings.smtpConfig?.secure !== undefined ? persistedSettings.smtpConfig.secure : defaultSettings.smtpConfig.secure,
+              enabled: persistedSettings.smtpConfig?.enabled !== undefined ? persistedSettings.smtpConfig.enabled : defaultSettings.smtpConfig.enabled,
+            },
+            inquiryRecipients: persistedSettings.inquiryRecipients?.length 
+              ? persistedSettings.inquiryRecipients 
+              : defaultSettings.inquiryRecipients,
+            whatsAppConfig: {
+              enabled: persistedSettings.whatsAppConfig?.enabled !== undefined 
+                ? persistedSettings.whatsAppConfig.enabled 
+                : defaultSettings.whatsAppConfig.enabled,
+              phoneNumber: persistedSettings.whatsAppConfig?.phoneNumber || defaultSettings.whatsAppConfig.phoneNumber,
+              message: persistedSettings.whatsAppConfig?.message || defaultSettings.whatsAppConfig.message,
+            },
+            adminCredentials: {
+              username: persistedSettings.adminCredentials?.username || defaultSettings.adminCredentials.username,
+              password: persistedSettings.adminCredentials?.password || defaultSettings.adminCredentials.password,
+            },
           };
+        } catch (error) {
+          console.error('Error merging settings, using defaults', error);
+          mergedSettings = defaultSettings;
         }
         
-        return mergedState;
+        return {
+          ...currentState,
+          settings: mergedSettings,
+        };
       },
     }
   )
