@@ -3,6 +3,13 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
+// Extend Window interface to include our custom property
+declare global {
+  interface Window {
+    __APP_RENDERED?: boolean;
+  }
+}
+
 console.log("Main entry point executing", new Date().toISOString());
 
 try {
