@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,7 +18,7 @@ import { useEffect } from "react";
 import { initializeNavigation } from "./utils/initializeNavigation";
 import { syncContentData } from "./utils/dataSync";
 import { useMobileInfo } from "./hooks/use-mobile";
-import { refreshSettingsFromStorage } from "./store/settingsStore";
+import { refreshSettingsFromStorage, useSettingsStore } from "./store/settingsStore";
 import { useSettingsSync } from "./hooks/use-settings-sync";
 
 // Configure QueryClient with better caching behavior for mobile
