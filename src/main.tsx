@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Extend Window interface to include our custom property
+// Extend Window interface to include our custom property with correct typing
 declare global {
   interface Window {
     __APP_RENDERED?: boolean;
@@ -34,3 +34,4 @@ try {
   console.error("Critical error during app initialization:", error);
   document.body.innerHTML = '<div style="color: red; padding: 20px;">Sorry, the application failed to load. Please refresh the page or check console for details.</div>';
 }
+
