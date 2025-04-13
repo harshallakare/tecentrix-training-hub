@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
 
@@ -207,18 +206,32 @@ export const useContentStore = create<ContentState>()(
         console.log("Forcing content refresh...");
         // Clear the content from localStorage
         if (typeof localStorage !== 'undefined') {
-          localStorage.removeItem('tecentrix-content');
+          // Aggressively clear all tecentrix content
+          Object.keys(localStorage).forEach(key => {
+            if (key.includes('tecentrix-content')) {
+              localStorage.removeItem(key);
+            }
+          });
+          
+          // Force a cache-busting timestamp
+          localStorage.setItem('tecentrix-sync-timestamp', Date.now().toString());
         }
         
-        // Simply rehydrate the store by setting state to itself
+        // Update last refresh timestamp and force rerender
         const currentState = get();
-        set({ ...currentState });
+        set({ 
+          ...currentState,
+          lastContentRefresh: Date.now() 
+        });
         
-        // Update last refresh timestamp
-        set(state => ({
-          ...state,
-          lastContentRefresh: Date.now()
-        }));
+        // Broadcast a sync event that other tabs can listen for
+        try {
+          window.dispatchEvent(new CustomEvent('tecentrix-content-sync', {
+            detail: { timestamp: Date.now() }
+          }));
+        } catch (e) {
+          console.error("Error broadcasting sync event:", e);
+        }
       },
       updateHeroContent: (heroContent) => 
         set((state) => ({
@@ -291,7 +304,7 @@ export const useContentStore = create<ContentState>()(
     }),
     {
       name: 'tecentrix-content',
-      // Never use localStorage cache for more than 5 minutes
+      // Never use localStorage cache for more than 30 seconds to ensure frequent updates
       storage: {
         getItem: (name): StorageValue<ContentState> | null => {
           try {
@@ -301,8 +314,8 @@ export const useContentStore = create<ContentState>()(
             const parsed = JSON.parse(data);
             const timestamp = parsed?.state?.lastContentRefresh || 0;
             
-            // If data is older than 5 minutes, don't use it
-            if (Date.now() - timestamp > 5 * 60 * 1000) {
+            // If data is older than 30 seconds, don't use it
+            if (Date.now() - timestamp > 30 * 1000) {
               console.log("Cached content expired, refreshing");
               localStorage.removeItem(name);
               return null;
@@ -316,6 +329,9 @@ export const useContentStore = create<ContentState>()(
         },
         setItem: (name, value: StorageValue<ContentState>) => {
           localStorage.setItem(name, JSON.stringify(value));
+          
+          // Also set a separate timestamp to help with syncing
+          localStorage.setItem('tecentrix-last-update', Date.now().toString());
         },
         removeItem: (name) => localStorage.removeItem(name)
       }

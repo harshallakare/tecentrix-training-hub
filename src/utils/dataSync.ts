@@ -3,21 +3,34 @@ import { useContentStore } from "@/store/contentStore";
 import { useNavigationStore } from "@/store/navigationStore";
 
 /**
- * Simplified function to force refresh of content data
- * This function is more direct and aggressive about clearing caches
+ * Aggressive content sync function that ensures data is fresh
+ * Includes cache-busting mechanisms for more reliable synchronization
  */
 export const syncContentData = (forceRefresh = false) => {
   const contentStore = useContentStore.getState();
   const navigationStore = useNavigationStore.getState();
   
-  // Clear localStorage cache for content
-  if (forceRefresh && typeof localStorage !== 'undefined') {
-    localStorage.removeItem('tecentrix-content');
+  // Clear ALL localStorage cache for content
+  if (typeof localStorage !== 'undefined') {
+    // Remove all content-related cache items
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes('tecentrix-content') || key.includes('tecentrix-cache')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Add a cache-busting timestamp
+    localStorage.setItem('tecentrix-sync-' + Date.now(), 'true');
   }
   
-  // Refresh content data
+  // Force content refresh
   if (typeof contentStore.refreshContent === 'function') {
     contentStore.refreshContent();
+    
+    // Double-refresh for extra reliability
+    setTimeout(() => {
+      contentStore.refreshContent?.();
+    }, 500);
   }
   
   // Refresh navigation data
@@ -25,15 +38,30 @@ export const syncContentData = (forceRefresh = false) => {
     navigationStore.refreshNavigation();
   }
   
-  console.log("Data sync completed at", new Date().toISOString());
+  // Attempt a cache-busting network request
+  try {
+    const cacheBuster = Date.now();
+    fetch(`/api/ping?t=${cacheBuster}`, { cache: 'no-store' })
+      .catch(() => {}); // Ignore errors, this is just for cache busting
+  } catch (e) {
+    // Ignore any errors
+  }
+  
+  console.log("Aggressive data sync completed at", new Date().toISOString());
   
   return true;
 };
 
 /**
  * Hook to detect network status changes and trigger refresh
- * (Keeping this for backwards compatibility)
  */
 export const useNetworkSync = () => {
-  return navigator.onLine;
+  const isOnline = navigator.onLine;
+  
+  // If we're back online, force a sync
+  if (isOnline) {
+    syncContentData(true);
+  }
+  
+  return isOnline;
 };
