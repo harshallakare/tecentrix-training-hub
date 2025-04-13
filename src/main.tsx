@@ -12,13 +12,17 @@ declare global {
 
 console.log("Main entry point executing", new Date().toISOString());
 
-try {
-  const rootElement = document.getElementById("root");
-  
-  if (!rootElement) {
-    console.error("Could not find root element");
-    document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found.</div>';
-  } else {
+// Safe initialization function
+function initializeApp() {
+  try {
+    const rootElement = document.getElementById("root");
+    
+    if (!rootElement) {
+      console.error("Could not find root element");
+      document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found.</div>';
+      return false;
+    }
+    
     console.log("Creating React root");
     
     // Create root and render app
@@ -29,8 +33,14 @@ try {
     
     // Set a flag in window to indicate successful render
     window.__APP_RENDERED = true;
+    
+    return true;
+  } catch (error) {
+    console.error("Critical error during app initialization:", error);
+    document.body.innerHTML = '<div style="color: red; padding: 20px;">Sorry, the application failed to load. Please refresh the page or check console for details.</div>';
+    return false;
   }
-} catch (error) {
-  console.error("Critical error during app initialization:", error);
-  document.body.innerHTML = '<div style="color: red; padding: 20px;">Sorry, the application failed to load. Please refresh the page or check console for details.</div>';
 }
+
+// Start app initialization
+initializeApp();

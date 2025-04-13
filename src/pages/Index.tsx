@@ -14,19 +14,34 @@ const Index = () => {
   useEffect(() => {
     console.log("Index page mounting");
     
-    // Basic initialization without complex logic
-    try {
-      initializeNavigation();
-      syncContentData();
+    // Use a timeout to ensure the DOM is ready
+    const initTimeout = setTimeout(() => {
+      // Basic initialization with careful error handling
+      try {
+        initializeNavigation();
+        console.log("Navigation initialized successfully");
+      } catch (error) {
+        console.error("Error initializing navigation:", error);
+      }
+      
+      try {
+        syncContentData();
+        console.log("Content data synced successfully");
+      } catch (error) {
+        console.error("Error syncing content data:", error);
+      }
       
       // Set page title
-      document.title = "Tecentrix - Professional Training and Certification";
-      console.log("Index page initialized successfully");
-    } catch (error) {
-      console.error("Error initializing Index page:", error);
-    }
+      try {
+        document.title = "Tecentrix - Professional Training and Certification";
+        console.log("Index page initialized successfully");
+      } catch (error) {
+        console.error("Error setting page title:", error);
+      }
+    }, 100);
     
     return () => {
+      clearTimeout(initTimeout);
       console.log("Index page unmounting");
     };
   }, []);

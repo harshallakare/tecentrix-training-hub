@@ -10,15 +10,19 @@ export function useContentSync(forceRefresh = false) {
   const [lastSync, setLastSync] = useState<number>(Date.now());
   const contentStore = useContentStore();
   
-  // Simple refresh function that doesn't depend on complex logic
+  // Simple refresh function with better error handling
   const refreshContent = () => {
+    if (typeof window === 'undefined') return; // Safety check for SSR
+    
     try {
-      console.log("Simple content refresh requested");
+      console.log("Content refresh requested");
       
       // Safely refresh content store
-      if (typeof contentStore.refreshContent === 'function') {
+      if (contentStore && typeof contentStore.refreshContent === 'function') {
         contentStore.refreshContent();
         console.log("Content store refreshed successfully");
+      } else {
+        console.warn("Content store or refreshContent function not available");
       }
       
       setLastSync(Date.now());
@@ -30,10 +34,13 @@ export function useContentSync(forceRefresh = false) {
   useEffect(() => {
     console.log("useContentSync hook initialized");
     
-    // Initial content refresh
-    refreshContent();
+    // Initial content refresh with safety timeout
+    const initTimeout = setTimeout(() => {
+      refreshContent();
+    }, 100);
     
     return () => {
+      clearTimeout(initTimeout);
       console.log("useContentSync hook unmounted");
     };
   }, []);

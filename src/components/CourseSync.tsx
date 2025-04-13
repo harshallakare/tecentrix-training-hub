@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 /**
  * This component ensures content synchronization with improved error handling
@@ -24,8 +23,13 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
       
       // Call onSync callback if provided
       if (onSync && typeof onSync === 'function') {
-        onSync({id: '1', title: 'RHCSA Certification'});
-        console.log("onSync callback executed");
+        // Safe call with try-catch to prevent rendering failures
+        try {
+          onSync({id: '1', title: 'RHCSA Certification'});
+          console.log("onSync callback executed");
+        } catch (err) {
+          console.error("Error in onSync callback:", err);
+        }
       }
     } catch (e) {
       console.error("Error in CourseSync initialization:", e);

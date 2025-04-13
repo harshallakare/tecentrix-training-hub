@@ -9,19 +9,39 @@ export const syncContentData = (forceRefresh = false) => {
   console.log("Syncing content data...");
   
   try {
-    // Simple direct access to stores
-    const contentStore = useContentStore.getState();
-    const navigationStore = useNavigationStore.getState();
+    // Get store states safely
+    let contentStore;
+    let navigationStore;
     
-    // Basic refresh operations
+    try {
+      contentStore = useContentStore.getState();
+    } catch (e) {
+      console.error("Error accessing content store:", e);
+    }
+    
+    try {
+      navigationStore = useNavigationStore.getState();
+    } catch (e) {
+      console.error("Error accessing navigation store:", e);
+    }
+    
+    // Basic refresh operations with safety checks
     if (contentStore && typeof contentStore.refreshContent === 'function') {
-      contentStore.refreshContent();
-      console.log("Content store refreshed successfully");
+      try {
+        contentStore.refreshContent();
+        console.log("Content store refreshed successfully");
+      } catch (e) {
+        console.error("Error refreshing content store:", e);
+      }
     }
     
     if (navigationStore && typeof navigationStore.refreshNavigation === 'function') {
-      navigationStore.refreshNavigation();
-      console.log("Navigation refreshed successfully");
+      try {
+        navigationStore.refreshNavigation();
+        console.log("Navigation refreshed successfully");
+      } catch (e) {
+        console.error("Error refreshing navigation:", e);
+      }
     }
     
     console.log("Data sync completed at", new Date().toISOString());
@@ -37,7 +57,11 @@ export const syncContentData = (forceRefresh = false) => {
  */
 export const useNetworkSync = () => {
   try {
-    return navigator.onLine;
+    // Safe check for browser environment
+    if (typeof navigator !== 'undefined' && 'onLine' in navigator) {
+      return navigator.onLine;
+    }
+    return true; // Default to online in SSR context
   } catch (error) {
     console.error("Error in network sync:", error);
     return true; // Default to online
