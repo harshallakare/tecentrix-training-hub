@@ -12,7 +12,7 @@ declare global {
 
 console.log("Main entry point executing", new Date().toISOString());
 
-// Simplified initialization function to reduce potential issues
+// Simplified initialization function to prevent potential issues
 function initializeApp() {
   try {
     const rootElement = document.getElementById("root");
@@ -24,7 +24,7 @@ function initializeApp() {
     
     console.log("Creating React root");
     
-    // Create root and render app with simple error boundary
+    // Create root and render app
     const root = createRoot(rootElement);
     root.render(<App />);
     
@@ -47,5 +47,5 @@ function initializeApp() {
   }
 }
 
-// Start app initialization with a small delay to ensure DOM is ready
-setTimeout(initializeApp, 0);
+// Start app initialization immediately 
+initializeApp();

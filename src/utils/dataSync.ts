@@ -2,11 +2,21 @@
 import { useContentStore } from "@/store/contentStore";
 import { useNavigationStore } from "@/store/navigationStore";
 
+// Flag to prevent concurrent sync operations
+let isSyncing = false;
+
 /**
  * Safe content sync function with improved error handling and anti-recursion protections
  */
 export const syncContentData = (forceRefresh = false) => {
+  // Prevent multiple synchronous calls
+  if (isSyncing && !forceRefresh) {
+    console.log("Sync already in progress, skipping");
+    return false;
+  }
+  
   console.log("Syncing content data...");
+  isSyncing = true;
   
   try {
     // Safely get store states with individual error handling
@@ -53,6 +63,9 @@ export const syncContentData = (forceRefresh = false) => {
   } catch (error) {
     console.error("Error during data sync:", error);
     return false;
+  } finally {
+    // Always reset sync flag even if an error occurred
+    isSyncing = false;
   }
 };
 

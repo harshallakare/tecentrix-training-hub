@@ -16,25 +16,27 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
     
     console.log("CourseSync component mounting", new Date().toISOString());
     
-    // Use a timeout to delay initialization slightly
-    const initTimeout = setTimeout(() => {
-      try {
-        // Mark as initialized
+    let mounted = true;
+    
+    // Safely initialize
+    try {
+      // Mark as initialized only if component is still mounted
+      if (mounted) {
         setInitialized(true);
         console.log("CourseSync initialized successfully");
         
-        // Call onSync callback if provided
+        // Call onSync callback if provided and component is still mounted
         if (onSync && typeof onSync === 'function') {
           onSync({id: '1', title: 'RHCSA Certification'});
           console.log("onSync callback executed");
         }
-      } catch (e) {
-        console.error("Error in CourseSync initialization:", e);
       }
-    }, 50);
+    } catch (e) {
+      console.error("Error in CourseSync initialization:", e);
+    }
     
     return () => {
-      clearTimeout(initTimeout);
+      mounted = false;
       console.log("CourseSync component unmounting");
     };
   }, [onSync]);

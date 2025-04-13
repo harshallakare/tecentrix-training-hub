@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useContentStore } from '@/store/contentStore';
 
 /**
@@ -9,6 +9,7 @@ import { useContentStore } from '@/store/contentStore';
 export function useContentSync(forceRefresh = false) {
   const [lastSync, setLastSync] = useState<number>(Date.now());
   const contentStore = useContentStore();
+  const initializedRef = useRef(false);
   
   // Memoized refresh function to prevent recreation on each render
   const refreshContent = useCallback(() => {
@@ -32,15 +33,16 @@ export function useContentSync(forceRefresh = false) {
   }, [contentStore]);
   
   useEffect(() => {
-    console.log("useContentSync hook initialized");
+    // Skip if already initialized to prevent multiple refreshes
+    if (initializedRef.current) return;
     
-    // Initial content refresh with safety timeout
-    const initTimeout = setTimeout(() => {
-      refreshContent();
-    }, 150);
+    console.log("useContentSync hook initialized");
+    initializedRef.current = true;
+    
+    // Initial content refresh
+    refreshContent();
     
     return () => {
-      clearTimeout(initTimeout);
       console.log("useContentSync hook unmounted");
     };
   }, [refreshContent]);

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
@@ -11,37 +11,39 @@ import { initializeNavigation } from '@/utils/initializeNavigation';
 import { syncContentData } from '@/utils/dataSync';
 
 const Index = () => {
+  const initialized = useRef(false);
+  
   useEffect(() => {
+    // Prevent double initialization
+    if (initialized.current) return;
+    initialized.current = true;
+    
     console.log("Index page mounting");
     
-    // Use a timeout with increased delay to ensure the DOM is ready
-    const initTimeout = setTimeout(() => {
-      // Basic initialization with careful error handling
-      try {
-        initializeNavigation();
-        console.log("Navigation initialized successfully");
-      } catch (error) {
-        console.error("Error initializing navigation:", error);
-      }
-      
-      try {
-        syncContentData();
-        console.log("Content data synced successfully");
-      } catch (error) {
-        console.error("Error syncing content data:", error);
-      }
-      
-      // Set page title
-      try {
-        document.title = "Tecentrix - Professional Training and Certification";
-        console.log("Index page initialized successfully");
-      } catch (error) {
-        console.error("Error setting page title:", error);
-      }
-    }, 200);
+    // Handle initializations sequentially to prevent race conditions
+    try {
+      initializeNavigation();
+      console.log("Navigation initialized successfully");
+    } catch (error) {
+      console.error("Error initializing navigation:", error);
+    }
+    
+    try {
+      syncContentData();
+      console.log("Content data synced successfully");
+    } catch (error) {
+      console.error("Error syncing content data:", error);
+    }
+    
+    // Set page title
+    try {
+      document.title = "Tecentrix - Professional Training and Certification";
+      console.log("Index page initialized successfully");
+    } catch (error) {
+      console.error("Error setting page title:", error);
+    }
     
     return () => {
-      clearTimeout(initTimeout);
       console.log("Index page unmounting");
     };
   }, []);
