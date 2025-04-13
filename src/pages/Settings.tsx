@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { useSettingsStore, InquiryRecipient } from '@/store/settingsStore';
+import React, { useState, useEffect } from 'react';
+import { useSettingsStore, InquiryRecipient, refreshSettingsFromStorage } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Facebook, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, 
   Server, Lock, Eye, EyeOff, UserPlus, Trash2, Edit, Users, User,
-  MessageCircle
+  MessageCircle, RefreshCw
 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,6 +52,7 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isRecipientDialogOpen, setIsRecipientDialogOpen] = useState(false);
   const [editingRecipientId, setEditingRecipientId] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState('');
 
   // Initialize settings with default values if they don't exist
   const safeSettings = {
@@ -73,6 +73,14 @@ const Settings = () => {
     adminCredentials: settings?.adminCredentials || { username: 'admin', password: 'tecentrix' }
   };
 
+  // Sync company name from settings 
+  useEffect(() => {
+    setCompanyName(settings.companyName || 'Tecentrix');
+    
+    // Force refresh settings on mount to ensure consistency
+    refreshSettingsFromStorage();
+  }, [settings.companyName]);
+
   const recipientForm = useForm<RecipientFormValues>({
     resolver: zodResolver(recipientFormSchema),
     defaultValues: {
@@ -86,17 +94,43 @@ const Settings = () => {
   const handleGeneralSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
+    const newCompanyName = formData.get('companyName') as string;
     
     updateSettings({
-      companyName: formData.get('companyName') as string,
+      companyName: newCompanyName,
       footerText: formData.get('footerText') as string,
       enableBlog: (formData.get('enableBlog') === 'on'),
       showTestimonials: (formData.get('showTestimonials') === 'on'),
     });
 
+    // Update document title immediately
+    document.title = `${newCompanyName} - Linux Administration Training`;
+    
+    // Update HTML data attribute
+    document.documentElement.dataset.companyName = newCompanyName;
+    
+    // Force localStorage refresh to propagate changes
+    localStorage.setItem('company-name-updated', Date.now().toString());
+    
+    // Trigger custom event for immediate sync
+    window.dispatchEvent(new Event('settings-updated'));
+    
     toast({
       title: "Settings updated",
-      description: "General settings have been saved successfully"
+      description: `Company name changed to "${newCompanyName}". Changes have been saved successfully.`
+    });
+    
+    // Force a global settings refresh
+    setTimeout(() => {
+      refreshSettingsFromStorage();
+    }, 100);
+  };
+
+  const handleForceRefresh = () => {
+    refreshSettingsFromStorage();
+    toast({
+      title: "Settings refreshed",
+      description: "All settings have been refreshed from storage"
     });
   };
 
@@ -269,7 +303,13 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-tecentrix-gray flex flex-col">
       <div className="container mx-auto px-4 py-10 flex-grow">
-        <h1 className="text-3xl font-bold text-tecentrix-blue mb-8">Site Settings</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-tecentrix-blue">Site Settings</h1>
+          <Button onClick={handleForceRefresh} variant="outline" className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh Settings
+          </Button>
+        </div>
         
         <div className="grid gap-6">
           <PasswordChangeForm />
@@ -286,9 +326,14 @@ const Settings = () => {
                   <Input
                     id="companyName"
                     name="companyName"
-                    defaultValue={safeSettings.companyName}
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Enter company name"
+                    className="font-medium"
                   />
+                  <p className="text-xs text-tecentrix-darkgray/70">
+                    Current company name: <span className="font-semibold">{settings.companyName}</span>
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="footerText">Footer Text</Label>
@@ -315,7 +360,9 @@ const Settings = () => {
                   />
                   <Label htmlFor="showTestimonials">Show Testimonials</Label>
                 </div>
-                <Button type="submit">Save General Settings</Button>
+                <Button type="submit" className="bg-tecentrix-blue hover:bg-tecentrix-blue/90">
+                  Save General Settings
+                </Button>
               </form>
             </CardContent>
           </Card>

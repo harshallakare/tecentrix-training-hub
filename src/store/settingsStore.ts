@@ -74,13 +74,14 @@ interface SettingsState {
   updateCompanyInfo: (companyInfo: Partial<CompanyInfo>) => void;
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
-  updateSMTPConfig: (smtpConfig: Partial<SMTPConfig>) => void; // Added this
+  updateSMTPConfig: (smtpConfig: Partial<SMTPConfig>) => void;
   updateWhatsAppConfig: (whatsAppConfig: Partial<WhatsAppConfig>) => void;
   updateAdminCredentials: (credentials: AdminCredentials) => void;
-  // Added these methods
   addInquiryRecipient: (recipient: InquiryRecipient) => void;
   updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
   removeInquiryRecipient: (id: string) => void;
+  // Added getter functions for simplicity
+  getCompanyName: () => string;
 }
 
 // Initialize with default values
@@ -140,23 +141,44 @@ const defaultSettings: Settings = {
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       settings: defaultSettings,
       updateSettings: (newSettings) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            ...newSettings,
-          }
-        })),
+        set((state) => {
+          console.log("Updating settings with:", newSettings);
+          
+          // Force localStorage update for immediate persistence
+          setTimeout(() => {
+            window.dispatchEvent(new Event('storage'));
+          }, 100);
+          
+          return {
+            settings: {
+              ...state.settings,
+              ...newSettings,
+            }
+          };
+        }),
       updateCompanyInfo: (companyInfo) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            companyName: companyInfo.companyName ?? state.settings.companyName,
-            // Add other company info properties as needed
-          }
-        })),
+        set((state) => {
+          console.log("Updating company info:", companyInfo);
+          
+          const updatedSettings = {
+            settings: {
+              ...state.settings,
+              companyName: companyInfo.companyName ?? state.settings.companyName,
+              // Add other company info properties as needed
+            }
+          };
+          
+          // Force update event
+          setTimeout(() => {
+            window.dispatchEvent(new Event('settings-updated'));
+            window.dispatchEvent(new Event('storage'));
+          }, 100);
+          
+          return updatedSettings;
+        }),
       updateContactInfo: (contactInfo) => 
         set((state) => ({
           settings: {
@@ -230,9 +252,60 @@ export const useSettingsStore = create<SettingsState>()(
             inquiryRecipients: state.settings.inquiryRecipients.filter(recipient => recipient.id !== id)
           }
         })),
+      // Added getter for company name for easy access
+      getCompanyName: () => get().settings.companyName,
     }),
     {
       name: 'tecentrix-settings',
+      // Improve storage settings with version information
+      version: 1,
+      // Add merge function to ensure settings are properly merged on hydration
+      merge: (persistedState: any, currentState) => {
+        const merged = {
+          ...currentState,
+          settings: {
+            ...defaultSettings,
+            ...(persistedState as any).settings,
+          }
+        };
+        console.log("Storage hydrated with merged settings:", merged);
+        return merged;
+      },
     }
   )
 );
+
+// Create a global hook to force refresh settings from localStorage
+export const refreshSettingsFromStorage = () => {
+  const storedSettings = localStorage.getItem('tecentrix-settings');
+  if (storedSettings) {
+    try {
+      const parsedSettings = JSON.parse(storedSettings);
+      if (parsedSettings && parsedSettings.state && parsedSettings.state.settings) {
+        useSettingsStore.setState({ 
+          settings: {
+            ...defaultSettings,
+            ...parsedSettings.state.settings
+          } 
+        });
+        console.log("Settings refreshed from storage:", parsedSettings.state.settings);
+      }
+    } catch (e) {
+      console.error("Error parsing stored settings:", e);
+    }
+  }
+};
+
+// Add event listener to sync settings across tabs/frames
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'tecentrix-settings') {
+      refreshSettingsFromStorage();
+    }
+  });
+  
+  // Also listen for custom event
+  window.addEventListener('settings-updated', () => {
+    refreshSettingsFromStorage();
+  });
+}

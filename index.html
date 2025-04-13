@@ -8,6 +8,11 @@
     <meta name="description" content="Expert-led Linux administration training to advance your IT career. Master server management, security, and networking skills with hands-on courses." />
     <meta name="author" content="Tecentrix" />
     
+    <!-- Cache control meta tags to prevent mobile/desktop inconsistency -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.tecentrix.com/" />
@@ -27,6 +32,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- Mobile web app related -->
+    <meta name="application-name" content="Tecentrix" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+
     <link rel="icon" type="image/png" href="/lovable-uploads/41bbf379-ac88-47c1-a794-42fbc6734c17.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,6 +46,30 @@
 
   <body>
     <div id="root"></div>
+    <script>
+      // Simple script to force refresh for mobile/desktop consistency
+      document.addEventListener('DOMContentLoaded', function() {
+        // Force settings sync on page load
+        window.addEventListener('storage', function(event) {
+          if (event.key === 'tecentrix-settings' || event.key === 'company-name-updated') {
+            console.log('Settings updated in another tab/window. Syncing...');
+            // Update page title based on company name
+            try {
+              const settingsData = localStorage.getItem('tecentrix-settings');
+              if (settingsData) {
+                const settings = JSON.parse(settingsData);
+                if (settings && settings.state && settings.state.settings && settings.state.settings.companyName) {
+                  document.title = settings.state.settings.companyName + ' - Linux Administration Training';
+                  document.documentElement.dataset.companyName = settings.state.settings.companyName;
+                }
+              }
+            } catch (e) {
+              console.error('Error updating from storage:', e);
+            }
+          }
+        });
+      });
+    </script>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
