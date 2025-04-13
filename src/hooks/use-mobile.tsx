@@ -9,15 +9,14 @@ const MOBILE_BREAKPOINT = 768
  * This hook is intentionally simplified to rely more on CSS media queries
  */
 export function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = React.useState<boolean>(false)
+  const [isMobile, setIsMobile] = React.useState<boolean>(
+    typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
+  );
 
   React.useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
-    
-    // Initial check
-    checkMobile();
     
     // Add resize listener
     window.addEventListener('resize', checkMobile);
@@ -42,6 +41,7 @@ export function useMobileInfo() {
   const [dimensions, setDimensions] = React.useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 0,
     height: typeof window !== 'undefined' ? window.innerHeight : 0,
+    pixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio : 1,
   });
 
   React.useEffect(() => {
@@ -51,6 +51,7 @@ export function useMobileInfo() {
       setDimensions({
         width: window.innerWidth,
         height: window.innerHeight,
+        pixelRatio: window.devicePixelRatio,
       });
     };
 
