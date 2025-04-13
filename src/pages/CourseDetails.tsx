@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -26,7 +27,7 @@ const CourseDetails = () => {
   const navigate = useNavigate();
   const { coursesList } = useContentStore();
   const [course, setCourse] = useState<any>(null);
-  const { isMobile } = useIsMobile();
+  const isMobile = useIsMobile();
   
   const handleCourseSync = (syncedCourse: any) => {
     setCourse(syncedCourse);

@@ -9,12 +9,13 @@ import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
 import { initializeNavigation } from '@/utils/initializeNavigation';
 import { syncContentData, useNetworkSync } from '@/utils/dataSync';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useMobileInfo } from '@/hooks/use-mobile';
 
 const Index = () => {
   // Check network status
   const isOnline = useNetworkSync();
-  const { isMobile, orientation } = useIsMobile();
+  const isMobile = useIsMobile();
+  const { orientation } = useMobileInfo();
   
   useEffect(() => {
     // Initialize navigation items and sync data on mount
