@@ -17,6 +17,7 @@ import { useNavigationStore } from "./store/navigationStore";
 import { useEffect } from "react";
 import { initializeNavigation } from "./utils/initializeNavigation";
 import { syncContentData } from "./utils/dataSync";
+import { useMobileInfo } from "./hooks/use-mobile";
 
 // Configure QueryClient with better caching behavior for mobile
 const queryClient = new QueryClient({
@@ -32,6 +33,7 @@ const queryClient = new QueryClient({
 
 const AppRoutes = () => {
   const { navItems } = useNavigationStore();
+  const { isMobile, orientation, dimensions } = useMobileInfo();
   const activeNavItems = navItems.filter(item => item.enabled);
   
   // Initialize navigation on routes component mount
@@ -42,6 +44,7 @@ const AppRoutes = () => {
     // Log navigation state for debugging
     console.log("AppRoutes mounted - Active navigation items:", 
       activeNavItems.map(item => item.label).join(", "));
+    console.log("Device info:", { isMobile, orientation, dimensions });
   }, []);
 
   return (
@@ -72,8 +75,25 @@ const AppRoutes = () => {
 };
 
 const App = () => {
+  const { isMobile, orientation, dimensions } = useMobileInfo();
+  
   // Force data sync when app first loads
   useEffect(() => {
+    // Set device classes on root HTML element for CSS targeting
+    document.documentElement.classList.toggle('is-mobile', isMobile);
+    document.documentElement.classList.toggle('is-portrait', orientation === 'portrait');
+    document.documentElement.classList.toggle('is-landscape', orientation === 'landscape');
+    
+    // Log device info
+    console.log("App initialized with device info:", { 
+      isMobile, 
+      orientation, 
+      width: dimensions.width,
+      height: dimensions.height,
+      pixelRatio: dimensions.pixelRatio,
+      userAgent: navigator.userAgent
+    });
+    
     initializeNavigation(true);
     syncContentData(true);
     
@@ -85,12 +105,20 @@ const App = () => {
       }
     };
     
+    // Forced refresh for iOS devices to ensure proper rendering
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase())) {
+      setTimeout(() => {
+        console.log("Forced refresh for iOS device");
+        syncContentData(true);
+      }, 1000);
+    }
+    
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [isMobile, orientation, dimensions]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -98,8 +126,10 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AppRoutes />
-          <WhatsAppButton />
+          <div className={`app-root ${isMobile ? 'mobile-view' : 'desktop-view'} ${orientation}`}>
+            <AppRoutes />
+            <WhatsAppButton />
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
