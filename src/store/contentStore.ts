@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
 
@@ -307,14 +308,14 @@ export const useContentStore = create<ContentState>()(
               return null;
             }
             
-            return data as StorageValue<ContentState>;
+            return parsed as StorageValue<ContentState>;
           } catch (e) {
             console.error("Error getting stored content:", e);
             return null;
           }
         },
         setItem: (name, value: StorageValue<ContentState>) => {
-          localStorage.setItem(name, String(value));
+          localStorage.setItem(name, JSON.stringify(value));
         },
         removeItem: (name) => localStorage.removeItem(name)
       }
