@@ -1,7 +1,7 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -39,4 +39,40 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Mobile Viewport Fixes */
+@media screen and (max-width: 768px) {
+  body {
+    /* Prevent iOS Safari from scaling the page */
+    -webkit-text-size-adjust: 100%;
+    /* Force the browser to use the declared width */
+    width: 100% !important;
+    /* Fix viewport issues on iOS */
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Force images to be responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Fix for iOS devices specifically */
+@supports (-webkit-touch-callout: none) {
+  /* CSS specific to iOS devices */
+  html, body {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Mobile Safari specific fixes */
+@media not all and (min-resolution:.001dpcm) { 
+  @supports (-webkit-appearance:none) {
+    body {
+      /* Additional safari-specific fixes */
+      -webkit-overflow-scrolling: touch;
+    }
+  }
 }
