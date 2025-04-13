@@ -3,26 +3,43 @@ import { useNavigationStore } from "@/store/navigationStore";
 
 /**
  * Initialize navigation with standard pages including testimonials
+ * @param forceRefresh - Whether to force refresh navigation even if items already exist
  */
-export const initializeNavigation = () => {
-  const { navItems, updateNavItems } = useNavigationStore.getState();
+export const initializeNavigation = (forceRefresh = false) => {
+  const { navItems, updateNavItems, refreshNavigation } = useNavigationStore.getState();
   
   // Check if we need to add the testimonials page
   const hasTestimonials = navItems.some(item => item.path === "/testimonials");
   
-  if (!hasTestimonials) {
-    // Add testimonials to navigation
+  if (!hasTestimonials || forceRefresh) {
+    // Make sure all core routes are present and enabled
+    const coreRoutes = [
+      { id: "home", label: "Home", path: "/", enabled: true },
+      { id: "courses", label: "Courses", path: "/courses", enabled: true },
+      { id: "about", label: "About", path: "/about", enabled: true },
+      { id: "contact", label: "Contact", path: "/contact", enabled: true },
+      { id: "testimonials", label: "Testimonials", path: "/testimonials", enabled: true }
+    ];
+    
+    // Filter out existing core routes from navItems
+    const existingNonCoreItems = navItems.filter(
+      item => !coreRoutes.some(core => core.path === item.path)
+    );
+    
+    // Merge core routes with existing non-core items
     const updatedNavItems = [
-      ...navItems,
-      {
-        id: "testimonials",
-        label: "Testimonials",
-        path: "/testimonials",
-        enabled: true
-      }
+      ...coreRoutes,
+      ...existingNonCoreItems
     ];
     
     updateNavItems(updatedNavItems);
-    console.log("Added Testimonials to navigation menu");
+    console.log("Navigation menu initialized with core pages");
+    
+    // If available, call the refresh function as well
+    if (refreshNavigation) {
+      refreshNavigation();
+    }
   }
+  
+  return navItems;
 };

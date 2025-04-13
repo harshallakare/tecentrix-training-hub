@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -10,6 +9,8 @@ import { Server, Shield, Network, Terminal, Cloud, Database,
   Clock, BarChart, User, Calendar, Award, CheckCircle2, Languages } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
+import CourseSync from '@/components/CourseSync';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -24,18 +25,16 @@ const CourseDetails = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const { coursesList } = useContentStore();
+  const [course, setCourse] = useState<any>(null);
+  const { isMobile } = useIsMobile();
   
-  // Find the course with the matching ID
-  const course = coursesList.find(c => c.id === courseId);
+  const handleCourseSync = (syncedCourse: any) => {
+    setCourse(syncedCourse);
+  };
   
   useEffect(() => {
-    // If course is not found, redirect to courses page
-    if (!course && coursesList.length > 0) {
-      toast.error("Course not found");
-      navigate('/courses');
-    }
+    document.title = course ? `${course.title} | Tecentrix Courses` : "Course Details | Tecentrix";
     
-    // Intersection Observer for animation
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -52,37 +51,52 @@ const CourseDetails = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { 
+        threshold: isMobile ? 0.05 : 0.1,
+        rootMargin: isMobile ? "10px" : "0px"
+      }
     );
 
     const revealElements = document.querySelectorAll('.reveal, .reveal-right, .reveal-left, .scale-reveal');
     revealElements.forEach((el) => observer.observe(el));
 
+    console.log(`CourseDetails render - Mobile: ${isMobile}, CourseID: ${courseId}, Course found: ${Boolean(course)}`);
+
     return () => {
       revealElements.forEach((el) => observer.unobserve(el));
     };
-  }, [course, coursesList, navigate]);
+  }, [course, isMobile, courseId]);
   
-  if (!course) return null;
+  if (!course) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-pulse mb-4">
+              <div className="h-12 w-48 bg-gray-200 rounded mx-auto"></div>
+            </div>
+            <p className="text-gray-500">Loading course details...</p>
+          </div>
+        </div>
+        <CourseSync onSync={handleCourseSync} />
+        <Footer />
+      </div>
+    );
+  }
   
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
   };
   
   const handleEnroll = () => {
-    // Get the course-specific payment link or use a default
     const paymentLink = course?.paymentLink || "https://rzp.io/l/tecentrix-course";
-    
-    // Redirect to the Razorpay payment page
     window.open(paymentLink, '_blank');
-    
-    // Show a toast to let users know they're being redirected
     toast.info("Redirecting to secure payment page", {
       description: "You'll be taken to our payment partner to complete your enrollment."
     });
   };
 
-  // Helper function to format batch dates display
   const renderBatchDates = () => {
     if (!course.upcomingBatches || course.upcomingBatches.length === 0) return null;
     
@@ -102,9 +116,9 @@ const CourseDetails = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <CourseSync onSync={handleCourseSync} />
       
       <main className="flex-grow">
-        {/* Hero Section */}
         <section className={`${course.color} py-16 md:py-24`}>
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -160,7 +174,6 @@ const CourseDetails = () => {
           </div>
         </section>
 
-        {/* Course Information */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -322,7 +335,6 @@ const CourseDetails = () => {
           </div>
         </section>
 
-        {/* Related Courses */}
         <section className="py-16 bg-tecentrix-gray">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-12 reveal">
