@@ -2,9 +2,9 @@
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
-import { useContentStore } from '@/store/contentStore';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useContentSync } from '@/hooks/use-content-sync';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -16,12 +16,16 @@ const iconMap = {
 };
 
 const Courses = () => {
-  const { content, coursesList } = useContentStore();
+  const { content, coursesList, refreshContent } = useContentSync(true);
   
   // Updated to strictly filter courses where enabled is not false
   const visibleCourses = coursesList.filter(course => course.enabled !== false);
   
   useEffect(() => {
+    // Force content refresh when component mounts
+    refreshContent();
+    
+    // Set up animation observer
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -48,6 +52,12 @@ const Courses = () => {
       revealElements.forEach((el) => observer.unobserve(el));
     };
   }, []);
+  
+  // Log courses data on each render to help with debugging
+  useEffect(() => {
+    console.log("Courses component rendered with", visibleCourses.length, "visible courses");
+    console.log("Course IDs:", visibleCourses.map(c => c.id).join(", "));
+  }, [visibleCourses]);
 
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;

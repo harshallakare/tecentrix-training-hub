@@ -74,7 +74,7 @@ interface ContentState {
 
 export const useContentStore = create<ContentState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       content: {
         hero: {
           title: 'Become a Linux Expert with Industry Recognized Training',
@@ -203,9 +203,21 @@ export const useContentStore = create<ContentState>()(
         }
       ],
       refreshContent: () => {
-        console.log("Refreshing content data...");
-        // Simply triggers a re-render by setting state to itself
-        set(state => ({ ...state }));
+        console.log("Forcing content refresh...");
+        // Clear the content from localStorage
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('tecentrix-content');
+        }
+        
+        // Simply rehydrate the store by setting state to itself
+        const currentState = get();
+        set({ ...currentState });
+        
+        // Update last refresh timestamp
+        set(state => ({
+          ...state,
+          lastContentRefresh: Date.now()
+        }));
       },
       updateHeroContent: (heroContent) => 
         set((state) => ({
@@ -278,6 +290,32 @@ export const useContentStore = create<ContentState>()(
     }),
     {
       name: 'tecentrix-content',
+      // Never use localStorage cache for more than 5 minutes
+      storage: {
+        getItem: (name) => {
+          try {
+            const data = localStorage.getItem(name);
+            if (!data) return null;
+            
+            const parsed = JSON.parse(data);
+            const timestamp = parsed?.state?.lastContentRefresh || 0;
+            
+            // If data is older than 5 minutes, don't use it
+            if (Date.now() - timestamp > 5 * 60 * 1000) {
+              console.log("Cached content expired, refreshing");
+              localStorage.removeItem(name);
+              return null;
+            }
+            
+            return data;
+          } catch (e) {
+            console.error("Error getting stored content:", e);
+            return null;
+          }
+        },
+        setItem: (name, value) => localStorage.setItem(name, value),
+        removeItem: (name) => localStorage.removeItem(name)
+      }
     }
   )
 );
