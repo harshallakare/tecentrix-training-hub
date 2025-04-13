@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -60,6 +59,7 @@ interface ContentState {
   };
   coursesList: Course[];
   testimonialsList: Testimonial[];
+  refreshContent?: () => void;
   updateHeroContent: (heroContent: Partial<HeroContent>) => void;
   updateCoursesContent: (coursesContent: Partial<CoursesContent>) => void;
   updateFeaturesContent: (featuresContent: Partial<FeaturesContent>) => void;
@@ -202,6 +202,11 @@ export const useContentStore = create<ContentState>()(
           company: "TechInnovate Solutions"
         }
       ],
+      refreshContent: () => {
+        console.log("Refreshing content data...");
+        // Simply triggers a re-render by setting state to itself
+        set(state => ({ ...state }));
+      },
       updateHeroContent: (heroContent) => 
         set((state) => ({
           content: {

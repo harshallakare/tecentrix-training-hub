@@ -6,7 +6,7 @@ import { useNavigationStore } from "@/store/navigationStore";
  * @param forceRefresh - Whether to force refresh navigation even if items already exist
  */
 export const initializeNavigation = (forceRefresh = false) => {
-  const { navItems, updateNavItems, refreshNavigation } = useNavigationStore.getState();
+  const { navItems, updateNavItems } = useNavigationStore.getState();
   
   // Check if we need to add the testimonials page
   const hasTestimonials = navItems.some(item => item.path === "/testimonials");
@@ -35,9 +35,10 @@ export const initializeNavigation = (forceRefresh = false) => {
     updateNavItems(updatedNavItems);
     console.log("Navigation menu initialized with core pages");
     
-    // If available, call the refresh function as well
-    if (refreshNavigation) {
-      refreshNavigation();
+    // If refreshNavigation exists, call it
+    const navigationStore = useNavigationStore.getState();
+    if (typeof navigationStore.refreshNavigation === 'function') {
+      navigationStore.refreshNavigation();
     }
   }
   

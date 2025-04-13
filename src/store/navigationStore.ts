@@ -12,6 +12,7 @@ export interface NavItem {
 
 interface NavigationState {
   navItems: NavItem[];
+  refreshNavigation?: () => void;
   updateNavItems: (items: NavItem[]) => void;
 }
 
@@ -25,6 +26,11 @@ export const useNavigationStore = create<NavigationState>()(
         { id: '4', label: 'Testimonials', path: '/testimonials', enabled: true },
         { id: '5', label: 'Contact', path: '/contact', enabled: true },
       ],
+      refreshNavigation: () => {
+        console.log("Refreshing navigation data...");
+        // Simply triggers a re-render by setting state to itself
+        set(state => ({ ...state }));
+      },
       updateNavItems: (items) => set({ navItems: items }),
     }),
     {

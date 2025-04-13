@@ -12,13 +12,11 @@ import { syncContentData } from '@/utils/dataSync';
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
   const { courseId } = useParams<{ courseId?: string }>();
   const navigate = useNavigate();
-  const { coursesList, refreshContent } = useContentStore();
+  const { coursesList } = useContentStore();
   
   useEffect(() => {
-    // First, try to force a content refresh
-    if (refreshContent) {
-      refreshContent();
-    }
+    // First, attempt to force a data sync
+    syncContentData(true);
     
     // Next, check if we have the course in our list
     const course = coursesList.find(c => c.id === courseId);
@@ -38,10 +36,7 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
       onSync(course);
     }
     
-    // Force a full data sync on course page load
-    syncContentData(true);
-    
-  }, [courseId, coursesList, refreshContent, navigate, onSync]);
+  }, [courseId, coursesList, navigate, onSync]);
 
   return null; // This is a utility component with no UI
 };
