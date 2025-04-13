@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
 
@@ -59,6 +60,7 @@ interface ContentState {
   };
   coursesList: Course[];
   testimonialsList: Testimonial[];
+  lastContentRefresh?: number; // Add this property to fix the error
   refreshContent?: () => void;
   updateHeroContent: (heroContent: Partial<HeroContent>) => void;
   updateCoursesContent: (coursesContent: Partial<CoursesContent>) => void;

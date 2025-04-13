@@ -29,7 +29,9 @@ export const syncContentData = (forceRefresh = false) => {
     
     // Double-refresh for extra reliability
     setTimeout(() => {
-      contentStore.refreshContent?.();
+      if (typeof contentStore.refreshContent === 'function') {
+        contentStore.refreshContent();
+      }
     }, 500);
   }
   
@@ -56,7 +58,7 @@ export const syncContentData = (forceRefresh = false) => {
  * Hook to detect network status changes and trigger refresh
  */
 export const useNetworkSync = () => {
-  const isOnline = navigator.onLine;
+  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
   
   // If we're back online, force a sync
   if (isOnline) {
