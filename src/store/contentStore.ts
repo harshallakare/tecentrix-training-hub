@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
 
 interface HeroContent {
   title: string;
@@ -292,7 +292,7 @@ export const useContentStore = create<ContentState>()(
       name: 'tecentrix-content',
       // Never use localStorage cache for more than 5 minutes
       storage: {
-        getItem: (name) => {
+        getItem: (name): StorageValue<ContentState> | null => {
           try {
             const data = localStorage.getItem(name);
             if (!data) return null;
@@ -307,13 +307,15 @@ export const useContentStore = create<ContentState>()(
               return null;
             }
             
-            return data;
+            return data as StorageValue<ContentState>;
           } catch (e) {
             console.error("Error getting stored content:", e);
             return null;
           }
         },
-        setItem: (name, value) => localStorage.setItem(name, value),
+        setItem: (name, value: StorageValue<ContentState>) => {
+          localStorage.setItem(name, String(value));
+        },
         removeItem: (name) => localStorage.removeItem(name)
       }
     }
