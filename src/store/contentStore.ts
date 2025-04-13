@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface HeroContent {
   title: string;
@@ -59,7 +59,6 @@ interface ContentState {
   };
   coursesList: Course[];
   testimonialsList: Testimonial[];
-  lastContentRefresh?: number; // Now properly defined in the interface
   refreshContent?: () => void;
   updateHeroContent: (heroContent: Partial<HeroContent>) => void;
   updateCoursesContent: (coursesContent: Partial<CoursesContent>) => void;
@@ -75,7 +74,7 @@ interface ContentState {
 
 export const useContentStore = create<ContentState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       content: {
         hero: {
           title: 'Become a Linux Expert with Industry Recognized Training',
@@ -204,37 +203,9 @@ export const useContentStore = create<ContentState>()(
         }
       ],
       refreshContent: () => {
-        console.log("Forcing content refresh...");
-        // Don't use localStorage directly in initialization to prevent hydration issues
-        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-          try {
-            // Safely clear content cache with error handling
-            Object.keys(localStorage).forEach(key => {
-              if (key.includes('tecentrix-content')) {
-                localStorage.removeItem(key);
-              }
-            });
-            
-            // Force a cache-busting timestamp
-            localStorage.setItem('tecentrix-sync-timestamp', Date.now().toString());
-          } catch (e) {
-            console.error("Error clearing localStorage:", e);
-          }
-        }
-        
-        // Update last refresh timestamp and force rerender
-        set({ lastContentRefresh: Date.now() });
-        
-        // Safely broadcast a sync event
-        if (typeof window !== 'undefined') {
-          try {
-            window.dispatchEvent(new CustomEvent('tecentrix-content-sync', {
-              detail: { timestamp: Date.now() }
-            }));
-          } catch (e) {
-            console.error("Error broadcasting sync event:", e);
-          }
-        }
+        console.log("Refreshing content data...");
+        // Simply triggers a re-render by setting state to itself
+        set(state => ({ ...state }));
       },
       updateHeroContent: (heroContent) => 
         set((state) => ({
@@ -307,57 +278,6 @@ export const useContentStore = create<ContentState>()(
     }),
     {
       name: 'tecentrix-content',
-      // Safer storage implementation with proper type checking
-      storage: {
-        getItem: (name): StorageValue<ContentState> | null => {
-          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-            return null;
-          }
-          
-          try {
-            const data = localStorage.getItem(name);
-            if (!data) return null;
-            
-            const parsed = JSON.parse(data);
-            const timestamp = parsed?.state?.lastContentRefresh || 0;
-            
-            // If data is older than 30 seconds, don't use it
-            if (Date.now() - timestamp > 30 * 1000) {
-              console.log("Cached content expired, refreshing");
-              localStorage.removeItem(name);
-              return null;
-            }
-            
-            return parsed as StorageValue<ContentState>;
-          } catch (e) {
-            console.error("Error getting stored content:", e);
-            return null;
-          }
-        },
-        setItem: (name, value: StorageValue<ContentState>) => {
-          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-            return;
-          }
-          
-          try {
-            localStorage.setItem(name, JSON.stringify(value));
-            localStorage.setItem('tecentrix-last-update', Date.now().toString());
-          } catch (e) {
-            console.error("Error setting localStorage:", e);
-          }
-        },
-        removeItem: (name) => {
-          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-            return;
-          }
-          
-          try {
-            localStorage.removeItem(name);
-          } catch (e) {
-            console.error("Error removing from localStorage:", e);
-          }
-        }
-      }
     }
   )
 );

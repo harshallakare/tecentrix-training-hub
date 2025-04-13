@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,8 +8,10 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import { Server, Shield, Network, Terminal, Cloud, Database, 
   Clock, BarChart, User, Calendar, Award, CheckCircle2, Languages } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
-import { useContentSync } from '@/hooks/use-content-sync';
+import CourseSync from '@/components/CourseSync';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -22,29 +25,17 @@ const iconMap = {
 const CourseDetails = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
-  const { coursesList, refreshContent } = useContentSync(true);
+  const { coursesList } = useContentStore();
   const [course, setCourse] = useState<any>(null);
+  const isMobile = useIsMobile();
+  
+  const handleCourseSync = (syncedCourse: any) => {
+    setCourse(syncedCourse);
+  };
   
   useEffect(() => {
-    refreshContent();
+    document.title = course ? `${course.title} | Tecentrix Courses` : "Course Details | Tecentrix";
     
-    if (courseId && coursesList.length > 0) {
-      const foundCourse = coursesList.find(c => c.id === courseId);
-      
-      if (foundCourse) {
-        setCourse(foundCourse);
-        document.title = `${foundCourse.title} | Tecentrix Courses`;
-      } else {
-        console.error(`Course ${courseId} not found in ${coursesList.length} courses`);
-        toast.error("Course not found", {
-          description: "The course you're looking for doesn't exist or has been removed."
-        });
-        navigate('/courses');
-      }
-    }
-  }, [courseId, coursesList, navigate]);
-  
-  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -61,16 +52,21 @@ const CourseDetails = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { 
+        threshold: isMobile ? 0.05 : 0.1,
+        rootMargin: isMobile ? "10px" : "0px"
+      }
     );
 
     const revealElements = document.querySelectorAll('.reveal, .reveal-right, .reveal-left, .scale-reveal');
     revealElements.forEach((el) => observer.observe(el));
 
+    console.log(`CourseDetails render - Mobile: ${isMobile}, CourseID: ${courseId}, Course found: ${Boolean(course)}`);
+
     return () => {
       revealElements.forEach((el) => observer.unobserve(el));
     };
-  }, []);
+  }, [course, isMobile, courseId]);
   
   if (!course) {
     return (
@@ -84,6 +80,7 @@ const CourseDetails = () => {
             <p className="text-gray-500">Loading course details...</p>
           </div>
         </div>
+        <CourseSync onSync={handleCourseSync} />
         <Footer />
       </div>
     );
@@ -120,6 +117,7 @@ const CourseDetails = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <CourseSync onSync={handleCourseSync} />
       
       <main className="flex-grow">
         <section className={`${course.color} py-16 md:py-24`}>

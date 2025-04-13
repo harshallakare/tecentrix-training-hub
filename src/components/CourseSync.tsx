@@ -1,40 +1,42 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
+import { syncContentData } from '@/utils/dataSync';
 
 /**
- * This component ensures content synchronization with improved error handling
+ * Component to ensure course data is properly synced
+ * This helps address inconsistencies between mobile and desktop views
  */
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
-  const [initialized, setInitialized] = useState(false);
+  const { courseId } = useParams<{ courseId?: string }>();
+  const navigate = useNavigate();
+  const { coursesList } = useContentStore();
   
-  // Safe initialization effect
   useEffect(() => {
-    // Skip execution during SSR
-    if (typeof window === 'undefined') {
+    // First, attempt to force a data sync
+    syncContentData(true);
+    
+    // Next, check if we have the course in our list
+    const course = coursesList.find(c => c.id === courseId);
+    
+    // If course is not found after refresh and we have courses loaded
+    if (!course && coursesList.length > 0) {
+      console.error(`Course ${courseId} not found in list of ${coursesList.length} courses`);
+      toast.error("Course not found", {
+        description: "The course you're looking for doesn't exist or has been removed."
+      });
+      navigate('/courses');
       return;
     }
     
-    console.log("CourseSync component mounting", new Date().toISOString());
-    
-    try {
-      // Mark as initialized
-      setInitialized(true);
-      console.log("CourseSync initialized successfully");
-      
-      // Call onSync callback if provided
-      if (onSync && typeof onSync === 'function') {
-        onSync({id: '1', title: 'RHCSA Certification'});
-        console.log("onSync callback executed");
-      }
-    } catch (e) {
-      console.error("Error in CourseSync initialization:", e);
+    // If we found the course, call the onSync callback
+    if (course && onSync) {
+      onSync(course);
     }
     
-    return () => {
-      console.log("CourseSync component unmounting");
-    };
-  }, [onSync]);
+  }, [courseId, coursesList, navigate, onSync]);
 
   return null; // This is a utility component with no UI
 };
