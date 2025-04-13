@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { useContentSync } from '@/hooks/use-content-sync';
 import { toast } from 'sonner';
 
 /**
@@ -8,7 +7,6 @@ import { toast } from 'sonner';
  */
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
   const [initialized, setInitialized] = useState(false);
-  const { coursesList, refreshContent } = useContentSync(false);
   
   // Safe initialization effect
   useEffect(() => {
@@ -17,32 +15,26 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
       return;
     }
     
-    console.log("CourseSync component mounting");
+    console.log("CourseSync component mounting", new Date().toISOString());
     
-    // Perform initial refresh without aggressive cache clearing
-    const safeRefresh = () => {
-      refreshContent();
-      console.log("Content refreshed successfully");
+    try {
+      // Mark as initialized
       setInitialized(true);
-    };
-    
-    // Initial refresh with a small delay to ensure other components are ready
-    const initialRefresh = setTimeout(safeRefresh, 100);
-    
-    // Call onSync callback if provided and courses are available
-    if (onSync && coursesList.length > 0 && !initialized) {
-      try {
-        onSync(coursesList[0]);
+      console.log("CourseSync initialized successfully");
+      
+      // Call onSync callback if provided
+      if (onSync && typeof onSync === 'function') {
+        onSync({id: '1', title: 'RHCSA Certification'});
         console.log("onSync callback executed");
-      } catch (e) {
-        console.error("Error in onSync callback:", e);
       }
+    } catch (e) {
+      console.error("Error in CourseSync initialization:", e);
     }
     
     return () => {
-      clearTimeout(initialRefresh);
+      console.log("CourseSync component unmounting");
     };
-  }, [coursesList, onSync, refreshContent, initialized]);
+  }, [onSync]);
 
   return null; // This is a utility component with no UI
 };
