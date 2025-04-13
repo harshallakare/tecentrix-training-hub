@@ -30,12 +30,11 @@ const PasswordChangeForm = () => {
     console.log("Stored password:", adminPassword);
     console.log("Full admin credentials in settings:", settings?.adminCredentials);
     
-    // Allow default password as a fallback for first login
-    const isDefaultPassword = currentPassword === 'tecentrix';
-    const isCurrentPassword = currentPassword === adminPassword;
+    // Only accept current password, not the default one (unless it's still the default)
+    const isPasswordCorrect = currentPassword === adminPassword;
     
-    // Validate current password
-    if (!isDefaultPassword && !isCurrentPassword) {
+    // Validate current password - only allow the default as fallback if no custom password has been set
+    if (!isPasswordCorrect && !(currentPassword === 'tecentrix' && adminPassword === 'tecentrix')) {
       toast({
         variant: "destructive",
         title: "Incorrect password",
@@ -66,7 +65,7 @@ const PasswordChangeForm = () => {
     
     // Update password
     updateAdminCredentials({
-      username: 'admin', // Ensure username is set
+      username: adminUsername, // Keep existing username
       password: newPassword
     });
     

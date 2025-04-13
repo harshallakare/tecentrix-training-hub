@@ -33,30 +33,42 @@ const Admin = () => {
     console.log("Login attempt with:", username, password);
     console.log("Admin credentials in settings on login:", settings.adminCredentials);
     
-    if (username === 'admin' && password === 'tecentrix') {
-      setIsAuthenticated(true);
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome to the admin dashboard"
-      });
-      return;
+    if (settings.adminCredentials) {
+      if (username === settings.adminCredentials.username && 
+          password === settings.adminCredentials.password) {
+        setIsAuthenticated(true);
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome to the admin dashboard"
+        });
+        return;
+      }
+      
+      if (username === 'admin' && password === 'tecentrix' && 
+          (!settings.adminCredentials.password || settings.adminCredentials.password === 'tecentrix')) {
+        setIsAuthenticated(true);
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome to the admin dashboard"
+        });
+        return;
+      }
+    } else {
+      if (username === 'admin' && password === 'tecentrix') {
+        setIsAuthenticated(true);
+        toast({
+          title: "Logged in successfully",
+          description: "Welcome to the admin dashboard"
+        });
+        return;
+      }
     }
     
-    if (settings.adminCredentials && 
-        username === settings.adminCredentials.username && 
-        password === settings.adminCredentials.password) {
-      setIsAuthenticated(true);
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome to the admin dashboard"
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Authentication failed",
-        description: "Invalid username or password"
-      });
-    }
+    toast({
+      variant: "destructive",
+      title: "Authentication failed",
+      description: "Invalid username or password"
+    });
   };
 
   const handleHeroUpdate = (e: React.FormEvent) => {
