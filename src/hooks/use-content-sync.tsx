@@ -19,23 +19,17 @@ export function useContentSync(forceRefresh = false) {
     
     let isMounted = true;
     
-    // Safely clear content cache on mount
-    if (typeof localStorage !== 'undefined') {
-      try {
-        localStorage.removeItem('tecentrix-content');
-      } catch (e) {
-        console.error("Error clearing localStorage:", e);
-      }
-    }
+    console.log("useContentSync hook initialized");
     
     // Initial content refresh with error handling
     try {
       refreshContent();
+      console.log("Initial content refresh completed");
     } catch (e) {
       console.error("Error during initial refresh:", e);
     }
     
-    // Set up a less aggressive refresh interval
+    // Set up a moderate refresh interval
     const refreshInterval = setInterval(() => {
       if (isMounted) {
         try {
@@ -44,13 +38,14 @@ export function useContentSync(forceRefresh = false) {
           console.error("Error during refresh cycle:", e);
         }
       }
-    }, 30000); // Every 30 seconds is enough
+    }, 60000); // Every 60 seconds is enough
     
     // Refresh when tab becomes visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && isMounted) {
         try {
           refreshContent();
+          console.log("Content refreshed on visibility change");
         } catch (e) {
           console.error("Error during visibility refresh:", e);
         }
@@ -64,44 +59,23 @@ export function useContentSync(forceRefresh = false) {
       isMounted = false;
       clearInterval(refreshInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      console.log("useContentSync hook unmounted");
     };
   }, []);
 
   const refreshContent = () => {
     try {
-      // Safely clear localStorage cache
-      if (typeof localStorage !== 'undefined') {
-        // Remove Tecentrix content-related items
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('tecentrix-content')) {
-            localStorage.removeItem(key);
-          }
-        });
-        
-        // Add a cache-busting timestamp
-        localStorage.setItem('tecentrix-cache-buster', Date.now().toString());
-      }
+      console.log("Refreshing content...");
       
       // Safely refresh content store
       if (typeof useContentStore.getState().refreshContent === 'function') {
         useContentStore.getState().refreshContent();
+        console.log("Content store refreshed successfully");
       }
       
       setLastSync(Date.now());
-      console.log("Content synced at", new Date().toISOString());
     } catch (error) {
       console.error("Error refreshing content:", error);
-      
-      // Only show toast on mobile devices and only if we're in a browser
-      if (typeof window !== 'undefined' && window.innerWidth < 768) {
-        try {
-          toast.error("Error syncing data", {
-            description: "Please try refreshing the page"
-          });
-        } catch (e) {
-          console.error("Error showing toast:", e);
-        }
-      }
     }
   };
 

@@ -16,54 +16,70 @@ const Index = () => {
   const isMobile = useIsMobile();
   
   useEffect(() => {
-    // Initialize navigation items and sync data on mount
-    initializeNavigation();
-    syncContentData();
+    console.log("Index page mounting, initializing...");
     
-    // Set page title
-    document.title = "Tecentrix - Professional Training and Certification";
+    // Initialize navigation items and sync data on mount
+    try {
+      initializeNavigation();
+      console.log("Navigation initialized");
+      
+      syncContentData();
+      console.log("Content data synced");
+      
+      // Set page title
+      document.title = "Tecentrix - Professional Training and Certification";
+    } catch (error) {
+      console.error("Error during Index page initialization:", error);
+    }
     
     // Set up IntersectionObserver for reveal animations
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        // When element is intersecting (visible in viewport)
-        if (entry.isIntersecting) {
-          const element = entry.target;
-          // Add the appropriate visible class based on the element's animation type
-          if (element.classList.contains('reveal-right')) {
-            element.classList.add('reveal-right-visible');
-          } else if (element.classList.contains('reveal-left')) {
-            element.classList.add('reveal-left-visible');
-          } else if (element.classList.contains('scale-reveal')) {
-            element.classList.add('scale-reveal-visible');
-          } else if (element.classList.contains('reveal')) {
-            element.classList.add('reveal-visible');
+    try {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          // When element is intersecting (visible in viewport)
+          if (entry.isIntersecting) {
+            const element = entry.target;
+            // Add the appropriate visible class based on the element's animation type
+            if (element.classList.contains('reveal-right')) {
+              element.classList.add('reveal-right-visible');
+            } else if (element.classList.contains('reveal-left')) {
+              element.classList.add('reveal-left-visible');
+            } else if (element.classList.contains('scale-reveal')) {
+              element.classList.add('scale-reveal-visible');
+            } else if (element.classList.contains('reveal')) {
+              element.classList.add('reveal-visible');
+            }
           }
-        }
+        });
+      }, {
+        // Adjust the threshold based on device type
+        threshold: isMobile ? 0.1 : 0.2,
+        // Start revealing when element is this % into the viewport
+        rootMargin: isMobile ? '0px 0px -10% 0px' : '0px 0px -15% 0px',
       });
-    }, {
-      // Adjust the threshold based on device type
-      threshold: isMobile ? 0.1 : 0.2,
-      // Start revealing when element is this % into the viewport
-      rootMargin: isMobile ? '0px 0px -10% 0px' : '0px 0px -15% 0px',
-    });
-    
-    // Target all elements with animation classes
-    const revealElements = document.querySelectorAll(
-      '.reveal, .reveal-right, .reveal-left, .scale-reveal'
-    );
-    
-    // Observe each element
-    revealElements.forEach(element => {
-      observer.observe(element);
-    });
-    
-    // Clean up
-    return () => {
+      
+      // Target all elements with animation classes
+      const revealElements = document.querySelectorAll(
+        '.reveal, .reveal-right, .reveal-left, .scale-reveal'
+      );
+      
+      // Observe each element
       revealElements.forEach(element => {
-        observer.unobserve(element);
+        observer.observe(element);
       });
-    };
+      
+      console.log("Animation observers initialized");
+      
+      // Clean up
+      return () => {
+        revealElements.forEach(element => {
+          observer.unobserve(element);
+        });
+        console.log("Index page unmounting, cleaning up observers");
+      };
+    } catch (error) {
+      console.error("Error setting up animations:", error);
+    }
   }, [isMobile]);
   
   return (

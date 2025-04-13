@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useContentSync } from '@/hooks/use-content-sync';
 import { toast } from 'sonner';
 
@@ -7,8 +7,10 @@ import { toast } from 'sonner';
  * This component ensures content synchronization with improved error handling
  */
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
-  const { coursesList, refreshContent } = useContentSync(false); // Less aggressive
+  const [initialized, setInitialized] = useState(false);
+  const { coursesList, refreshContent } = useContentSync(false);
   
+  // Safe initialization effect
   useEffect(() => {
     // Skip execution during SSR
     if (typeof window === 'undefined') {
@@ -16,88 +18,39 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
     }
     
     try {
-      // Safely clear cache
-      if (typeof localStorage !== 'undefined') {
-        try {
-          localStorage.removeItem('tecentrix-content');
-        } catch (e) {
-          console.error("Error clearing localStorage:", e);
-        }
-      }
+      console.log("CourseSync component mounting");
       
-      // Initial refresh
-      refreshContent();
-      
-      // Less aggressive second refresh
-      const secondRefresh = setTimeout(() => {
+      // Perform initial refresh without aggressive cache clearing
+      const safeRefresh = () => {
         try {
           refreshContent();
+          console.log("Content refreshed successfully");
+          setInitialized(true);
         } catch (e) {
-          console.error("Error during secondary refresh:", e);
+          console.error("Error refreshing content:", e);
         }
-      }, 5000);
+      };
       
-      // Notify on mobile only if needed
-      if (typeof window !== 'undefined' && window.innerWidth < 768) {
-        try {
-          toast.info("Syncing course data...");
-        } catch (e) {
-          console.error("Error showing toast:", e);
-        }
-      }
+      // Initial refresh with a small delay to ensure other components are ready
+      const initialRefresh = setTimeout(safeRefresh, 100);
       
       // Call onSync callback if provided and courses are available
-      if (onSync && coursesList.length > 0) {
+      if (onSync && coursesList.length > 0 && !initialized) {
         try {
           onSync(coursesList[0]);
+          console.log("onSync callback executed");
         } catch (e) {
           console.error("Error in onSync callback:", e);
         }
       }
       
       return () => {
-        clearTimeout(secondRefresh);
+        clearTimeout(initialRefresh);
       };
     } catch (error) {
-      console.error("Error in CourseSync effect:", error);
+      console.error("Critical error in CourseSync effect:", error);
     }
-  }, [coursesList, onSync, refreshContent]);
-
-  // Single network request to bust cache, with less frequency
-  useEffect(() => {
-    // Skip execution during SSR
-    if (typeof window === 'undefined') {
-      return;
-    }
-    
-    try {
-      const bustCache = () => {
-        try {
-          const uniqueUrl = `/api/ping?cache=${Date.now()}`;
-          fetch(uniqueUrl, { 
-            cache: 'no-store',
-            headers: {
-              'Pragma': 'no-cache',
-              'Cache-Control': 'no-cache'
-            }
-          }).catch(() => {
-            // Silent fail - just for cache busting
-          });
-        } catch (e) {
-          // Silent fail
-        }
-      };
-      
-      // Run once after a short delay
-      const initialTimeout = setTimeout(bustCache, 2000);
-      
-      return () => {
-        clearTimeout(initialTimeout);
-      };
-    } catch (error) {
-      console.error("Error setting up cache busting:", error);
-    }
-  }, []);
+  }, [coursesList, onSync, refreshContent, initialized]);
 
   return null; // This is a utility component with no UI
 };
