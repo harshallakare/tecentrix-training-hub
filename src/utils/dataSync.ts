@@ -7,36 +7,28 @@ import { useNavigationStore } from "@/store/navigationStore";
  * Prevents window/localStorage errors during SSR or when unavailable
  */
 export const syncContentData = (forceRefresh = false) => {
+  // Check if we're in a browser environment first
+  if (typeof window === 'undefined') {
+    console.log("Not in browser environment, skipping sync");
+    return false;
+  }
+  
+  console.log("Syncing content data...");
+  
   try {
-    // Check if we're in a browser environment first
-    if (typeof window === 'undefined') {
-      console.log("Not in browser environment, skipping sync");
-      return false;
-    }
-    
-    console.log("Syncing content data...");
-    
     const contentStore = useContentStore.getState();
     const navigationStore = useNavigationStore.getState();
     
     // Safely refresh content
     if (contentStore && typeof contentStore.refreshContent === 'function') {
-      try {
-        contentStore.refreshContent();
-        console.log("Content store refreshed successfully");
-      } catch (e) {
-        console.error("Error refreshing content:", e);
-      }
+      contentStore.refreshContent();
+      console.log("Content store refreshed successfully");
     }
     
     // Safely refresh navigation
     if (navigationStore && typeof navigationStore.refreshNavigation === 'function') {
-      try {
-        navigationStore.refreshNavigation();
-        console.log("Navigation refreshed successfully");
-      } catch (e) {
-        console.error("Error refreshing navigation:", e);
-      }
+      navigationStore.refreshNavigation();
+      console.log("Navigation refreshed successfully");
     }
     
     console.log("Data sync completed at", new Date().toISOString());
@@ -51,12 +43,12 @@ export const syncContentData = (forceRefresh = false) => {
  * Hook to detect network status changes with improved error handling
  */
 export const useNetworkSync = () => {
+  // Check if we're in a browser environment first
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return true; // Default to online for SSR
+  }
+  
   try {
-    // Check if we're in a browser environment first
-    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-      return true; // Default to online for SSR
-    }
-    
     const isOnline = navigator.onLine;
     
     // If we're back online, force a sync

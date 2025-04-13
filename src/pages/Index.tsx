@@ -19,18 +19,14 @@ const Index = () => {
     console.log("Index page mounting, initializing...");
     
     // Initialize navigation items and sync data on mount
-    try {
-      initializeNavigation();
-      console.log("Navigation initialized");
-      
-      syncContentData();
-      console.log("Content data synced");
-      
-      // Set page title
-      document.title = "Tecentrix - Professional Training and Certification";
-    } catch (error) {
-      console.error("Error during Index page initialization:", error);
-    }
+    initializeNavigation();
+    console.log("Navigation initialized");
+    
+    syncContentData();
+    console.log("Content data synced");
+    
+    // Set page title
+    document.title = "Tecentrix - Professional Training and Certification";
     
     // Set up IntersectionObserver for reveal animations
     try {

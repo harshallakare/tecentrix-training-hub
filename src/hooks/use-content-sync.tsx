@@ -8,7 +8,7 @@ import { toast } from 'sonner';
  * and SSR-safe implementation
  */
 export function useContentSync(forceRefresh = false) {
-  const [lastSync, setLastSync] = useState(() => Date.now());
+  const [lastSync, setLastSync] = useState<number>(Date.now());
   const contentStore = useContentStore();
   
   useEffect(() => {
