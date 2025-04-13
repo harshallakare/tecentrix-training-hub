@@ -3,29 +3,33 @@ import { useContentStore } from "@/store/contentStore";
 import { useNavigationStore } from "@/store/navigationStore";
 
 /**
- * Safe content sync function with improved error handling
+ * Safe content sync function with improved error handling and anti-recursion protections
  */
 export const syncContentData = (forceRefresh = false) => {
   console.log("Syncing content data...");
   
   try {
-    // Get store states safely
-    let contentStore;
-    let navigationStore;
+    // Safely get store states with individual error handling
+    let contentStore = null;
+    let navigationStore = null;
     
     try {
-      contentStore = useContentStore.getState();
+      if (typeof useContentStore.getState === 'function') {
+        contentStore = useContentStore.getState();
+      }
     } catch (e) {
       console.error("Error accessing content store:", e);
     }
     
     try {
-      navigationStore = useNavigationStore.getState();
+      if (typeof useNavigationStore.getState === 'function') {
+        navigationStore = useNavigationStore.getState();
+      }
     } catch (e) {
       console.error("Error accessing navigation store:", e);
     }
     
-    // Basic refresh operations with safety checks
+    // Only refresh if stores were successfully retrieved
     if (contentStore && typeof contentStore.refreshContent === 'function') {
       try {
         contentStore.refreshContent();
@@ -53,17 +57,17 @@ export const syncContentData = (forceRefresh = false) => {
 };
 
 /**
- * Hook to detect network status changes
+ * Hook to detect network status changes with better error handling
  */
 export const useNetworkSync = () => {
   try {
     // Safe check for browser environment
-    if (typeof navigator !== 'undefined' && 'onLine' in navigator) {
+    if (typeof window !== 'undefined' && 'navigator' in window && 'onLine' in navigator) {
       return navigator.onLine;
     }
     return true; // Default to online in SSR context
   } catch (error) {
     console.error("Error in network sync:", error);
-    return true; // Default to online
+    return true; // Default to online on error
   }
 };

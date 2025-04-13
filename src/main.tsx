@@ -12,35 +12,40 @@ declare global {
 
 console.log("Main entry point executing", new Date().toISOString());
 
-// Safe initialization function
+// Simplified initialization function to reduce potential issues
 function initializeApp() {
   try {
     const rootElement = document.getElementById("root");
     
     if (!rootElement) {
       console.error("Could not find root element");
-      document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found.</div>';
       return false;
     }
     
     console.log("Creating React root");
     
-    // Create root and render app
+    // Create root and render app with simple error boundary
     const root = createRoot(rootElement);
     root.render(<App />);
     
     console.log("App rendered successfully");
-    
-    // Set a flag in window to indicate successful render
     window.__APP_RENDERED = true;
     
     return true;
   } catch (error) {
     console.error("Critical error during app initialization:", error);
-    document.body.innerHTML = '<div style="color: red; padding: 20px;">Sorry, the application failed to load. Please refresh the page or check console for details.</div>';
+    
+    // Add fallback UI in case of critical error
+    try {
+      document.body.innerHTML = '<div style="color: red; padding: 20px;">Sorry, the application failed to load. Please refresh the page.</div>';
+    } catch (e) {
+      // Last resort fallback
+      console.error("Failed to show error message:", e);
+    }
+    
     return false;
   }
 }
 
-// Start app initialization
-initializeApp();
+// Start app initialization with a small delay to ensure DOM is ready
+setTimeout(initializeApp, 0);

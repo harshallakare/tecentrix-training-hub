@@ -14,7 +14,7 @@ const Index = () => {
   useEffect(() => {
     console.log("Index page mounting");
     
-    // Use a timeout to ensure the DOM is ready
+    // Use a timeout with increased delay to ensure the DOM is ready
     const initTimeout = setTimeout(() => {
       // Basic initialization with careful error handling
       try {
@@ -38,7 +38,7 @@ const Index = () => {
       } catch (error) {
         console.error("Error setting page title:", error);
       }
-    }, 100);
+    }, 200);
     
     return () => {
       clearTimeout(initTimeout);

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
   const [initialized, setInitialized] = useState(false);
   
-  // Safe initialization effect
+  // Safe initialization effect with proper cleanup
   useEffect(() => {
     // Skip execution during SSR
     if (typeof window === 'undefined') {
@@ -16,26 +16,25 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
     
     console.log("CourseSync component mounting", new Date().toISOString());
     
-    try {
-      // Mark as initialized
-      setInitialized(true);
-      console.log("CourseSync initialized successfully");
-      
-      // Call onSync callback if provided
-      if (onSync && typeof onSync === 'function') {
-        // Safe call with try-catch to prevent rendering failures
-        try {
+    // Use a timeout to delay initialization slightly
+    const initTimeout = setTimeout(() => {
+      try {
+        // Mark as initialized
+        setInitialized(true);
+        console.log("CourseSync initialized successfully");
+        
+        // Call onSync callback if provided
+        if (onSync && typeof onSync === 'function') {
           onSync({id: '1', title: 'RHCSA Certification'});
           console.log("onSync callback executed");
-        } catch (err) {
-          console.error("Error in onSync callback:", err);
         }
+      } catch (e) {
+        console.error("Error in CourseSync initialization:", e);
       }
-    } catch (e) {
-      console.error("Error in CourseSync initialization:", e);
-    }
+    }, 50);
     
     return () => {
+      clearTimeout(initTimeout);
       console.log("CourseSync component unmounting");
     };
   }, [onSync]);
