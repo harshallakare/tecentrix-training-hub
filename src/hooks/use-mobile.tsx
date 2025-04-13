@@ -4,9 +4,9 @@ import * as React from "react"
 // Increase the breakpoint to catch more mobile devices including larger phones and small tablets
 const MOBILE_BREAKPOINT = 768
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-  const [orientation, setOrientation] = React.useState<"portrait" | "landscape" | undefined>(undefined)
+export function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = React.useState<boolean>(false)
+  const [orientation, setOrientation] = React.useState<"portrait" | "landscape">("landscape")
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
@@ -44,8 +44,32 @@ export function useIsMobile() {
     }
   }, [])
 
+  return isMobile;
+}
+
+// Create a new hook for comprehensive mobile information
+export function useMobileInfo() {
+  const isMobile = useIsMobile();
+  const [orientation, setOrientation] = React.useState<"portrait" | "landscape">("landscape")
+
+  React.useEffect(() => {
+    const updateOrientation = () => {
+      setOrientation(window.innerHeight > window.innerWidth ? "portrait" : "landscape");
+    }
+
+    window.addEventListener("resize", updateOrientation)
+    window.addEventListener("orientationchange", updateOrientation)
+
+    updateOrientation();
+
+    return () => {
+      window.removeEventListener("resize", updateOrientation)
+      window.removeEventListener("orientationchange", updateOrientation)
+    }
+  }, [])
+
   return {
-    isMobile: !!isMobile,
+    isMobile,
     orientation,
     isPortrait: orientation === "portrait",
     isLandscape: orientation === "landscape"
