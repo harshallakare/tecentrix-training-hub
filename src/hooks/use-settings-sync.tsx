@@ -2,6 +2,13 @@
 import { useEffect, useState } from 'react';
 import { useSettingsStore, refreshSettingsFromStorage } from '@/store/settingsStore';
 
+// Extend Window interface to include our custom property
+declare global {
+  interface Window {
+    lastWidth?: number;
+  }
+}
+
 /**
  * Custom hook to ensure settings are properly synced across different 
  * parts of the application and across mobile/desktop views
@@ -98,10 +105,14 @@ export function useSettingsSync() {
     };
     
     window.addEventListener('orientationchange', handleOrientationChange);
+    
+    // Store current window width to track significant size changes
+    let prevWidth = window.innerWidth;
+    
     window.addEventListener('resize', () => {
       // Only refresh on significant size changes
-      if (Math.abs(window.innerWidth - window.lastWidth || 0) > 50) {
-        window.lastWidth = window.innerWidth;
+      if (Math.abs(window.innerWidth - prevWidth) > 50) {
+        prevWidth = window.innerWidth;
         handleOrientationChange();
       }
     });
