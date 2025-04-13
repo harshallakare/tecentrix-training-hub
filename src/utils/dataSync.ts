@@ -3,50 +3,60 @@ import { useContentStore } from "@/store/contentStore";
 import { useNavigationStore } from "@/store/navigationStore";
 
 /**
- * Aggressive content sync function that ensures data is fresh
- * Includes cache-busting mechanisms for more reliable synchronization
- * Added error handling to prevent socket issues
+ * Safe content sync function with improved error handling
+ * Prevents window/localStorage errors during SSR or when unavailable
  */
 export const syncContentData = (forceRefresh = false) => {
   try {
+    // Check if we're in a browser environment first
+    if (typeof window === 'undefined') {
+      console.log("Not in browser environment, skipping sync");
+      return false;
+    }
+    
     const contentStore = useContentStore.getState();
     const navigationStore = useNavigationStore.getState();
     
-    // Clear ALL localStorage cache for content
+    // Safely clear localStorage cache
     if (typeof localStorage !== 'undefined') {
-      // Remove all content-related cache items
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('tecentrix-content') || key.includes('tecentrix-cache')) {
-          localStorage.removeItem(key);
-        }
-      });
-      
-      // Add a cache-busting timestamp
-      localStorage.setItem('tecentrix-sync-' + Date.now(), 'true');
+      try {
+        // Only remove content-related cache items
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('tecentrix-content') || key.includes('tecentrix-cache')) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        // Add a cache-busting timestamp
+        localStorage.setItem('tecentrix-sync-' + Date.now(), 'true');
+      } catch (e) {
+        console.error("Error accessing localStorage:", e);
+      }
     }
     
-    // Force content refresh
-    if (typeof contentStore.refreshContent === 'function') {
-      contentStore.refreshContent();
-      
-      // Double-refresh for extra reliability
-      setTimeout(() => {
-        if (typeof contentStore.refreshContent === 'function') {
-          contentStore.refreshContent();
-        }
-      }, 500);
+    // Safely refresh content
+    if (contentStore && typeof contentStore.refreshContent === 'function') {
+      try {
+        contentStore.refreshContent();
+      } catch (e) {
+        console.error("Error refreshing content:", e);
+      }
     }
     
-    // Refresh navigation data
-    if (typeof navigationStore.refreshNavigation === 'function') {
-      navigationStore.refreshNavigation();
+    // Safely refresh navigation
+    if (navigationStore && typeof navigationStore.refreshNavigation === 'function') {
+      try {
+        navigationStore.refreshNavigation();
+      } catch (e) {
+        console.error("Error refreshing navigation:", e);
+      }
     }
     
-    // Attempt a cache-busting network request with proper error handling
+    // Safely perform a cache-busting network request
     try {
       const cacheBuster = Date.now();
       const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => abortController.abort(), 3000);
       
       fetch(`/api/ping?t=${cacheBuster}`, { 
         cache: 'no-store',
@@ -59,14 +69,13 @@ export const syncContentData = (forceRefresh = false) => {
       .then(() => clearTimeout(timeoutId))
       .catch(() => {
         clearTimeout(timeoutId);
-        // Silently fail - this is just for cache busting
+        // Silent fail - just for cache busting
       });
     } catch (e) {
-      // Ignore any errors, this is just for cache busting
+      // Ignore errors - this is just for cache busting
     }
     
-    console.log("Aggressive data sync completed at", new Date().toISOString());
-    
+    console.log("Data sync completed at", new Date().toISOString());
     return true;
   } catch (error) {
     console.error("Error during data sync:", error);
@@ -75,16 +84,27 @@ export const syncContentData = (forceRefresh = false) => {
 };
 
 /**
- * Hook to detect network status changes and trigger refresh
- * Added try-catch to prevent uncaught exceptions
+ * Hook to detect network status changes with improved error handling
  */
 export const useNetworkSync = () => {
   try {
-    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    // Check if we're in a browser environment first
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return true; // Default to online for SSR
+    }
+    
+    const isOnline = navigator.onLine;
     
     // If we're back online, force a sync
     if (isOnline) {
-      syncContentData(true);
+      // Use setTimeout to avoid immediate execution during render
+      setTimeout(() => {
+        try {
+          syncContentData(true);
+        } catch (e) {
+          console.error("Error syncing on network change:", e);
+        }
+      }, 0);
     }
     
     return isOnline;

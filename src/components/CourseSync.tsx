@@ -4,50 +4,49 @@ import { useContentSync } from '@/hooks/use-content-sync';
 import { toast } from 'sonner';
 
 /**
- * This component aggressively ensures content synchronization
- * Added error handling to prevent socket issues
+ * This component ensures content synchronization with improved error handling
  */
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
-  const { coursesList, refreshContent } = useContentSync(true);
+  const { coursesList, refreshContent } = useContentSync(false); // Less aggressive
   
   useEffect(() => {
+    // Skip execution during SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     try {
-      // Clear cache and force refresh immediately
+      // Safely clear cache
       if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('tecentrix-content');
+        try {
+          localStorage.removeItem('tecentrix-content');
+        } catch (e) {
+          console.error("Error clearing localStorage:", e);
+        }
       }
       
-      // Force content refresh multiple times to ensure sync
+      // Initial refresh
       refreshContent();
       
-      // Add a second refresh after a short delay to ensure data is updated
+      // Less aggressive second refresh
       const secondRefresh = setTimeout(() => {
         try {
           refreshContent();
-          console.log("Secondary content refresh triggered");
-          
-          // If running on mobile, show a sync notification
-          if (window.innerWidth < 768) {
-            toast.info("Syncing latest course data...");
-          }
         } catch (e) {
           console.error("Error during secondary refresh:", e);
         }
-      }, 1000);
+      }, 5000);
       
-      // On mobile, set up more aggressive polling
-      const mobileRefresh = setInterval(() => {
-        if (window.innerWidth < 768) {
-          try {
-            refreshContent();
-            console.log("Mobile refresh cycle triggered");
-          } catch (e) {
-            console.error("Error during mobile refresh cycle:", e);
-          }
+      // Notify on mobile only if needed
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        try {
+          toast.info("Syncing course data...");
+        } catch (e) {
+          console.error("Error showing toast:", e);
         }
-      }, 10000); // Every 10 seconds on mobile
+      }
       
-      // If there's an onSync callback, call it with the first course (backward compatibility)
+      // Call onSync callback if provided and courses are available
       if (onSync && coursesList.length > 0) {
         try {
           onSync(coursesList[0]);
@@ -58,46 +57,43 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
       
       return () => {
         clearTimeout(secondRefresh);
-        clearInterval(mobileRefresh);
       };
     } catch (error) {
       console.error("Error in CourseSync effect:", error);
     }
   }, [coursesList, onSync, refreshContent]);
 
-  // Force network request to bust cache
+  // Single network request to bust cache, with less frequency
   useEffect(() => {
+    // Skip execution during SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     try {
-      // Create a unique URL to bypass cache
       const bustCache = () => {
         try {
-          const uniqueUrl = `${window.location.origin}/api/ping?cache=${Date.now()}`;
-          const abortController = new AbortController();
-          const timeoutId = setTimeout(() => abortController.abort(), 3000); // 3 second timeout
-          
+          const uniqueUrl = `/api/ping?cache=${Date.now()}`;
           fetch(uniqueUrl, { 
             cache: 'no-store',
-            signal: abortController.signal,
             headers: {
               'Pragma': 'no-cache',
               'Cache-Control': 'no-cache'
             }
-          })
-          .then(() => clearTimeout(timeoutId))
-          .catch(() => {
-            clearTimeout(timeoutId);
-            console.log("Cache-busting ping completed");
+          }).catch(() => {
+            // Silent fail - just for cache busting
           });
         } catch (e) {
-          // Silently ignore network errors
+          // Silent fail
         }
       };
       
-      // Run immediately and set interval
-      bustCache();
-      const interval = setInterval(bustCache, 15000);
+      // Run once after a short delay
+      const initialTimeout = setTimeout(bustCache, 2000);
       
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(initialTimeout);
+      };
     } catch (error) {
       console.error("Error setting up cache busting:", error);
     }

@@ -4,18 +4,22 @@ import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
 
 /**
- * Hook to ensure content is properly synced across all devices
- * Uses a more aggressive approach to force content refreshes
- * Added error handling to prevent socket issues
+ * Hook to ensure content is properly synced with improved error handling
+ * and SSR-safe implementation
  */
 export function useContentSync(forceRefresh = false) {
-  const [lastSync, setLastSync] = useState(Date.now());
+  const [lastSync, setLastSync] = useState(() => Date.now());
   const contentStore = useContentStore();
   
   useEffect(() => {
+    // Skip execution during SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     let isMounted = true;
     
-    // Immediately clear any cached content on mount
+    // Safely clear content cache on mount
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.removeItem('tecentrix-content');
@@ -24,10 +28,14 @@ export function useContentSync(forceRefresh = false) {
       }
     }
     
-    // Force content refresh
-    refreshContent();
+    // Initial content refresh with error handling
+    try {
+      refreshContent();
+    } catch (e) {
+      console.error("Error during initial refresh:", e);
+    }
     
-    // Set up more frequent refresh with error handling
+    // Set up a less aggressive refresh interval
     const refreshInterval = setInterval(() => {
       if (isMounted) {
         try {
@@ -36,12 +44,11 @@ export function useContentSync(forceRefresh = false) {
           console.error("Error during refresh cycle:", e);
         }
       }
-    }, 5000);
+    }, 30000); // Every 30 seconds is enough
     
-    // Also refresh when tab becomes visible
+    // Refresh when tab becomes visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && isMounted) {
-        console.log("Tab became visible, forcing content refresh");
         try {
           refreshContent();
         } catch (e) {
@@ -62,34 +69,38 @@ export function useContentSync(forceRefresh = false) {
 
   const refreshContent = () => {
     try {
-      // Aggressively clear localStorage cache
+      // Safely clear localStorage cache
       if (typeof localStorage !== 'undefined') {
-        // Remove all Tecentrix content-related items
+        // Remove Tecentrix content-related items
         Object.keys(localStorage).forEach(key => {
           if (key.includes('tecentrix-content')) {
             localStorage.removeItem(key);
           }
         });
         
-        // Force timestamp update to invalidate any potential cache
+        // Add a cache-busting timestamp
         localStorage.setItem('tecentrix-cache-buster', Date.now().toString());
       }
       
-      // Re-fetch content by forcing store refresh
+      // Safely refresh content store
       if (typeof useContentStore.getState().refreshContent === 'function') {
         useContentStore.getState().refreshContent();
       }
       
       setLastSync(Date.now());
-      console.log("Content forcefully synced at", new Date().toISOString());
+      console.log("Content synced at", new Date().toISOString());
     } catch (error) {
       console.error("Error refreshing content:", error);
       
-      // Show error toast on mobile devices where debugging is harder
-      if (window.innerWidth < 768) {
-        toast.error("Error syncing data", {
-          description: "Please try refreshing the page"
-        });
+      // Only show toast on mobile devices and only if we're in a browser
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        try {
+          toast.error("Error syncing data", {
+            description: "Please try refreshing the page"
+          });
+        } catch (e) {
+          console.error("Error showing toast:", e);
+        }
       }
     }
   };

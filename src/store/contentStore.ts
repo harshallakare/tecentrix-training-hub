@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist, StorageValue, PersistOptions } from 'zustand/middleware';
 
@@ -60,7 +59,7 @@ interface ContentState {
   };
   coursesList: Course[];
   testimonialsList: Testimonial[];
-  lastContentRefresh?: number; // Add this property to fix the error
+  lastContentRefresh?: number; // Now properly defined in the interface
   refreshContent?: () => void;
   updateHeroContent: (heroContent: Partial<HeroContent>) => void;
   updateCoursesContent: (coursesContent: Partial<CoursesContent>) => void;
@@ -206,33 +205,35 @@ export const useContentStore = create<ContentState>()(
       ],
       refreshContent: () => {
         console.log("Forcing content refresh...");
-        // Clear the content from localStorage
-        if (typeof localStorage !== 'undefined') {
-          // Aggressively clear all tecentrix content
-          Object.keys(localStorage).forEach(key => {
-            if (key.includes('tecentrix-content')) {
-              localStorage.removeItem(key);
-            }
-          });
-          
-          // Force a cache-busting timestamp
-          localStorage.setItem('tecentrix-sync-timestamp', Date.now().toString());
+        // Don't use localStorage directly in initialization to prevent hydration issues
+        if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+          try {
+            // Safely clear content cache with error handling
+            Object.keys(localStorage).forEach(key => {
+              if (key.includes('tecentrix-content')) {
+                localStorage.removeItem(key);
+              }
+            });
+            
+            // Force a cache-busting timestamp
+            localStorage.setItem('tecentrix-sync-timestamp', Date.now().toString());
+          } catch (e) {
+            console.error("Error clearing localStorage:", e);
+          }
         }
         
         // Update last refresh timestamp and force rerender
-        const currentState = get();
-        set({ 
-          ...currentState,
-          lastContentRefresh: Date.now() 
-        });
+        set({ lastContentRefresh: Date.now() });
         
-        // Broadcast a sync event that other tabs can listen for
-        try {
-          window.dispatchEvent(new CustomEvent('tecentrix-content-sync', {
-            detail: { timestamp: Date.now() }
-          }));
-        } catch (e) {
-          console.error("Error broadcasting sync event:", e);
+        // Safely broadcast a sync event
+        if (typeof window !== 'undefined') {
+          try {
+            window.dispatchEvent(new CustomEvent('tecentrix-content-sync', {
+              detail: { timestamp: Date.now() }
+            }));
+          } catch (e) {
+            console.error("Error broadcasting sync event:", e);
+          }
         }
       },
       updateHeroContent: (heroContent) => 
@@ -306,9 +307,13 @@ export const useContentStore = create<ContentState>()(
     }),
     {
       name: 'tecentrix-content',
-      // Never use localStorage cache for more than 30 seconds to ensure frequent updates
+      // Safer storage implementation with proper type checking
       storage: {
         getItem: (name): StorageValue<ContentState> | null => {
+          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+            return null;
+          }
+          
           try {
             const data = localStorage.getItem(name);
             if (!data) return null;
@@ -330,12 +335,28 @@ export const useContentStore = create<ContentState>()(
           }
         },
         setItem: (name, value: StorageValue<ContentState>) => {
-          localStorage.setItem(name, JSON.stringify(value));
+          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+            return;
+          }
           
-          // Also set a separate timestamp to help with syncing
-          localStorage.setItem('tecentrix-last-update', Date.now().toString());
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+            localStorage.setItem('tecentrix-last-update', Date.now().toString());
+          } catch (e) {
+            console.error("Error setting localStorage:", e);
+          }
         },
-        removeItem: (name) => localStorage.removeItem(name)
+        removeItem: (name) => {
+          if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+            return;
+          }
+          
+          try {
+            localStorage.removeItem(name);
+          } catch (e) {
+            console.error("Error removing from localStorage:", e);
+          }
+        }
       }
     }
   )
