@@ -8,14 +8,12 @@ import Testimonials from '@/components/Testimonials';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
 import { initializeNavigation } from '@/utils/initializeNavigation';
-import { syncContentData, useNetworkSync } from '@/utils/dataSync';
-import { useIsMobile, useMobileInfo } from '@/hooks/use-mobile';
+import { syncContentData } from '@/utils/dataSync';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
-  // Check network status
-  const isOnline = useNetworkSync();
+  // Get basic mobile status for initialization
   const isMobile = useIsMobile();
-  const { orientation } = useMobileInfo();
   
   useEffect(() => {
     // Initialize navigation items and sync data on mount
@@ -25,57 +23,48 @@ const Index = () => {
     // Set page title
     document.title = "Tecentrix - Professional Training and Certification";
     
-    const handleScroll = () => {
-      const revealElements = document.querySelectorAll(
-        '.reveal, .reveal-right, .reveal-left, .scale-reveal'
-      );
-      
-      revealElements.forEach((element) => {
-        const elementTop = element.getBoundingClientRect().top;
-        const elementHeight = element.getBoundingClientRect().height;
-        
-        // Adjust the reveal point based on device type
-        const revealPoint = isMobile ? window.innerHeight - elementHeight / 4 : window.innerHeight - elementHeight / 3;
-        
-        // Only reveal when element is in viewport
-        if (elementTop < revealPoint) {
+    // Set up IntersectionObserver for reveal animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // When element is intersecting (visible in viewport)
+        if (entry.isIntersecting) {
+          const element = entry.target;
+          // Add the appropriate visible class based on the element's animation type
           if (element.classList.contains('reveal-right')) {
             element.classList.add('reveal-right-visible');
           } else if (element.classList.contains('reveal-left')) {
             element.classList.add('reveal-left-visible');
           } else if (element.classList.contains('scale-reveal')) {
             element.classList.add('scale-reveal-visible');
-          } else {
+          } else if (element.classList.contains('reveal')) {
             element.classList.add('reveal-visible');
           }
         }
       });
-    };
+    }, {
+      // Adjust the threshold based on device type
+      threshold: isMobile ? 0.1 : 0.2,
+      // Start revealing when element is this % into the viewport
+      rootMargin: isMobile ? '0px 0px -10% 0px' : '0px 0px -15% 0px',
+    });
     
-    // Initial check on page load
-    setTimeout(handleScroll, 100);
+    // Target all elements with animation classes
+    const revealElements = document.querySelectorAll(
+      '.reveal, .reveal-right, .reveal-left, .scale-reveal'
+    );
     
-    // Add scroll event listener
-    window.addEventListener('scroll', handleScroll);
+    // Observe each element
+    revealElements.forEach(element => {
+      observer.observe(element);
+    });
     
-    // Force a refresh when orientation changes
-    const handleOrientationChange = () => {
-      console.log("Orientation changed, refreshing data...");
-      syncContentData(true);
-      // Re-run scroll handler after orientation change
-      setTimeout(handleScroll, 300);
-    };
-    
-    window.addEventListener('orientationchange', handleOrientationChange);
-    
+    // Clean up
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('orientationchange', handleOrientationChange);
+      revealElements.forEach(element => {
+        observer.unobserve(element);
+      });
     };
-  }, [isMobile, orientation]);
-  
-  // Debug info for development
-  console.log(`Render Index - Mobile: ${isMobile}, Orientation: ${orientation}, Online: ${isOnline}`);
+  }, [isMobile]);
   
   return (
     <div className="overflow-x-hidden">
