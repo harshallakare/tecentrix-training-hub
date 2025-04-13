@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -139,6 +138,34 @@ const defaultSettings: Settings = {
   },
 };
 
+// Improved sync function with more forceful updates
+const forceSyncToStorage = (state: SettingsState) => {
+  try {
+    // Direct localStorage write for immediate syncing
+    localStorage.setItem('tecentrix-settings-raw', JSON.stringify(state.settings));
+    
+    // Update HTML document attributes for CSS targeting
+    document.documentElement.dataset.companyName = state.settings.companyName;
+    document.title = `${state.settings.companyName} - Linux Administration Training`;
+    
+    // Dispatch events to notify all components of the change
+    window.dispatchEvent(new CustomEvent('settings-updated'));
+    window.dispatchEvent(new Event('storage')); // Simulate storage event for cross-tab sync
+    
+    // Additional dispatch for specific company name changes
+    window.dispatchEvent(new CustomEvent('company-name-updated', {
+      detail: { companyName: state.settings.companyName }
+    }));
+    
+    console.log(`Settings synced to storage with company name: ${state.settings.companyName}`);
+    
+    return true;
+  } catch (e) {
+    console.error("Error forcefully syncing settings:", e);
+    return false;
+  }
+};
+
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
@@ -147,17 +174,21 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => {
           console.log("Updating settings with:", newSettings);
           
-          // Force localStorage update for immediate persistence
-          setTimeout(() => {
-            window.dispatchEvent(new Event('storage'));
-          }, 100);
-          
-          return {
+          const updatedState = {
             settings: {
               ...state.settings,
               ...newSettings,
             }
           };
+          
+          // Force immediate sync
+          setTimeout(() => {
+            forceSyncToStorage({ ...get(), settings: updatedState.settings });
+            // Double dispatch for reliability
+            window.dispatchEvent(new Event('storage'));
+          }, 0);
+          
+          return updatedState;
         }),
       updateCompanyInfo: (companyInfo) => 
         set((state) => {
@@ -171,11 +202,23 @@ export const useSettingsStore = create<SettingsState>()(
             }
           };
           
-          // Force update event
+          // Force immediate sync with extra safeguards
           setTimeout(() => {
-            window.dispatchEvent(new Event('settings-updated'));
+            forceSyncToStorage({ ...get(), settings: updatedSettings.settings });
+            
+            // Update the document directly for immediate visual feedback
+            if (companyInfo.companyName) {
+              document.documentElement.dataset.companyName = companyInfo.companyName;
+              document.title = `${companyInfo.companyName} - Linux Administration Training`;
+            }
+            
+            // Multiple event dispatches for reliability
+            window.dispatchEvent(new CustomEvent('settings-updated'));
             window.dispatchEvent(new Event('storage'));
-          }, 100);
+            window.dispatchEvent(new CustomEvent('company-name-updated', {
+              detail: { companyName: companyInfo.companyName || state.settings.companyName }
+            }));
+          }, 0);
           
           return updatedSettings;
         }),
@@ -228,7 +271,6 @@ export const useSettingsStore = create<SettingsState>()(
             }
           }
         })),
-      // Added new methods for inquiryRecipients
       addInquiryRecipient: (recipient) => 
         set((state) => ({
           settings: {
@@ -252,13 +294,12 @@ export const useSettingsStore = create<SettingsState>()(
             inquiryRecipients: state.settings.inquiryRecipients.filter(recipient => recipient.id !== id)
           }
         })),
-      // Added getter for company name for easy access
       getCompanyName: () => get().settings.companyName,
     }),
     {
       name: 'tecentrix-settings',
       // Improve storage settings with version information
-      version: 1,
+      version: 2, // Incremented version to force reset if needed
       // Add merge function to ensure settings are properly merged on hydration
       merge: (persistedState: any, currentState) => {
         const merged = {
@@ -269,17 +310,49 @@ export const useSettingsStore = create<SettingsState>()(
           }
         };
         console.log("Storage hydrated with merged settings:", merged);
+        
+        // Force immediate sync after hydration
+        setTimeout(() => {
+          forceSyncToStorage(merged);
+        }, 0);
+        
         return merged;
+      },
+      // Add onRehydrateStorage to know when storage has been rehydrated
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          console.log("Settings rehydrated successfully");
+          // Force sync after rehydration
+          forceSyncToStorage(state);
+        }
       },
     }
   )
 );
 
-// Create a global hook to force refresh settings from localStorage
+// Improved refresh function with better error handling and multiple sync attempts
 export const refreshSettingsFromStorage = () => {
   const storedSettings = localStorage.getItem('tecentrix-settings');
-  if (storedSettings) {
-    try {
+  const rawSettings = localStorage.getItem('tecentrix-settings-raw');
+  
+  try {
+    // Try first with raw settings for more immediate updates
+    if (rawSettings) {
+      const parsedRawSettings = JSON.parse(rawSettings);
+      if (parsedRawSettings) {
+        useSettingsStore.setState({ 
+          settings: {
+            ...defaultSettings,
+            ...parsedRawSettings
+          } 
+        });
+        console.log("Settings refreshed from raw storage:", parsedRawSettings);
+        return true;
+      }
+    }
+    
+    // Fall back to persisted storage format
+    if (storedSettings) {
       const parsedSettings = JSON.parse(storedSettings);
       if (parsedSettings && parsedSettings.state && parsedSettings.state.settings) {
         useSettingsStore.setState({ 
@@ -288,24 +361,47 @@ export const refreshSettingsFromStorage = () => {
             ...parsedSettings.state.settings
           } 
         });
-        console.log("Settings refreshed from storage:", parsedSettings.state.settings);
+        console.log("Settings refreshed from persisted storage:", parsedSettings.state.settings);
+        
+        // Update document for immediate visual feedback
+        document.documentElement.dataset.companyName = parsedSettings.state.settings.companyName;
+        document.title = `${parsedSettings.state.settings.companyName} - Linux Administration Training`;
+        
+        return true;
       }
-    } catch (e) {
-      console.error("Error parsing stored settings:", e);
     }
+    
+    // If we get here, we couldn't refresh from storage
+    console.warn("No valid settings found in storage");
+    return false;
+    
+  } catch (e) {
+    console.error("Error parsing stored settings:", e);
+    return false;
   }
 };
 
 // Add event listener to sync settings across tabs/frames
 if (typeof window !== 'undefined') {
+  // Handle storage events for cross-tab synchronization
   window.addEventListener('storage', (event) => {
-    if (event.key === 'tecentrix-settings') {
+    if (event.key === 'tecentrix-settings' || event.key === 'tecentrix-settings-raw') {
+      console.log("Storage event detected:", event.key);
       refreshSettingsFromStorage();
     }
   });
   
-  // Also listen for custom event
+  // Listen for custom events
   window.addEventListener('settings-updated', () => {
+    console.log("Settings updated event received");
     refreshSettingsFromStorage();
+  });
+  
+  // Initialize with a forced refresh
+  setTimeout(refreshSettingsFromStorage, 0);
+  
+  // Add multiple delayed refreshes for reliability
+  [100, 500, 1000, 2000].forEach(delay => {
+    setTimeout(refreshSettingsFromStorage, delay);
   });
 }

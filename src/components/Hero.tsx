@@ -5,12 +5,18 @@ import { Terminal, Server, ArrowRight, Award, Users } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useCompanyName } from '@/hooks/use-settings-sync';
+import { refreshSettingsFromStorage } from '@/store/settingsStore';
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const { content } = useContentStore();
+  const companyName = useCompanyName(); // Use our company name hook for reactive updates
 
   useEffect(() => {
+    // Force settings refresh when component mounts
+    refreshSettingsFromStorage();
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -24,11 +30,35 @@ const Hero = () => {
 
     const revealElements = document.querySelectorAll('.reveal');
     revealElements.forEach((el) => observer.observe(el));
+    
+    // Listen for company name updates
+    const handleCompanyNameUpdate = () => {
+      console.log("Company name updated event received in Hero");
+      refreshSettingsFromStorage();
+      // Force re-rendering of company content
+      if (heroRef.current) {
+        heroRef.current.dataset.companyName = companyName;
+      }
+    };
+    
+    window.addEventListener('company-name-updated', handleCompanyNameUpdate);
+    window.addEventListener('settings-updated', handleCompanyNameUpdate);
 
     return () => {
       revealElements.forEach((el) => observer.unobserve(el));
+      window.removeEventListener('company-name-updated', handleCompanyNameUpdate);
+      window.removeEventListener('settings-updated', handleCompanyNameUpdate);
     };
   }, []);
+  
+  // Log whenever company name changes
+  useEffect(() => {
+    console.log("Hero rendering with company name:", companyName);
+    // Force update data attributes
+    if (heroRef.current) {
+      heroRef.current.dataset.companyName = companyName;
+    }
+  }, [companyName]);
 
   const handleFreeAssessment = () => {
     toast.info("Free Assessment Test", {
@@ -37,7 +67,11 @@ const Hero = () => {
   };
 
   return (
-    <div ref={heroRef} className="min-h-screen pt-20 flex flex-col justify-center relative overflow-hidden">
+    <div 
+      ref={heroRef} 
+      className="min-h-screen pt-20 flex flex-col justify-center relative overflow-hidden"
+      data-company-name={companyName} // Add data attribute for tracking
+    >
       {/* Background decoration */}
       <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-tecentrix-orange/10 animate-float blur-3xl"></div>
@@ -54,12 +88,12 @@ const Hero = () => {
           <div className="reveal mb-2 flex items-center space-x-3">
             <img 
               src="/lovable-uploads/4c595448-842f-4b0f-85ed-498a0f4c4a4c.png" 
-              alt="Tecentrix Icon" 
+              alt={`${companyName} Icon`}
               className="h-16 w-16"
             />
             <img 
               src="/lovable-uploads/ecf53e64-9a0d-42a7-9f33-45ff3799daef.png" 
-              alt="Tecentrix Text" 
+              alt={`${companyName} Text`}
               className="h-12 md:h-14"
             />
           </div>

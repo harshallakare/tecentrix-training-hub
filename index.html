@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +7,7 @@
     <meta name="description" content="Expert-led Linux administration training to advance your IT career. Master server management, security, and networking skills with hands-on courses." />
     <meta name="author" content="Tecentrix" />
     
-    <!-- Cache control meta tags to prevent mobile/desktop inconsistency -->
+    <!-- Force no caching to prevent mobile/desktop inconsistency -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -47,27 +46,89 @@
   <body>
     <div id="root"></div>
     <script>
-      // Simple script to force refresh for mobile/desktop consistency
+      // More aggressive script to maintain consistency between mobile/desktop
       document.addEventListener('DOMContentLoaded', function() {
-        // Force settings sync on page load
-        window.addEventListener('storage', function(event) {
-          if (event.key === 'tecentrix-settings' || event.key === 'company-name-updated') {
-            console.log('Settings updated in another tab/window. Syncing...');
-            // Update page title based on company name
-            try {
-              const settingsData = localStorage.getItem('tecentrix-settings');
-              if (settingsData) {
-                const settings = JSON.parse(settingsData);
-                if (settings && settings.state && settings.state.settings && settings.state.settings.companyName) {
-                  document.title = settings.state.settings.companyName + ' - Linux Administration Training';
-                  document.documentElement.dataset.companyName = settings.state.settings.companyName;
-                }
+        // Force settings sync on page load with retry logic
+        function syncSettings() {
+          try {
+            // Update page title based on company name from settings
+            const settingsData = localStorage.getItem('tecentrix-settings');
+            if (settingsData) {
+              const settings = JSON.parse(settingsData);
+              if (settings && settings.state && settings.state.settings && settings.state.settings.companyName) {
+                document.title = settings.state.settings.companyName + ' - Linux Administration Training';
+                document.documentElement.dataset.companyName = settings.state.settings.companyName;
+                
+                // Force layout recalculation
+                document.body.style.display = 'none';
+                setTimeout(() => {
+                  document.body.style.display = '';
+                }, 0);
+                
+                return true;
               }
-            } catch (e) {
-              console.error('Error updating from storage:', e);
             }
+            return false;
+          } catch (e) {
+            console.error('Error updating from storage:', e);
+            return false;
+          }
+        }
+        
+        // Try syncing immediately
+        if (!syncSettings()) {
+          // If initial sync fails, retry with increasing delays
+          [100, 500, 1000, 2000].forEach(delay => {
+            setTimeout(syncSettings, delay);
+          });
+        }
+        
+        // Listen for storage events to keep all tabs/windows in sync
+        window.addEventListener('storage', function(event) {
+          if (event.key === 'tecentrix-settings' || event.key === null || event.key === 'company-name-updated') {
+            console.log('Settings updated in another tab/window. Syncing...');
+            syncSettings();
+            
+            // Force refresh of content by emitting a custom event
+            window.dispatchEvent(new CustomEvent('settings-sync'));
           }
         });
+        
+        // Create mutation observer to watch for company name changes and force updates
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-company-name') {
+              document.title = document.documentElement.dataset.companyName + ' - Linux Administration Training';
+            }
+          });
+        });
+        
+        // Start observing document element for attribute changes
+        observer.observe(document.documentElement, { attributes: true });
+        
+        // Add periodic check for consistency
+        setInterval(syncSettings, 5000);
+        
+        // Clear any service worker caches to ensure fresh content
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (let registration of registrations) {
+              registration.unregister();
+            }
+          });
+        }
+        
+        // Disable browser caching
+        if (typeof window.fetch === 'function') {
+          const originalFetch = window.fetch;
+          window.fetch = function(url, options) {
+            options = options || {};
+            options.cache = 'no-store';
+            options.headers = options.headers || {};
+            options.headers['Pragma'] = 'no-cache';
+            return originalFetch(url, options);
+          };
+        }
       });
     </script>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>

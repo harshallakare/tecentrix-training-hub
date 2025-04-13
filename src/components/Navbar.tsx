@@ -4,16 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useNavigationStore } from '@/store/navigationStore';
+import { useCompanyName } from '@/hooks/use-settings-sync';
+import { refreshSettingsFromStorage } from '@/store/settingsStore';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { navItems } = useNavigationStore();
+  const companyName = useCompanyName(); // Use our company name hook for reactive updates
   
   // Filter out disabled nav items
   const activeNavItems = navItems.filter(item => item.enabled);
 
   useEffect(() => {
+    // Force refresh settings when navbar mounts
+    refreshSettingsFromStorage();
+    
     const handleScroll = () => {
       if (window.scrollY > 10) {
         setIsScrolled(true);
@@ -23,8 +29,29 @@ const Navbar = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Listen for company name updates
+    const handleCompanyNameUpdate = () => {
+      console.log("Company name updated event received in Navbar");
+      // Force a re-render
+      setIsScrolled(prev => !prev);
+      setTimeout(() => setIsScrolled(prev => !prev), 0);
+    };
+    
+    window.addEventListener('company-name-updated', handleCompanyNameUpdate);
+    window.addEventListener('settings-updated', handleCompanyNameUpdate);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('company-name-updated', handleCompanyNameUpdate);
+      window.removeEventListener('settings-updated', handleCompanyNameUpdate);
+    };
   }, []);
+  
+  // Log whenever company name changes
+  useEffect(() => {
+    console.log("Navbar rendering with company name:", companyName);
+  }, [companyName]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -35,17 +62,18 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-5'
       }`}
+      data-company-name={companyName} // Add data attribute for tracking
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-3">
           <img 
             src="/lovable-uploads/4c595448-842f-4b0f-85ed-498a0f4c4a4c.png" 
-            alt="Tecentrix Icon" 
+            alt={`${companyName} Icon`} 
             className="h-12 w-12"
           />
           <img 
             src="/lovable-uploads/ecf53e64-9a0d-42a7-9f33-45ff3799daef.png" 
-            alt="Tecentrix Text" 
+            alt={`${companyName} Text`} 
             className="h-8 md:h-10"
           />
         </Link>
