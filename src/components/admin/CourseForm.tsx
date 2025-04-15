@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import MarkdownEditor from '@/components/MarkdownEditor';
 import { Course, CurriculumSection } from '@/store/contentStore';
 
 interface CourseFormProps {
-  initialData?: Partial<Course>;
+  initialData?: Partial<Course> | null;
   onSubmit: (data: Course) => void;
   onCancel: () => void;
 }
@@ -64,7 +65,25 @@ const iconColorOptions = [
 ];
 
 const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    id: string;
+    title: string;
+    level: string;
+    duration: string;
+    description: string;
+    price: string;
+    icon: string;
+    color: string;
+    iconBg: string;
+    iconColor: string;
+    highlighted: boolean;
+    enabled: boolean;
+    modules: string[];
+    upcomingBatches: string[];
+    language: string;
+    paymentLink: string;
+    curriculum: CurriculumSection[]
+  }>({
     id: '',
     title: '',
     level: 'Foundation',
@@ -88,22 +107,23 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
 
   useEffect(() => {
     if (initialData) {
-      const updatedData = { ...initialData };
-      if (initialData.upcomingBatch && !initialData.upcomingBatches) {
-        updatedData.upcomingBatches = [initialData.upcomingBatch];
-      } else if (!initialData.upcomingBatches) {
-        updatedData.upcomingBatches = [''];
-      }
+      // Create a merged object that maintains the complete structure required by formData
+      const updatedData = {
+        ...formData, // Start with default values
+        ...initialData, // Override with provided data
+        // Handle nested arrays with special care
+        upcomingBatches: initialData.upcomingBatches || 
+                        (initialData.upcomingBatch ? [initialData.upcomingBatch] : formData.upcomingBatches),
+        curriculum: initialData.curriculum || formData.curriculum,
+        modules: initialData.modules || formData.modules,
+        // Ensure these required fields have values
+        id: initialData.id || uuidv4(),
+        enabled: initialData.enabled !== undefined ? initialData.enabled : true
+      };
 
-      if (!updatedData.curriculum) {
-        updatedData.curriculum = [{ title: '', description: '' }];
-      }
-
-      setFormData({
-        ...updatedData,
-        enabled: updatedData.enabled !== undefined ? updatedData.enabled : true
-      });
+      setFormData(updatedData);
     } else {
+      // When no initialData, just ensure we have a new ID
       setFormData({
         ...formData,
         id: uuidv4(),
