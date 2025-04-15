@@ -96,6 +96,48 @@ export type Database = {
         }
         Relationships: []
       }
+      section_content: {
+        Row: {
+          content: Json
+          id: string
+          section: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          id?: string
+          section: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          id?: string
+          section?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: string
+          name: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          id?: string
+          name: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          id?: string
+          name?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           author: string

@@ -1,6 +1,6 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { settingsService } from '@/lib/supabase';
 
 export interface CompanyInfo {
   companyName: string;
@@ -143,22 +143,21 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       settings: defaultSettings,
-      updateSettings: (newSettings) => 
-        set((state) => {
-          console.log("Updating settings with:", newSettings);
+      updateSettings: async (newSettings) => {
+        try {
+          const updatedGeneralSettings = await settingsService.saveSiteSettings('general', newSettings);
+          console.log("Settings saved to database:", updatedGeneralSettings);
           
-          // Force localStorage update for immediate persistence
-          setTimeout(() => {
-            window.dispatchEvent(new Event('storage'));
-          }, 100);
-          
-          return {
+          set((state) => ({
             settings: {
               ...state.settings,
               ...newSettings,
             }
-          };
-        }),
+          }));
+        } catch (error) {
+          console.error("Failed to update settings:", error);
+        }
+      },
       updateCompanyInfo: (companyInfo) => 
         set((state) => {
           console.log("Updating company info:", companyInfo);
@@ -179,16 +178,24 @@ export const useSettingsStore = create<SettingsState>()(
           
           return updatedSettings;
         }),
-      updateContactInfo: (contactInfo) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            contactInfo: {
-              ...state.settings.contactInfo,
-              ...contactInfo,
+      updateContactInfo: async (contactInfo) => {
+        try {
+          const updatedContactSettings = await settingsService.saveSiteSettings('contact', contactInfo);
+          console.log("Contact settings saved to database:", updatedContactSettings);
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              contactInfo: {
+                ...state.settings.contactInfo,
+                ...contactInfo,
+              }
             }
-          }
-        })),
+          }));
+        } catch (error) {
+          console.error("Failed to update contact settings:", error);
+        }
+      },
       updateSocialLinks: (socialLinks) => 
         set((state) => ({
           settings: {

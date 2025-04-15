@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
@@ -106,5 +105,72 @@ export const handleSupabaseOperation = async (
     console.error(`${errorPrefix}:`, error);
     toast.error(`${errorPrefix}: ${error.message || 'Unknown error'}`);
     return { data: null, error };
+  }
+};
+
+// New helper methods for site settings and section content
+export const settingsService = {
+  async saveSiteSettings(name: string, value: Record<string, any>) {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .upsert({ name, value })
+        .select();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error(`Error saving site settings for ${name}:`, error);
+      toast.error(`Failed to save ${name} settings`);
+      return null;
+    }
+  },
+
+  async getSiteSettings(name: string) {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('name', name)
+        .single();
+
+      if (error) throw error;
+      return data?.value || {};
+    } catch (error: any) {
+      console.error(`Error retrieving site settings for ${name}:`, error);
+      return {};
+    }
+  },
+
+  async saveSectionContent(section: string, content: Record<string, any>) {
+    try {
+      const { data, error } = await supabase
+        .from('section_content')
+        .upsert({ section, content })
+        .select();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error(`Error saving section content for ${section}:`, error);
+      toast.error(`Failed to save ${section} content`);
+      return null;
+    }
+  },
+
+  async getSectionContent(section: string) {
+    try {
+      const { data, error } = await supabase
+        .from('section_content')
+        .select('content')
+        .eq('section', section)
+        .single();
+
+      if (error) throw error;
+      return data?.content || {};
+    } catch (error: any) {
+      console.error(`Error retrieving section content for ${section}:`, error);
+      return {};
+    }
   }
 };
