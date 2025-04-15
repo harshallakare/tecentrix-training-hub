@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
-import { useSettingsStore, Settings } from '@/store/settingsStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen, MessageSquare, Users } from 'lucide-react';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
@@ -16,7 +15,7 @@ import NavigationManager from '@/components/admin/NavigationManager';
 import CoursesManagement from '@/pages/CoursesManagement';
 import TestimonialsManagement from '@/pages/TestimonialsManagement';
 import TeamManagement from '@/components/admin/TeamManagement';
-import Settings from '@/pages/Settings';
+import SettingsPage from '@/pages/Settings';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -439,7 +438,7 @@ const Admin = () => {
           </TabsContent>
           
           <TabsContent value="settings">
-            <Settings />
+            <SettingsPage />
           </TabsContent>
           
           <TabsContent value="navigation">
