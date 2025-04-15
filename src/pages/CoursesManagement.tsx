@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useContentStore } from '@/store/contentStore';
@@ -10,6 +9,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import ReactMarkdown from 'react-markdown';
+
+// Import the Course type directly from contentStore
+import { useContentStore, Course } from '@/store/contentStore';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -93,9 +95,7 @@ const CoursesManagement = () => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
   };
 
-  // Helper function to display batch dates
   const renderBatchDates = (course) => {
-    // Handle backwards compatibility with old data format
     const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
     
     if (batches.length === 0) return null;
@@ -124,7 +124,6 @@ const CoursesManagement = () => {
     );
   };
 
-  // Helper function to render curriculum content
   const renderCurriculum = (course) => {
     if (!course.curriculum || course.curriculum.length === 0) {
       return (

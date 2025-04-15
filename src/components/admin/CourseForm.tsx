@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MarkdownEditor from '@/components/MarkdownEditor';
+import { Course, CurriculumSection } from '@/store/contentStore';
 
 interface CourseFormProps {
-  initialData?: any;
-  onSubmit: (data: any) => void;
+  initialData?: Partial<Course>;
+  onSubmit: (data: Course) => void;
   onCancel: () => void;
 }
 
