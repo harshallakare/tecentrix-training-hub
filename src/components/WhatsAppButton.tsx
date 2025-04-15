@@ -1,16 +1,23 @@
 
 import React from "react";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useLocation } from "react-router-dom";
 
 const WhatsAppButton = () => {
   const { settings } = useSettingsStore();
+  const location = useLocation();
+  
+  // Check URL parameters to see if badge should be hidden
+  const searchParams = new URLSearchParams(location.search);
+  const forceHideBadge = searchParams.get('forceHideBadge') === 'true';
   
   // Safely access whatsAppConfig with fallbacks
   const whatsAppEnabled = settings?.whatsAppConfig?.enabled ?? false;
   const phoneNumber = settings?.whatsAppConfig?.phoneNumber || "";
   const defaultMessage = settings?.whatsAppConfig?.message || "Hello, I'm interested in your courses!";
   
-  if (!whatsAppEnabled || !phoneNumber) {
+  // Hide button if forceHideBadge is true or WhatsApp is not enabled
+  if (forceHideBadge || !whatsAppEnabled || !phoneNumber) {
     return null;
   }
 
