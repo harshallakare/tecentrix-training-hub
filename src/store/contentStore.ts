@@ -24,6 +24,11 @@ interface CTAContent {
   specialOffer: string;
 }
 
+interface CurriculumSection {
+  title: string;
+  description: string;
+}
+
 interface Course {
   id: string;
   icon: string;
@@ -41,6 +46,7 @@ interface Course {
   upcomingBatches?: string[]; // Changed from upcomingBatch to upcomingBatches array
   language?: string;
   paymentLink?: string;
+  curriculum?: CurriculumSection[]; // Added curriculum field
 }
 
 interface Testimonial {
