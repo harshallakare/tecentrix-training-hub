@@ -73,5 +73,6 @@ export const supabase = (() => {
  * Check if Supabase is properly configured
  */
 export const isSupabaseConfigured = () => {
-  return supabaseUrl !== '' && supabaseAnonKey !== '';
+  return !!supabaseUrl && !!supabaseAnonKey;
 };
+
