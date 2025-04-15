@@ -1,9 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
-import { syncContentData } from '@/utils/dataSync';
 
 /**
  * Component to ensure course data is properly synced
@@ -13,12 +12,12 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
   const { courseId } = useParams<{ courseId?: string }>();
   const navigate = useNavigate();
   const { coursesList } = useContentStore();
+  const [attempted, setAttempted] = useState(false);
   
   useEffect(() => {
-    // First, attempt to force a data sync
-    syncContentData(true);
+    if (!courseId || attempted) return;
     
-    // Next, check if we have the course in our list
+    // Check if we have the course in our list
     const course = coursesList.find(c => c.id === courseId);
     
     // If course is not found after refresh and we have courses loaded
@@ -36,7 +35,8 @@ const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) =>
       onSync(course);
     }
     
-  }, [courseId, coursesList, navigate, onSync]);
+    setAttempted(true);
+  }, [courseId, coursesList, navigate, onSync, attempted]);
 
   return null; // This is a utility component with no UI
 };
