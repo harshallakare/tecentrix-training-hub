@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSettingsStore, InquiryRecipient, refreshSettingsFromStorage } from '@/store/settingsStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -172,7 +173,9 @@ const Settings = () => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     
-    const port = parseInt(formData.get('port') as string, 10) || 587;
+    // Fix: Use a default value for port if it's undefined or not a number
+    const portValue = formData.get('port');
+    const port = portValue ? parseInt(portValue.toString(), 10) || 587 : 587;
     
     updateSMTPConfig({
       host: formData.get('host') as string,
@@ -685,7 +688,7 @@ const Settings = () => {
                       id="port"
                       name="port"
                       type="number"
-                      defaultValue={safeSettings.smtpConfig.port.toString()}
+                      defaultValue={safeSettings.smtpConfig.port?.toString() || "587"}
                       placeholder="e.g. 587"
                     />
                   </div>
@@ -820,3 +823,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
