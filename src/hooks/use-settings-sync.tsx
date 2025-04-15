@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSettingsStore, refreshSettingsFromStorage } from '@/store/settingsStore';
 
 /**
@@ -8,53 +8,46 @@ import { useSettingsStore, refreshSettingsFromStorage } from '@/store/settingsSt
  */
 export function useSettingsSync() {
   const { settings } = useSettingsStore();
-  const [lastSync, setLastSync] = useState(Date.now());
   
   useEffect(() => {
     // Initial refresh to ensure we have latest settings
     refreshSettingsFromStorage();
-    setLastSync(Date.now());
     
-    // Update document attributes for CSS targeting
-    document.documentElement.dataset.companyName = settings.companyName;
-    document.title = `${settings.companyName} - Linux Administration Training`;
-    
-    // Listen for storage events (changes from other tabs)
-    const handleStorageChange = (event) => {
-      if (event.key === 'tecentrix-settings' || event.key === null) {
-        refreshSettingsFromStorage();
-        setLastSync(Date.now());
-      }
-    };
-    
-    // Add visibility change detection
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refreshSettingsFromStorage();
-        setLastSync(Date.now());
-      }
-    };
-    
-    // Add listeners
-    window.addEventListener('storage', handleStorageChange);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Set up a simple refresh interval (much less aggressive than before)
+    // Set up interval to periodically check for settings changes
+    // This helps ensure mobile and desktop views stay in sync
     const syncInterval = setInterval(() => {
       refreshSettingsFromStorage();
-      setLastSync(Date.now());
-    }, 30000); // Every 30 seconds is plenty
+    }, 5000); // Check every 5 seconds
+    
+    // Add listeners for visibility changes (tab switching, mobile app coming to foreground)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log("Page became visible, refreshing settings...");
+        refreshSettingsFromStorage();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Force refresh on mobile view detection
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileView = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|mobi|phone/i.test(userAgent);
+    
+    if (isMobileView) {
+      console.log("Mobile view detected, ensuring settings sync");
+      // Add extra refresh for mobile with slight delay
+      setTimeout(refreshSettingsFromStorage, 1000);
+      setTimeout(refreshSettingsFromStorage, 3000);
+    }
     
     // Clean up on unmount
     return () => {
       clearInterval(syncInterval);
-      window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [settings.companyName]);
+  }, []);
   
-  // Include lastSync in returned object to allow components to know when settings refreshed
-  return { ...settings, _lastSync: lastSync };
+  return settings;
 }
 
 /**
@@ -63,12 +56,4 @@ export function useSettingsSync() {
 export function useCompanyName() {
   const settings = useSettingsSync();
   return settings.companyName;
-}
-
-/**
- * Force an immediate settings refresh from any component
- */
-export function forceSettingsRefresh() {
-  refreshSettingsFromStorage();
-  return true;
 }

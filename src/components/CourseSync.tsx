@@ -1,18 +1,42 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useContentStore } from '@/store/contentStore';
+import { toast } from 'sonner';
+import { syncContentData } from '@/utils/dataSync';
 
 /**
- * This component ensures content synchronization with improved error handling
+ * Component to ensure course data is properly synced
+ * This helps address inconsistencies between mobile and desktop views
  */
 const CourseSync: React.FC<{ onSync?: (course: any) => void }> = ({ onSync }) => {
-  // Call onSync callback if provided - synchronously to avoid timing issues
-  if (onSync && typeof onSync === 'function') {
-    try {
-      onSync({id: '1', title: 'RHCSA Certification'});
-    } catch (e) {
-      console.error("Error in CourseSync onSync callback:", e);
+  const { courseId } = useParams<{ courseId?: string }>();
+  const navigate = useNavigate();
+  const { coursesList } = useContentStore();
+  
+  useEffect(() => {
+    // First, attempt to force a data sync
+    syncContentData(true);
+    
+    // Next, check if we have the course in our list
+    const course = coursesList.find(c => c.id === courseId);
+    
+    // If course is not found after refresh and we have courses loaded
+    if (!course && coursesList.length > 0) {
+      console.error(`Course ${courseId} not found in list of ${coursesList.length} courses`);
+      toast.error("Course not found", {
+        description: "The course you're looking for doesn't exist or has been removed."
+      });
+      navigate('/courses');
+      return;
     }
-  }
+    
+    // If we found the course, call the onSync callback
+    if (course && onSync) {
+      onSync(course);
+    }
+    
+  }, [courseId, coursesList, navigate, onSync]);
 
   return null; // This is a utility component with no UI
 };

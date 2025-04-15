@@ -1,9 +1,10 @@
+
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Server, Shield, Network, Terminal, Cloud, Database, Calendar, Languages } from 'lucide-react';
+import { useContentStore } from '@/store/contentStore';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useContentSync } from '@/hooks/use-content-sync';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -15,25 +16,12 @@ const iconMap = {
 };
 
 const Courses = () => {
-  const { content, coursesList, refreshContent } = useContentSync(true);
+  const { content, coursesList } = useContentStore();
   
+  // Updated to strictly filter courses where enabled is not false
   const visibleCourses = coursesList.filter(course => course.enabled !== false);
   
   useEffect(() => {
-    refreshContent();
-    
-    const refreshCycle = setInterval(() => {
-      refreshContent();
-      console.log("Course data refresh cycle triggered");
-    }, 10000);
-    
-    const handleFocus = () => {
-      refreshContent();
-      console.log("Window focused, refreshing course data");
-    };
-    
-    window.addEventListener('focus', handleFocus);
-    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -57,30 +45,9 @@ const Courses = () => {
     revealElements.forEach((el) => observer.observe(el));
 
     return () => {
-      clearInterval(refreshCycle);
-      window.removeEventListener('focus', handleFocus);
       revealElements.forEach((el) => observer.unobserve(el));
     };
-  }, [refreshContent]);
-  
-  useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('tecentrix-content');
-    }
-    
-    refreshContent();
-    setTimeout(refreshContent, 1000);
-    setTimeout(refreshContent, 3000);
-    
-    if (window.innerWidth < 768) {
-      toast.info("Loading latest course data...");
-    }
-  }, [refreshContent]);
-  
-  useEffect(() => {
-    console.log("Courses component rendered with", visibleCourses.length, "visible courses");
-    console.log("Course IDs:", visibleCourses.map(c => c.id).join(", "));
-  }, [visibleCourses]);
+  }, []);
 
   const getIconComponent = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || <Terminal className="h-6 w-6" />;
@@ -96,7 +63,9 @@ const Courses = () => {
     });
   };
 
+  // Helper function to display batch dates
   const renderBatchDates = (course) => {
+    // Handle backwards compatibility with old data format
     const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
     
     if (batches.length === 0) return null;
