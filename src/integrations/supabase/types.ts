@@ -9,7 +9,123 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      content_settings: {
+        Row: {
+          courses: Json
+          created_at: string
+          cta: Json
+          features: Json
+          hero: Json
+          id: string
+        }
+        Insert: {
+          courses: Json
+          created_at?: string
+          cta: Json
+          features: Json
+          hero: Json
+          id: string
+        }
+        Update: {
+          courses?: Json
+          created_at?: string
+          cta?: Json
+          features?: Json
+          hero?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          color: string
+          created_at: string
+          description: string
+          duration: string
+          enabled: boolean
+          highlighted: boolean
+          icon: string
+          iconbg: string
+          iconcolor: string
+          id: string
+          language: string | null
+          level: string
+          modules: string[]
+          paymentlink: string | null
+          price: string
+          title: string
+          upcomingbatches: string[] | null
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          description: string
+          duration: string
+          enabled?: boolean
+          highlighted?: boolean
+          icon: string
+          iconbg: string
+          iconcolor: string
+          id?: string
+          language?: string | null
+          level: string
+          modules: string[]
+          paymentlink?: string | null
+          price: string
+          title: string
+          upcomingbatches?: string[] | null
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string
+          duration?: string
+          enabled?: boolean
+          highlighted?: boolean
+          icon?: string
+          iconbg?: string
+          iconcolor?: string
+          id?: string
+          language?: string | null
+          level?: string
+          modules?: string[]
+          paymentlink?: string | null
+          price?: string
+          title?: string
+          upcomingbatches?: string[] | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          author: string
+          avatar: string
+          company: string
+          content: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          author: string
+          avatar: string
+          company: string
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          author?: string
+          avatar?: string
+          company?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

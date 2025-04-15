@@ -1,10 +1,10 @@
 
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase';
+import type { Database } from '@/integrations/supabase/types';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://szwglhfbqygxoytzkxjt.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6d2dsaGZicXlneG95dHpreGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2OTcwOTksImV4cCI6MjA2MDI3MzA5OX0.oEQiNpFsqkHhFXJr35ya3kYPalEsbuapwmkJRQQxiw0';
 
 // Initialize the Supabase client with a check for required values
 export const supabase = (() => {
