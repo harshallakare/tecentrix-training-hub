@@ -1,17 +1,60 @@
 
 import { useEffect } from 'react';
 import { useSettingsStore, refreshSettingsFromStorage } from '@/store/settingsStore';
+import { settingsService } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 /**
  * Custom hook to ensure settings are properly synced across different 
  * parts of the application and across mobile/desktop views
  */
 export function useSettingsSync() {
-  const { settings } = useSettingsStore();
+  const { settings, updateSettings } = useSettingsStore();
   
   useEffect(() => {
+    console.log("Setting up settings sync...");
+    
     // Initial refresh to ensure we have latest settings
     refreshSettingsFromStorage();
+    
+    // Initial sync with Supabase database
+    const syncWithDatabase = async () => {
+      try {
+        const generalSettings = await settingsService.getSiteSettings('general');
+        const contactSettings = await settingsService.getSiteSettings('contact');
+        const socialSettings = await settingsService.getSiteSettings('social');
+        const emailSettings = await settingsService.getSiteSettings('email');
+        const whatsappSettings = await settingsService.getSiteSettings('whatsapp');
+        const adminSettings = await settingsService.getSiteSettings('admins');
+        const recipientSettings = await settingsService.getSiteSettings('recipients');
+        
+        console.log("Synced settings from database:", { 
+          generalSettings, 
+          contactSettings, 
+          socialSettings,
+          emailSettings,
+          whatsappSettings,
+          adminSettings,
+          recipientSettings
+        });
+        
+        // Update with merged settings
+        updateSettings({
+          ...generalSettings,
+          contactInfo: contactSettings || settings.contactInfo,
+          socialLinks: socialSettings || settings.socialLinks,
+          smtpConfig: emailSettings || settings.smtpConfig,
+          whatsAppConfig: whatsappSettings || settings.whatsAppConfig,
+          adminCredentials: adminSettings || settings.adminCredentials,
+          inquiryRecipients: Array.isArray(recipientSettings) ? recipientSettings : settings.inquiryRecipients
+        });
+      } catch (error) {
+        console.error("Failed to sync settings from database:", error);
+        toast.error("Failed to load settings from database");
+      }
+    };
+    
+    syncWithDatabase();
     
     // Set up interval to periodically check for settings changes
     // This helps ensure mobile and desktop views stay in sync
@@ -24,6 +67,7 @@ export function useSettingsSync() {
       if (document.visibilityState === 'visible') {
         console.log("Page became visible, refreshing settings...");
         refreshSettingsFromStorage();
+        syncWithDatabase();
       }
     };
     
@@ -37,7 +81,7 @@ export function useSettingsSync() {
       console.log("Mobile view detected, ensuring settings sync");
       // Add extra refresh for mobile with slight delay
       setTimeout(refreshSettingsFromStorage, 1000);
-      setTimeout(refreshSettingsFromStorage, 3000);
+      setTimeout(syncWithDatabase, 3000);
     }
     
     // Clean up on unmount
@@ -45,7 +89,7 @@ export function useSettingsSync() {
       clearInterval(syncInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [updateSettings]);
   
   return settings;
 }

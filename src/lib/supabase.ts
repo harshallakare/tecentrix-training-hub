@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
@@ -112,29 +113,44 @@ export const handleSupabaseOperation = async (
 export const settingsService = {
   async saveSiteSettings(name: string, value: Record<string, any>) {
     try {
+      console.log(`Saving ${name} settings to Supabase:`, value);
+      
       const { data, error } = await supabase
         .from('site_settings')
         .upsert({ name, value })
         .select();
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error(`Error saving site settings for ${name}:`, error);
+        toast.error(`Failed to save ${name} settings: ${error.message}`);
+        throw error;
+      }
+      
+      console.log(`Successfully saved ${name} settings:`, data);
+      return data?.[0]?.value || {};
     } catch (error: any) {
       console.error(`Error saving site settings for ${name}:`, error);
-      toast.error(`Failed to save ${name} settings`);
-      return null;
+      toast.error(`Failed to save ${name} settings: ${error.message || 'Unknown error'}`);
+      throw error;
     }
   },
 
   async getSiteSettings(name: string) {
     try {
+      console.log(`Fetching ${name} settings from Supabase`);
+      
       const { data, error } = await supabase
         .from('site_settings')
         .select('value')
         .eq('name', name)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which we handle gracefully
+        console.error(`Error retrieving site settings for ${name}:`, error);
+        return {};
+      }
+      
+      console.log(`Retrieved ${name} settings:`, data?.value);
       return data?.value || {};
     } catch (error: any) {
       console.error(`Error retrieving site settings for ${name}:`, error);
@@ -144,29 +160,44 @@ export const settingsService = {
 
   async saveSectionContent(section: string, content: Record<string, any>) {
     try {
+      console.log(`Saving ${section} content to Supabase:`, content);
+      
       const { data, error } = await supabase
         .from('section_content')
         .upsert({ section, content })
         .select();
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error(`Error saving section content for ${section}:`, error);
+        toast.error(`Failed to save ${section} content: ${error.message}`);
+        throw error;
+      }
+      
+      console.log(`Successfully saved ${section} content:`, data);
+      return data?.[0]?.content || {};
     } catch (error: any) {
       console.error(`Error saving section content for ${section}:`, error);
-      toast.error(`Failed to save ${section} content`);
-      return null;
+      toast.error(`Failed to save ${section} content: ${error.message || 'Unknown error'}`);
+      throw error;
     }
   },
 
   async getSectionContent(section: string) {
     try {
+      console.log(`Fetching ${section} content from Supabase`);
+      
       const { data, error } = await supabase
         .from('section_content')
         .select('content')
         .eq('section', section)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which we handle gracefully
+        console.error(`Error retrieving section content for ${section}:`, error);
+        return {};
+      }
+      
+      console.log(`Retrieved ${section} content:`, data?.content);
       return data?.content || {};
     } catch (error: any) {
       console.error(`Error retrieving section content for ${section}:`, error);

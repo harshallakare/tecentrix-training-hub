@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { settingsService } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export interface CompanyInfo {
   companyName: string;
@@ -20,7 +21,7 @@ export interface SocialLinks {
   twitter: string;
   linkedin: string;
   instagram: string;
-  youtube?: string; // Added youtube as optional
+  youtube?: string;
 }
 
 export interface SMTPConfig {
@@ -34,7 +35,6 @@ export interface SMTPConfig {
   secure: boolean;
 }
 
-// Changed to a recipient object type
 export interface InquiryRecipient {
   id: string;
   name: string;
@@ -63,7 +63,7 @@ export interface Settings {
   enableBlog: boolean;
   showTestimonials: boolean;
   smtpConfig: SMTPConfig;
-  inquiryRecipients: InquiryRecipient[]; // Changed to an array of InquiryRecipient
+  inquiryRecipients: InquiryRecipient[];
   whatsAppConfig: WhatsAppConfig;
   adminCredentials: AdminCredentials;
 }
@@ -80,11 +80,9 @@ interface SettingsState {
   addInquiryRecipient: (recipient: InquiryRecipient) => void;
   updateInquiryRecipient: (id: string, recipient: Partial<InquiryRecipient>) => void;
   removeInquiryRecipient: (id: string) => void;
-  // Added getter functions for simplicity
   getCompanyName: () => string;
 }
 
-// Initialize with default values
 const defaultSettings: Settings = {
   companyName: 'Tecentrix',
   tagline: 'Expert Linux Training & Certification',
@@ -98,7 +96,7 @@ const defaultSettings: Settings = {
     twitter: 'https://twitter.com/tecentrix',
     linkedin: 'https://linkedin.com/company/tecentrix',
     instagram: 'https://instagram.com/tecentrix',
-    youtube: 'https://youtube.com/tecentrix', // Added youtube
+    youtube: 'https://youtube.com/tecentrix',
   },
   footerText: '© 2025 Tecentrix. All rights reserved.',
   enableBlog: false,
@@ -113,7 +111,7 @@ const defaultSettings: Settings = {
     enabled: false,
     secure: true,
   },
-  inquiryRecipients: [ // Changed to an array of recipients
+  inquiryRecipients: [
     {
       id: '1',
       name: 'General Inquiries',
@@ -145,8 +143,15 @@ export const useSettingsStore = create<SettingsState>()(
       settings: defaultSettings,
       updateSettings: async (newSettings) => {
         try {
-          const updatedGeneralSettings = await settingsService.saveSiteSettings('general', newSettings);
-          console.log("Settings saved to database:", updatedGeneralSettings);
+          console.log("Updating settings in store:", newSettings);
+          
+          await settingsService.saveSiteSettings('general', {
+            companyName: newSettings.companyName || get().settings.companyName,
+            tagline: newSettings.tagline || get().settings.tagline,
+            footerText: newSettings.footerText || get().settings.footerText,
+            enableBlog: newSettings.enableBlog !== undefined ? newSettings.enableBlog : get().settings.enableBlog,
+            showTestimonials: newSettings.showTestimonials !== undefined ? newSettings.showTestimonials : get().settings.showTestimonials,
+          });
           
           set((state) => ({
             settings: {
@@ -154,8 +159,15 @@ export const useSettingsStore = create<SettingsState>()(
               ...newSettings,
             }
           }));
+          
+          setTimeout(() => {
+            window.dispatchEvent(new Event('settings-updated'));
+          }, 100);
+          
+          toast.success("Settings updated successfully");
         } catch (error) {
           console.error("Failed to update settings:", error);
+          toast.error("Failed to save general settings");
         }
       },
       updateCompanyInfo: (companyInfo) => 
@@ -166,11 +178,9 @@ export const useSettingsStore = create<SettingsState>()(
             settings: {
               ...state.settings,
               companyName: companyInfo.companyName ?? state.settings.companyName,
-              // Add other company info properties as needed
             }
           };
           
-          // Force update event
           setTimeout(() => {
             window.dispatchEvent(new Event('settings-updated'));
             window.dispatchEvent(new Event('storage'));
@@ -180,8 +190,12 @@ export const useSettingsStore = create<SettingsState>()(
         }),
       updateContactInfo: async (contactInfo) => {
         try {
-          const updatedContactSettings = await settingsService.saveSiteSettings('contact', contactInfo);
-          console.log("Contact settings saved to database:", updatedContactSettings);
+          console.log("Updating contact info:", contactInfo);
+          
+          await settingsService.saveSiteSettings('contact', {
+            ...get().settings.contactInfo,
+            ...contactInfo
+          });
           
           set((state) => ({
             settings: {
@@ -192,81 +206,179 @@ export const useSettingsStore = create<SettingsState>()(
               }
             }
           }));
+          
+          toast.success("Contact information updated successfully");
         } catch (error) {
           console.error("Failed to update contact settings:", error);
+          toast.error("Failed to save contact information");
         }
       },
-      updateSocialLinks: (socialLinks) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            socialLinks: {
-              ...state.settings.socialLinks,
-              ...socialLinks,
+      updateSocialLinks: async (socialLinks) => {
+        try {
+          console.log("Updating social links:", socialLinks);
+          
+          await settingsService.saveSiteSettings('social', {
+            ...get().settings.socialLinks,
+            ...socialLinks
+          });
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              socialLinks: {
+                ...state.settings.socialLinks,
+                ...socialLinks,
+              }
             }
-          }
-        })),
-      updateSMTPConfig: (smtpConfig) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            smtpConfig: {
-              ...state.settings.smtpConfig,
-              ...smtpConfig,
+          }));
+          
+          toast.success("Social links updated successfully");
+        } catch (error) {
+          console.error("Failed to update social links:", error);
+          toast.error("Failed to save social links");
+        }
+      },
+      updateSMTPConfig: async (smtpConfig) => {
+        try {
+          console.log("Updating SMTP config:", smtpConfig);
+          
+          await settingsService.saveSiteSettings('email', {
+            ...get().settings.smtpConfig,
+            ...smtpConfig
+          });
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              smtpConfig: {
+                ...state.settings.smtpConfig,
+                ...smtpConfig,
+              }
             }
-          }
-        })),
-      updateWhatsAppConfig: (whatsAppConfig) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            whatsAppConfig: {
-              ...state.settings.whatsAppConfig,
-              ...whatsAppConfig,
+          }));
+          
+          toast.success("Email settings updated successfully");
+        } catch (error) {
+          console.error("Failed to update SMTP config:", error);
+          toast.error("Failed to save email settings");
+        }
+      },
+      updateWhatsAppConfig: async (whatsAppConfig) => {
+        try {
+          console.log("Updating WhatsApp config:", whatsAppConfig);
+          
+          await settingsService.saveSiteSettings('whatsapp', {
+            ...get().settings.whatsAppConfig,
+            ...whatsAppConfig
+          });
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              whatsAppConfig: {
+                ...state.settings.whatsAppConfig,
+                ...whatsAppConfig,
+              }
             }
-          }
-        })),
-      updateAdminCredentials: (credentials) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            adminCredentials: {
-              ...credentials,
+          }));
+          
+          toast.success("WhatsApp settings updated successfully");
+        } catch (error) {
+          console.error("Failed to update WhatsApp config:", error);
+          toast.error("Failed to save WhatsApp settings");
+        }
+      },
+      updateAdminCredentials: async (credentials) => {
+        try {
+          console.log("Updating admin credentials");
+          
+          await settingsService.saveSiteSettings('admins', {
+            username: credentials.username,
+            password: "*******"
+          });
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              adminCredentials: {
+                ...credentials,
+              }
             }
-          }
-        })),
-      // Added new methods for inquiryRecipients
-      addInquiryRecipient: (recipient) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            inquiryRecipients: [...state.settings.inquiryRecipients, recipient]
-          }
-        })),
-      updateInquiryRecipient: (id, updatedRecipient) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            inquiryRecipients: state.settings.inquiryRecipients.map(recipient => 
-              recipient.id === id ? { ...recipient, ...updatedRecipient } : recipient
-            )
-          }
-        })),
-      removeInquiryRecipient: (id) => 
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            inquiryRecipients: state.settings.inquiryRecipients.filter(recipient => recipient.id !== id)
-          }
-        })),
-      // Added getter for company name for easy access
+          }));
+          
+          toast.success("Admin credentials updated successfully");
+        } catch (error) {
+          console.error("Failed to update admin credentials:", error);
+          toast.error("Failed to save admin credentials");
+        }
+      },
+      addInquiryRecipient: async (recipient) => {
+        try {
+          const currentRecipients = [...get().settings.inquiryRecipients];
+          const updatedRecipients = [...currentRecipients, recipient];
+          
+          await settingsService.saveSiteSettings('recipients', updatedRecipients);
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              inquiryRecipients: updatedRecipients
+            }
+          }));
+          
+          toast.success(`${recipient.name} added as a recipient`);
+        } catch (error) {
+          console.error("Failed to add inquiry recipient:", error);
+          toast.error("Failed to add recipient");
+        }
+      },
+      updateInquiryRecipient: async (id, updatedRecipient) => {
+        try {
+          const currentRecipients = [...get().settings.inquiryRecipients];
+          const updatedRecipients = currentRecipients.map(recipient => 
+            recipient.id === id ? { ...recipient, ...updatedRecipient } : recipient
+          );
+          
+          await settingsService.saveSiteSettings('recipients', updatedRecipients);
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              inquiryRecipients: updatedRecipients
+            }
+          }));
+          
+          toast.success("Recipient updated successfully");
+        } catch (error) {
+          console.error("Failed to update inquiry recipient:", error);
+          toast.error("Failed to update recipient");
+        }
+      },
+      removeInquiryRecipient: async (id) => {
+        try {
+          const currentRecipients = [...get().settings.inquiryRecipients];
+          const updatedRecipients = currentRecipients.filter(recipient => recipient.id !== id);
+          
+          await settingsService.saveSiteSettings('recipients', updatedRecipients);
+          
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              inquiryRecipients: updatedRecipients
+            }
+          }));
+          
+          toast.success("Recipient removed successfully");
+        } catch (error) {
+          console.error("Failed to remove inquiry recipient:", error);
+          toast.error("Failed to remove recipient");
+        }
+      },
       getCompanyName: () => get().settings.companyName,
     }),
     {
       name: 'tecentrix-settings',
-      // Improve storage settings with version information
       version: 1,
-      // Add merge function to ensure settings are properly merged on hydration
       merge: (persistedState: any, currentState) => {
         const merged = {
           ...currentState,
@@ -282,7 +394,6 @@ export const useSettingsStore = create<SettingsState>()(
   )
 );
 
-// Create a global hook to force refresh settings from localStorage
 export const refreshSettingsFromStorage = () => {
   const storedSettings = localStorage.getItem('tecentrix-settings');
   if (storedSettings) {
@@ -303,7 +414,6 @@ export const refreshSettingsFromStorage = () => {
   }
 };
 
-// Add event listener to sync settings across tabs/frames
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (event) => {
     if (event.key === 'tecentrix-settings') {
@@ -311,7 +421,6 @@ if (typeof window !== 'undefined') {
     }
   });
   
-  // Also listen for custom event
   window.addEventListener('settings-updated', () => {
     refreshSettingsFromStorage();
   });
