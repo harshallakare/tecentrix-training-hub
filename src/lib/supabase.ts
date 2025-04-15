@@ -115,10 +115,37 @@ export const settingsService = {
     try {
       console.log(`Saving ${name} settings to Supabase:`, value);
       
-      const { data, error } = await supabase
+      // First check if the record exists
+      const { data: existingData, error: queryError } = await supabase
         .from('site_settings')
-        .upsert({ name, value })
-        .select();
+        .select('id')
+        .eq('name', name)
+        .maybeSingle();
+      
+      if (queryError) {
+        console.error(`Error checking if ${name} settings exist:`, queryError);
+        toast.error(`Failed to save ${name} settings: ${queryError.message}`);
+        throw queryError;
+      }
+      
+      let result;
+      
+      if (existingData) {
+        // Update existing record
+        result = await supabase
+          .from('site_settings')
+          .update({ value })
+          .eq('name', name)
+          .select();
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('site_settings')
+          .insert({ name, value })
+          .select();
+      }
+      
+      const { data, error } = result;
 
       if (error) {
         console.error(`Error saving site settings for ${name}:`, error);
@@ -143,7 +170,7 @@ export const settingsService = {
         .from('site_settings')
         .select('value')
         .eq('name', name)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which we handle gracefully
         console.error(`Error retrieving site settings for ${name}:`, error);
@@ -162,10 +189,37 @@ export const settingsService = {
     try {
       console.log(`Saving ${section} content to Supabase:`, content);
       
-      const { data, error } = await supabase
+      // First check if the record exists
+      const { data: existingData, error: queryError } = await supabase
         .from('section_content')
-        .upsert({ section, content })
-        .select();
+        .select('id')
+        .eq('section', section)
+        .maybeSingle();
+      
+      if (queryError) {
+        console.error(`Error checking if ${section} content exists:`, queryError);
+        toast.error(`Failed to save ${section} content: ${queryError.message}`);
+        throw queryError;
+      }
+      
+      let result;
+      
+      if (existingData) {
+        // Update existing record
+        result = await supabase
+          .from('section_content')
+          .update({ content })
+          .eq('section', section)
+          .select();
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('section_content')
+          .insert({ section, content })
+          .select();
+      }
+      
+      const { data, error } = result;
 
       if (error) {
         console.error(`Error saving section content for ${section}:`, error);
@@ -190,7 +244,7 @@ export const settingsService = {
         .from('section_content')
         .select('content')
         .eq('section', section)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which we handle gracefully
         console.error(`Error retrieving section content for ${section}:`, error);
