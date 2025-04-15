@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { useContentStore } from '@/store/contentStore';
 import CourseForm from '@/components/admin/CourseForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power } from 'lucide-react';
+import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
+import ReactMarkdown from 'react-markdown';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -25,6 +26,7 @@ const CoursesManagement = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentCourse, setCurrentCourse] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getIconComponent = (iconName: string) => {
@@ -87,6 +89,10 @@ const CoursesManagement = () => {
     });
   };
 
+  const toggleCurriculumExpand = (courseId: string) => {
+    setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
+  };
+
   // Helper function to display batch dates
   const renderBatchDates = (course) => {
     // Handle backwards compatibility with old data format
@@ -114,6 +120,32 @@ const CoursesManagement = () => {
             <li key={index} className="list-disc">{batch}</li>
           ))}
         </ul>
+      </div>
+    );
+  };
+
+  // Helper function to render curriculum content
+  const renderCurriculum = (course) => {
+    if (!course.curriculum || course.curriculum.length === 0) {
+      return (
+        <div className="text-sm text-tecentrix-darkgray/80 italic">
+          No curriculum content added yet.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {course.curriculum.map((section, index) => (
+          <div key={index} className="border-b pb-4 last:border-b-0 last:pb-0">
+            <h4 className="font-medium text-tecentrix-blue mb-2">{section.title || `Section ${index + 1}`}</h4>
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown>
+                {section.description || 'No description provided.'}
+              </ReactMarkdown>
+            </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -201,6 +233,35 @@ const CoursesManagement = () => {
                     ))}
                   </ul>
                 </div>
+                
+                {course.curriculum && course.curriculum.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <Button 
+                      variant="ghost" 
+                      className="flex w-full justify-between items-center p-0 h-auto"
+                      onClick={() => toggleCurriculumExpand(course.id)}
+                    >
+                      <div className="flex items-center text-tecentrix-blue">
+                        <FileText className="h-4 w-4 mr-2" />
+                        <span className="font-semibold">Curriculum</span>
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({course.curriculum.length} {course.curriculum.length === 1 ? 'section' : 'sections'})
+                        </span>
+                      </div>
+                      {expandedCourseId === course.id ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                    
+                    {expandedCourseId === course.id && (
+                      <div className="mt-4 p-4 bg-white rounded-md border border-gray-100">
+                        {renderCurriculum(course)}
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap justify-between items-center gap-2">
                   <div className="flex items-center">
