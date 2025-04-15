@@ -59,6 +59,19 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['content_settings']['Row'], 'created_at'>;
         Update: Partial<Database['public']['Tables']['content_settings']['Row']>;
       };
+      leadership_team: {
+        Row: {
+          id: string;
+          name: string;
+          role: string;
+          bio: string;
+          image_url: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Insert: Omit<Database['public']['Tables']['leadership_team']['Row'], 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['leadership_team']['Row']>;
+      };
     };
     Views: {
       [_ in never]: never;

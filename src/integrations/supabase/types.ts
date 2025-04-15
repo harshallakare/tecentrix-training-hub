@@ -96,6 +96,36 @@ export type Database = {
         }
         Relationships: []
       }
+      leadership_team: {
+        Row: {
+          bio: string
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          bio: string
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       section_content: {
         Row: {
           content: Json

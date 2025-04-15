@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -15,12 +15,37 @@ import {
   Rocket,
   BarChart,
   Hand,
-  Star
+  Star,
+  Edit,
+  Trash,
+  Plus
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useTeamStore, TeamMember } from '@/store/teamStore';
+import TeamMemberForm from '@/components/admin/TeamMemberForm';
 
 const About = () => {
   const navigate = useNavigate();
+  const { settings } = useSettingsStore();
+  const { teamMembers, fetchTeamMembers, addTeamMember, updateTeamMember, deleteTeamMember, isLoading } = useTeamStore();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [currentMember, setCurrentMember] = useState<TeamMember | undefined>(undefined);
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [fetchTeamMembers]);
+
+  // Check if current user is admin
+  useEffect(() => {
+    const pathArray = window.location.pathname.split('/');
+    const isAdminPage = pathArray.some(segment => segment === 'admin');
+    setIsAdmin(isAdminPage);
+  }, []);
 
   // Add animation effect on scroll
   useEffect(() => {
@@ -48,6 +73,37 @@ const About = () => {
       observer.disconnect();
     };
   }, []);
+
+  const handleAddMember = () => {
+    setCurrentMember(undefined);
+    setIsFormOpen(true);
+  };
+  
+  const handleEditMember = (member: TeamMember) => {
+    setCurrentMember(member);
+    setIsFormOpen(true);
+  };
+  
+  const handleDeleteClick = (member: TeamMember) => {
+    setCurrentMember(member);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const handleDeleteConfirm = async () => {
+    if (currentMember) {
+      await deleteTeamMember(currentMember.id);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleFormSubmit = async (memberData: Omit<TeamMember, 'id' | 'created_at' | 'updated_at'>) => {
+    if (currentMember) {
+      await updateTeamMember(currentMember.id, memberData);
+    } else {
+      await addTeamMember(memberData);
+    }
+    setIsFormOpen(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -238,51 +294,66 @@ const About = () => {
               <p className="mt-4 text-lg text-tecentrix-darkgray/80">
                 Our diverse team of experts brings together decades of industry and educational experience.
               </p>
+              
+              {settings.isAdmin && (
+                <Button 
+                  onClick={handleAddMember} 
+                  className="mt-4 bg-tecentrix-blue hover:bg-tecentrix-blue/90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Team Member
+                </Button>
+              )}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  name: "Sarah Johnson",
-                  role: "Founder & CEO",
-                  bio: "Former tech executive with 15+ years in enterprise software. Passionate about transforming education through technology.",
-                  image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                },
-                {
-                  name: "Michael Chen",
-                  role: "Chief Learning Officer",
-                  bio: "PhD in Computer Science with extensive experience in curriculum design and educational technology.",
-                  image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                },
-                {
-                  name: "Priya Patel",
-                  role: "VP of Engineering",
-                  bio: "Former senior engineer at major tech companies. Specializes in cloud architecture and cybersecurity.",
-                  image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                },
-                {
-                  name: "David Martinez",
-                  role: "Head of Partnerships",
-                  bio: "Experienced business development leader with a track record of building strategic alliances in edtech.",
-                  image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
-                }
-              ].map((member, index) => (
-                <Card key={index} className="scale-reveal overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="aspect-w-1 aspect-h-1 relative">
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="object-cover w-full h-64"
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <h4 className="text-xl font-semibold text-tecentrix-blue">{member.name}</h4>
-                    <p className="text-tecentrix-orange font-medium mb-2">{member.role}</p>
-                    <p className="text-tecentrix-darkgray/80">{member.bio}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin w-8 h-8 border-4 border-tecentrix-blue/20 border-t-tecentrix-blue rounded-full mx-auto mb-4"></div>
+                <p className="text-tecentrix-darkgray/80">Loading team members...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {teamMembers.map((member, index) => (
+                  <Card key={member.id} className="scale-reveal overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div className="aspect-w-1 aspect-h-1 relative">
+                      <img 
+                        src={member.image_url} 
+                        alt={member.name} 
+                        className="object-cover w-full h-64"
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                          e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
+                        }}
+                      />
+                      {settings.isAdmin && (
+                        <div className="absolute top-2 right-2 flex space-x-1">
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => handleEditMember(member)}
+                            className="h-8 w-8 bg-white/90 hover:bg-white text-tecentrix-blue hover:text-tecentrix-blue/80 border-none"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => handleDeleteClick(member)}
+                            className="h-8 w-8 bg-white/90 hover:bg-white text-red-500 hover:text-red-600 border-none"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-6">
+                      <h4 className="text-xl font-semibold text-tecentrix-blue">{member.name}</h4>
+                      <p className="text-tecentrix-orange font-medium mb-2">{member.role}</p>
+                      <p className="text-tecentrix-darkgray/80">{member.bio}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -316,6 +387,44 @@ const About = () => {
       </main>
 
       <Footer />
+
+      {/* Team Member Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{currentMember ? 'Edit Team Member' : 'Add Team Member'}</DialogTitle>
+            <DialogDescription>
+              {currentMember 
+                ? 'Update the team member information below.' 
+                : 'Fill in the details to add a new team member.'}
+            </DialogDescription>
+          </DialogHeader>
+          <TeamMemberForm
+            member={currentMember}
+            onSubmit={handleFormSubmit}
+            onCancel={() => setIsFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the team member "{currentMember?.name}". 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
