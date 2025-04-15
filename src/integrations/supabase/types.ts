@@ -45,16 +45,16 @@ export type Database = {
           enabled: boolean
           highlighted: boolean
           icon: string
-          iconbg: string
-          iconcolor: string
+          iconBg: string
+          iconColor: string
           id: string
           language: string | null
           level: string
           modules: string[]
-          paymentlink: string | null
+          paymentLink: string | null
           price: string
           title: string
-          upcomingbatches: string[] | null
+          upcomingBatches: string[] | null
         }
         Insert: {
           color: string
@@ -64,16 +64,16 @@ export type Database = {
           enabled?: boolean
           highlighted?: boolean
           icon: string
-          iconbg: string
-          iconcolor: string
+          iconBg: string
+          iconColor: string
           id?: string
           language?: string | null
           level: string
           modules: string[]
-          paymentlink?: string | null
+          paymentLink?: string | null
           price: string
           title: string
-          upcomingbatches?: string[] | null
+          upcomingBatches?: string[] | null
         }
         Update: {
           color?: string
@@ -83,16 +83,16 @@ export type Database = {
           enabled?: boolean
           highlighted?: boolean
           icon?: string
-          iconbg?: string
-          iconcolor?: string
+          iconBg?: string
+          iconColor?: string
           id?: string
           language?: string | null
           level?: string
           modules?: string[]
-          paymentlink?: string | null
+          paymentLink?: string | null
           price?: string
           title?: string
-          upcomingbatches?: string[] | null
+          upcomingBatches?: string[] | null
         }
         Relationships: []
       }

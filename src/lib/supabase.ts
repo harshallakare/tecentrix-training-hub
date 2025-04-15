@@ -1,6 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import { toast } from 'sonner';
 
 // Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://szwglhfbqygxoytzkxjt.supabase.co';
@@ -76,3 +77,34 @@ export const isSupabaseConfigured = () => {
   return !!supabaseUrl && !!supabaseAnonKey;
 };
 
+/**
+ * Handle Supabase operations with proper error handling and feedback
+ * @param operation The database operation to execute
+ * @param successMessage Message to show on success
+ * @param errorPrefix Prefix for error message
+ */
+export const handleSupabaseOperation = async (
+  operation: Promise<any>,
+  successMessage?: string,
+  errorPrefix = 'Operation failed'
+) => {
+  try {
+    const { data, error } = await operation;
+    
+    if (error) {
+      console.error(`${errorPrefix}:`, error);
+      toast.error(`${errorPrefix}: ${error.message || 'Unknown error'}`);
+      return { data: null, error };
+    }
+    
+    if (successMessage) {
+      toast.success(successMessage);
+    }
+    
+    return { data, error: null };
+  } catch (error: any) {
+    console.error(`${errorPrefix}:`, error);
+    toast.error(`${errorPrefix}: ${error.message || 'Unknown error'}`);
+    return { data: null, error };
+  }
+};

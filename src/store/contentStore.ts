@@ -433,7 +433,7 @@ export const useContentStore = create<ContentState>()(
       },
       
       addCourse: async (course) => {
-        // Add to local state
+        // Add to local state first for immediate UI update
         set((state) => ({
           coursesList: [...state.coursesList, course]
         }));
@@ -447,18 +447,27 @@ export const useContentStore = create<ContentState>()(
               
             if (error) {
               console.error("Error adding course:", error);
-              toast.error("Failed to save course");
+              toast.error(`Failed to save course: ${error.message || 'Unknown error'}`);
+              
+              // If we encounter an error, we can log more details to help with debugging
+              console.log("Course data that failed to save:", JSON.stringify(course, null, 2));
+              
+              // Optionally rollback the local state if needed
+              // set((state) => ({
+              //   coursesList: state.coursesList.filter(c => c.id !== course.id)
+              // }));
             } else {
               toast.success("Course added successfully");
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error("Error adding course:", error);
+            toast.error(`Failed to save course: ${error.message || 'Unknown error'}`);
           }
         }
       },
       
       updateCourse: async (id, updatedCourse) => {
-        // Update local state
+        // Update local state first for immediate UI update
         set((state) => ({
           coursesList: state.coursesList.map(course => 
             course.id === id ? { ...course, ...updatedCourse } : course
@@ -475,12 +484,16 @@ export const useContentStore = create<ContentState>()(
               
             if (error) {
               console.error("Error updating course:", error);
-              toast.error("Failed to update course");
+              toast.error(`Failed to update course: ${error.message || 'Unknown error'}`);
+              
+              // Log more details for debugging
+              console.log("Course update that failed:", JSON.stringify(updatedCourse, null, 2));
             } else {
               toast.success("Course updated successfully");
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error("Error updating course:", error);
+            toast.error(`Failed to update course: ${error.message || 'Unknown error'}`);
           }
         }
       },
