@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,9 +32,9 @@ const Admin = () => {
   useEffect(() => {
     // When a user is authenticated, set isAdmin to true in the settings
     if (isAuthenticated) {
-      updateSettings({ isAdmin: true });
+      updateSettings({ isAdmin: true } as Partial<Settings>);
     } else {
-      updateSettings({ isAdmin: false });
+      updateSettings({ isAdmin: false } as Partial<Settings>);
     }
   }, [isAuthenticated, updateSettings]);
 

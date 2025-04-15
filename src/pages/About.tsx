@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -295,7 +294,7 @@ const About = () => {
                 Our diverse team of experts brings together decades of industry and educational experience.
               </p>
               
-              {settings.isAdmin && (
+              {settings.isAdmin !== undefined && settings.isAdmin && (
                 <Button 
                   onClick={handleAddMember} 
                   className="mt-4 bg-tecentrix-blue hover:bg-tecentrix-blue/90"
@@ -324,7 +323,7 @@ const About = () => {
                           e.currentTarget.src = "https://via.placeholder.com/150?text=No+Image";
                         }}
                       />
-                      {settings.isAdmin && (
+                      {settings.isAdmin !== undefined && settings.isAdmin && (
                         <div className="absolute top-2 right-2 flex space-x-1">
                           <Button 
                             variant="outline" 

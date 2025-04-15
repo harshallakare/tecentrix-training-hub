@@ -66,6 +66,7 @@ export interface Settings {
   inquiryRecipients: InquiryRecipient[];
   whatsAppConfig: WhatsAppConfig;
   adminCredentials: AdminCredentials;
+  isAdmin?: boolean;
 }
 
 interface SettingsState {
@@ -135,6 +136,7 @@ const defaultSettings: Settings = {
     username: 'admin',
     password: 'tecentrix',
   },
+  isAdmin: false,
 };
 
 export const useSettingsStore = create<SettingsState>()(
