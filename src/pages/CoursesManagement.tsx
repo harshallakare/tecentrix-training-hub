@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useContentStore } from '@/store/contentStore';
 import CourseForm from '@/components/admin/CourseForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power, FileText, ChevronDown, ChevronUp } from 'lucide-react';
@@ -10,7 +9,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import ReactMarkdown from 'react-markdown';
 
-// Import the Course type directly from contentStore
 import { useContentStore, Course } from '@/store/contentStore';
 
 const iconMap = {
@@ -26,7 +24,7 @@ const CoursesManagement = () => {
   const { coursesList, addCourse, updateCourse, deleteCourse } = useContentStore();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [currentCourse, setCurrentCourse] = useState<any>(null);
+  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -41,13 +39,13 @@ const CoursesManagement = () => {
     setIsFormOpen(true);
   };
 
-  const handleEditCourse = (course: any) => {
+  const handleEditCourse = (course: Course) => {
     setCurrentCourse(course);
     setIsEditing(true);
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (course: any) => {
+  const handleDeleteClick = (course: Course) => {
     setCurrentCourse(course);
     setIsDeleteDialogOpen(true);
   };
@@ -64,7 +62,7 @@ const CoursesManagement = () => {
     }
   };
 
-  const handleFormSubmit = (courseData: any) => {
+  const handleFormSubmit = (courseData: Course) => {
     if (isEditing) {
       updateCourse(courseData.id, courseData);
       toast({
@@ -81,7 +79,7 @@ const CoursesManagement = () => {
     setIsFormOpen(false);
   };
 
-  const handleToggleEnabled = (course: any) => {
+  const handleToggleEnabled = (course: Course) => {
     const updatedCourse = { ...course, enabled: !course.enabled };
     updateCourse(course.id, updatedCourse);
     
@@ -95,7 +93,7 @@ const CoursesManagement = () => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
   };
 
-  const renderBatchDates = (course) => {
+  const renderBatchDates = (course: Course) => {
     const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
     
     if (batches.length === 0) return null;
@@ -124,7 +122,7 @@ const CoursesManagement = () => {
     );
   };
 
-  const renderCurriculum = (course) => {
+  const renderCurriculum = (course: Course) => {
     if (!course.curriculum || course.curriculum.length === 0) {
       return (
         <div className="text-sm text-tecentrix-darkgray/80 italic">

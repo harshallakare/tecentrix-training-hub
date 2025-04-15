@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -24,12 +25,12 @@ interface CTAContent {
   specialOffer: string;
 }
 
-interface CurriculumSection {
+export interface CurriculumSection {
   title: string;
   description: string;
 }
 
-interface Course {
+export interface Course {
   id: string;
   icon: string;
   title: string;
@@ -44,6 +45,7 @@ interface Course {
   iconColor: string;
   price: string;
   upcomingBatches?: string[]; // Changed from upcomingBatch to upcomingBatches array
+  upcomingBatch?: string; // Keep for backward compatibility
   language?: string;
   paymentLink?: string;
   curriculum?: CurriculumSection[]; // Added curriculum field
