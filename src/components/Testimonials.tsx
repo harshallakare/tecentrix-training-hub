@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useContentStore } from '@/store/contentStore';
+
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const {
-    testimonialsList
-  } = useContentStore();
+  const { testimonialsList, isSyncing } = useContentStore();
+  
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -21,12 +21,32 @@ const Testimonials = () => {
       revealElements.forEach(el => observer.unobserve(el));
     };
   }, []);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex(prevIndex => (prevIndex + 1) % testimonialsList.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonialsList.length]);
+  
+  if (isSyncing && testimonialsList.length === 0) {
+    return (
+      <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Success Stories</h2>
+            <h3 className="mt-2 text-3xl md:text-4xl font-bold text-tecentrix-blue reveal">
+              What Our Alumni Say
+            </h3>
+            <div className="mt-8 flex justify-center">
+              <div className="animate-pulse bg-gray-200 h-40 w-full max-w-2xl rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
   return <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 rounded-full bg-tecentrix-orange/10 blur-3xl"></div>
@@ -101,4 +121,5 @@ const Testimonials = () => {
       </div>
     </section>;
 };
+
 export default Testimonials;

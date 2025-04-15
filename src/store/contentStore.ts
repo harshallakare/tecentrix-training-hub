@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface HeroContent {
   title: string;
@@ -59,7 +61,10 @@ interface ContentState {
   };
   coursesList: Course[];
   testimonialsList: Testimonial[];
+  isSyncing: boolean;
   refreshContent?: () => void;
+  setCoursesList: (courses: Course[]) => void;
+  setTestimonialsList: (testimonials: Testimonial[]) => void;
   updateHeroContent: (heroContent: Partial<HeroContent>) => void;
   updateCoursesContent: (coursesContent: Partial<CoursesContent>) => void;
   updateFeaturesContent: (featuresContent: Partial<FeaturesContent>) => void;
@@ -74,7 +79,7 @@ interface ContentState {
 
 export const useContentStore = create<ContentState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       content: {
         hero: {
           title: 'Become a Linux Expert with Industry Recognized Training',
@@ -202,12 +207,76 @@ export const useContentStore = create<ContentState>()(
           company: "TechInnovate Solutions"
         }
       ],
-      refreshContent: () => {
+      isSyncing: false,
+      
+      refreshContent: async () => {
         console.log("Refreshing content data...");
-        // Simply triggers a re-render by setting state to itself
-        set(state => ({ ...state }));
+        
+        // Check if Supabase is configured
+        if (isSupabaseConfigured()) {
+          set({ isSyncing: true });
+          
+          try {
+            // Fetch from Supabase
+            const { data: settings, error: settingsError } = await supabase
+              .from('content_settings')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+              
+            if (settingsError) {
+              console.error("Error fetching content settings:", settingsError);
+            } else if (settings) {
+              set(state => ({
+                content: {
+                  hero: settings.hero || state.content.hero,
+                  courses: settings.courses || state.content.courses,
+                  features: settings.features || state.content.features,
+                  cta: settings.cta || state.content.cta,
+                }
+              }));
+            }
+            
+            // Fetch courses
+            const { data: courses, error: coursesError } = await supabase
+              .from('courses')
+              .select('*')
+              .order('created_at', { ascending: false });
+              
+            if (coursesError) {
+              console.error("Error fetching courses:", coursesError);
+            } else if (courses) {
+              set({ coursesList: courses });
+            }
+            
+            // Fetch testimonials
+            const { data: testimonials, error: testimonialsError } = await supabase
+              .from('testimonials')
+              .select('*')
+              .order('created_at', { ascending: false });
+              
+            if (testimonialsError) {
+              console.error("Error fetching testimonials:", testimonialsError);
+            } else if (testimonials) {
+              set({ testimonialsList: testimonials });
+            }
+          } catch (error) {
+            console.error("Error refreshing content from Supabase:", error);
+          } finally {
+            set({ isSyncing: false });
+          }
+        } else {
+          // Simply triggers a re-render by setting state to itself (local storage mode)
+          set(state => ({ ...state }));
+        }
       },
-      updateHeroContent: (heroContent) => 
+      
+      setCoursesList: (courses) => set({ coursesList: courses }),
+      setTestimonialsList: (testimonials) => set({ testimonialsList: testimonials }),
+      
+      updateHeroContent: async (heroContent) => {
+        // Update local state first for immediate UI update
         set((state) => ({
           content: {
             ...state.content,
@@ -216,8 +285,38 @@ export const useContentStore = create<ContentState>()(
               ...heroContent,
             },
           },
-        })),
-      updateCoursesContent: (coursesContent) => 
+        }));
+        
+        // If Supabase is configured, update the remote data
+        if (isSupabaseConfigured()) {
+          try {
+            const currentContent = get().content;
+            const { data, error } = await supabase
+              .from('content_settings')
+              .upsert({
+                id: '1', // Use a fixed ID for the content settings
+                hero: {
+                  ...currentContent.hero,
+                  ...heroContent,
+                },
+                courses: currentContent.courses,
+                features: currentContent.features,
+                cta: currentContent.cta,
+              })
+              .select();
+              
+            if (error) {
+              console.error("Error updating hero content:", error);
+              toast.error("Failed to save hero content");
+            }
+          } catch (error) {
+            console.error("Error updating hero content:", error);
+          }
+        }
+      },
+      
+      updateCoursesContent: async (coursesContent) => {
+        // Update local state
         set((state) => ({
           content: {
             ...state.content,
@@ -226,8 +325,37 @@ export const useContentStore = create<ContentState>()(
               ...coursesContent,
             },
           },
-        })),
-      updateFeaturesContent: (featuresContent) => 
+        }));
+        
+        // Update Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const currentContent = get().content;
+            const { error } = await supabase
+              .from('content_settings')
+              .upsert({
+                id: '1',
+                hero: currentContent.hero,
+                courses: {
+                  ...currentContent.courses,
+                  ...coursesContent,
+                },
+                features: currentContent.features,
+                cta: currentContent.cta,
+              });
+              
+            if (error) {
+              console.error("Error updating courses content:", error);
+              toast.error("Failed to save courses content");
+            }
+          } catch (error) {
+            console.error("Error updating courses content:", error);
+          }
+        }
+      },
+      
+      updateFeaturesContent: async (featuresContent) => {
+        // Update local state
         set((state) => ({
           content: {
             ...state.content,
@@ -236,8 +364,37 @@ export const useContentStore = create<ContentState>()(
               ...featuresContent,
             },
           },
-        })),
-      updateCTAContent: (ctaContent) => 
+        }));
+        
+        // Update Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const currentContent = get().content;
+            const { error } = await supabase
+              .from('content_settings')
+              .upsert({
+                id: '1',
+                hero: currentContent.hero,
+                courses: currentContent.courses,
+                features: {
+                  ...currentContent.features,
+                  ...featuresContent,
+                },
+                cta: currentContent.cta,
+              });
+              
+            if (error) {
+              console.error("Error updating features content:", error);
+              toast.error("Failed to save features content");
+            }
+          } catch (error) {
+            console.error("Error updating features content:", error);
+          }
+        }
+      },
+      
+      updateCTAContent: async (ctaContent) => {
+        // Update local state
         set((state) => ({
           content: {
             ...state.content,
@@ -246,35 +403,192 @@ export const useContentStore = create<ContentState>()(
               ...ctaContent,
             },
           },
-        })),
-      addCourse: (course) =>
+        }));
+        
+        // Update Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const currentContent = get().content;
+            const { error } = await supabase
+              .from('content_settings')
+              .upsert({
+                id: '1',
+                hero: currentContent.hero,
+                courses: currentContent.courses,
+                features: currentContent.features,
+                cta: {
+                  ...currentContent.cta,
+                  ...ctaContent,
+                },
+              });
+              
+            if (error) {
+              console.error("Error updating CTA content:", error);
+              toast.error("Failed to save CTA content");
+            }
+          } catch (error) {
+            console.error("Error updating CTA content:", error);
+          }
+        }
+      },
+      
+      addCourse: async (course) => {
+        // Add to local state
         set((state) => ({
           coursesList: [...state.coursesList, course]
-        })),
-      updateCourse: (id, updatedCourse) =>
+        }));
+        
+        // Add to Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('courses')
+              .insert(course);
+              
+            if (error) {
+              console.error("Error adding course:", error);
+              toast.error("Failed to save course");
+            } else {
+              toast.success("Course added successfully");
+            }
+          } catch (error) {
+            console.error("Error adding course:", error);
+          }
+        }
+      },
+      
+      updateCourse: async (id, updatedCourse) => {
+        // Update local state
         set((state) => ({
           coursesList: state.coursesList.map(course => 
             course.id === id ? { ...course, ...updatedCourse } : course
           )
-        })),
-      deleteCourse: (id) =>
+        }));
+        
+        // Update in Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('courses')
+              .update(updatedCourse)
+              .eq('id', id);
+              
+            if (error) {
+              console.error("Error updating course:", error);
+              toast.error("Failed to update course");
+            } else {
+              toast.success("Course updated successfully");
+            }
+          } catch (error) {
+            console.error("Error updating course:", error);
+          }
+        }
+      },
+      
+      deleteCourse: async (id) => {
+        // Delete from local state
         set((state) => ({
           coursesList: state.coursesList.filter(course => course.id !== id)
-        })),
-      addTestimonial: (testimonial) =>
+        }));
+        
+        // Delete from Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('courses')
+              .delete()
+              .eq('id', id);
+              
+            if (error) {
+              console.error("Error deleting course:", error);
+              toast.error("Failed to delete course");
+            } else {
+              toast.success("Course deleted successfully");
+            }
+          } catch (error) {
+            console.error("Error deleting course:", error);
+          }
+        }
+      },
+      
+      addTestimonial: async (testimonial) => {
+        // Add to local state
         set((state) => ({
           testimonialsList: [...state.testimonialsList, testimonial]
-        })),
-      updateTestimonial: (id, updatedTestimonial) =>
+        }));
+        
+        // Add to Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('testimonials')
+              .insert(testimonial);
+              
+            if (error) {
+              console.error("Error adding testimonial:", error);
+              toast.error("Failed to save testimonial");
+            } else {
+              toast.success("Testimonial added successfully");
+            }
+          } catch (error) {
+            console.error("Error adding testimonial:", error);
+          }
+        }
+      },
+      
+      updateTestimonial: async (id, updatedTestimonial) => {
+        // Update local state
         set((state) => ({
           testimonialsList: state.testimonialsList.map(testimonial => 
             testimonial.id === id ? { ...testimonial, ...updatedTestimonial } : testimonial
           )
-        })),
-      deleteTestimonial: (id) =>
+        }));
+        
+        // Update in Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('testimonials')
+              .update(updatedTestimonial)
+              .eq('id', id);
+              
+            if (error) {
+              console.error("Error updating testimonial:", error);
+              toast.error("Failed to update testimonial");
+            } else {
+              toast.success("Testimonial updated successfully");
+            }
+          } catch (error) {
+            console.error("Error updating testimonial:", error);
+          }
+        }
+      },
+      
+      deleteTestimonial: async (id) => {
+        // Delete from local state
         set((state) => ({
           testimonialsList: state.testimonialsList.filter(testimonial => testimonial.id !== id)
-        })),
+        }));
+        
+        // Delete from Supabase if configured
+        if (isSupabaseConfigured()) {
+          try {
+            const { error } = await supabase
+              .from('testimonials')
+              .delete()
+              .eq('id', id);
+              
+            if (error) {
+              console.error("Error deleting testimonial:", error);
+              toast.error("Failed to delete testimonial");
+            } else {
+              toast.success("Testimonial deleted successfully");
+            }
+          } catch (error) {
+            console.error("Error deleting testimonial:", error);
+          }
+        }
+      },
     }),
     {
       name: 'tecentrix-content',
