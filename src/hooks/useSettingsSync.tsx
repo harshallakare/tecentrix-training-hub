@@ -18,11 +18,12 @@ export function useSettingsSync() {
         
         console.log("Retrieved settings:", { generalSettings, contactSettings, socialSettings });
         
+        // Use the quiet update method that doesn't show toast notifications
         updateSettings({
           ...generalSettings,
           contactInfo: contactSettings,
           socialLinks: socialSettings
-        });
+        }, false); // Pass false to suppress notifications during initial sync
       } catch (error) {
         console.error("Failed to sync settings:", error);
         toast.error("Failed to load settings from database");

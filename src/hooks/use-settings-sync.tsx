@@ -38,7 +38,7 @@ export function useSettingsSync() {
           recipientSettings
         });
         
-        // Update with merged settings
+        // Update with merged settings, but suppress notifications for auto-syncs
         updateSettings({
           ...generalSettings,
           contactInfo: contactSettings || settings.contactInfo,
@@ -47,7 +47,7 @@ export function useSettingsSync() {
           whatsAppConfig: whatsappSettings || settings.whatsAppConfig,
           adminCredentials: adminSettings || settings.adminCredentials,
           inquiryRecipients: Array.isArray(recipientSettings) ? recipientSettings : settings.inquiryRecipients
-        });
+        }, false); // Pass false to prevent notification for automatic syncs
       } catch (error) {
         console.error("Failed to sync settings from database:", error);
         toast.error("Failed to load settings from database");

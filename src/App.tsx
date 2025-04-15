@@ -105,14 +105,38 @@ const App = () => {
     
     initializeNavigation(true);
     syncContentData(true);
-    refreshSettingsFromStorage(); // Ensure settings are fresh
+    
+    // Silent refresh - don't show toast notifications for page load refreshes
+    const { updateSettings } = useSettingsStore.getState();
+    const originalUpdateSettings = updateSettings;
+    
+    // Temporary override updateSettings to be silent during initial load
+    useSettingsStore.setState({
+      updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
+    });
+    
+    refreshSettingsFromStorage(); // Ensure settings are fresh, but silently
+    
+    // Restore original function after initial load
+    setTimeout(() => {
+      useSettingsStore.setState({ updateSettings: originalUpdateSettings });
+    }, 2000);
     
     // Add manual refresh on visibility change (tab switching)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         console.log("Tab became visible, refreshing data...");
+        // Silent refresh when tab becomes visible
         syncContentData(true);
+        const { updateSettings } = useSettingsStore.getState();
+        const originalUpdateSettings = updateSettings;
+        useSettingsStore.setState({
+          updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
+        });
         refreshSettingsFromStorage();
+        setTimeout(() => {
+          useSettingsStore.setState({ updateSettings: originalUpdateSettings });
+        }, 1000);
       }
     };
     
@@ -122,10 +146,19 @@ const App = () => {
     if (isMobileDevice) {
       console.log("Mobile device detected, forcing extra refreshes");
       // Multiple refreshes at different intervals increase chance of sync
+      // but don't show notifications
       [1000, 3000, 7000].forEach(delay => {
         setTimeout(() => {
+          const { updateSettings } = useSettingsStore.getState();
+          const originalUpdateSettings = updateSettings;
+          useSettingsStore.setState({
+            updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
+          });
           refreshSettingsFromStorage();
           syncContentData(true);
+          setTimeout(() => {
+            useSettingsStore.setState({ updateSettings: originalUpdateSettings });
+          }, 500);
         }, delay);
       });
     }
@@ -136,9 +169,18 @@ const App = () => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'tecentrix-settings') {
         console.log("Settings changed in storage, refreshing");
+        // Silent refresh when settings change in storage
+        const { updateSettings } = useSettingsStore.getState();
+        const originalUpdateSettings = updateSettings;
+        useSettingsStore.setState({
+          updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
+        });
         refreshSettingsFromStorage();
         // Update the document attribute
         document.documentElement.dataset.companyName = useSettingsStore.getState().settings.companyName;
+        setTimeout(() => {
+          useSettingsStore.setState({ updateSettings: originalUpdateSettings });
+        }, 500);
       }
     };
     

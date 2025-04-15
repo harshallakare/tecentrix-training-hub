@@ -70,7 +70,7 @@ export interface Settings {
 
 interface SettingsState {
   settings: Settings;
-  updateSettings: (settings: Partial<Settings>) => void;
+  updateSettings: (settings: Partial<Settings>, showNotification?: boolean) => void;
   updateCompanyInfo: (companyInfo: Partial<CompanyInfo>) => void;
   updateContactInfo: (contactInfo: Partial<ContactInfo>) => void;
   updateSocialLinks: (socialLinks: Partial<SocialLinks>) => void;
@@ -141,7 +141,7 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       settings: defaultSettings,
-      updateSettings: async (newSettings) => {
+      updateSettings: async (newSettings, showNotification = true) => {
         try {
           console.log("Updating settings in store:", newSettings);
           
@@ -164,7 +164,9 @@ export const useSettingsStore = create<SettingsState>()(
             window.dispatchEvent(new Event('settings-updated'));
           }, 100);
           
-          toast.success("Settings updated successfully");
+          if (showNotification) {
+            toast.success("Settings updated successfully");
+          }
         } catch (error) {
           console.error("Failed to update settings:", error);
           toast.error("Failed to save general settings");
