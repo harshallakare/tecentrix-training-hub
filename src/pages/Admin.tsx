@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentStore } from '@/store/contentStore';
-import { useSettingsStore } from '@/store/settingsStore';
+import { useSettingsStore, Settings } from '@/store/settingsStore';
 import { Lock, LayoutDashboard, Navigation, BarChart, Settings as SettingsIcon, BookOpen, MessageSquare, Users } from 'lucide-react';
 import Footer from '@/components/Footer';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
@@ -32,9 +33,9 @@ const Admin = () => {
   useEffect(() => {
     // When a user is authenticated, set isAdmin to true in the settings
     if (isAuthenticated) {
-      updateSettings({ isAdmin: true } as Partial<Settings>);
+      updateSettings({ isAdmin: true });
     } else {
-      updateSettings({ isAdmin: false } as Partial<Settings>);
+      updateSettings({ isAdmin: false });
     }
   }, [isAuthenticated, updateSettings]);
 
