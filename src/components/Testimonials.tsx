@@ -61,36 +61,7 @@ const Testimonials = () => {
         </div>
         
         <div className="max-w-4xl mx-auto">
-          <div className="relative h-[400px] md:h-[300px]">
-            {testimonialsList.map((testimonial, index) => <div key={testimonial.id} className={`absolute top-0 left-0 right-0 transition-all duration-500 ease-in-out glass-card rounded-xl p-8 md:p-10 ${index === activeIndex ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-8 -z-10'}`}>
-                <div className="flex flex-col md:flex-row md:items-center gap-8">
-                  <div className="flex-shrink-0 flex justify-center">
-                    <div className="relative">
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden ring-4 ring-white">
-                        <img src={testimonial.avatar} alt={testimonial.author} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="absolute -bottom-3 -right-3 bg-tecentrix-orange rounded-full w-8 h-8 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 text-center md:text-left">
-                    <blockquote className="text-lg md:text-xl italic text-tecentrix-darkgray leading-relaxed">
-                      "{testimonial.content}"
-                    </blockquote>
-                    
-                    <div className="mt-4">
-                      <div className="font-semibold text-tecentrix-blue">{testimonial.author}</div>
-                      <div className="text-sm text-tecentrix-darkgray/70">{testimonial.role}</div>
-                      <div className="text-sm text-tecentrix-orange mt-1">RHCE Certified Professional</div>
-                    </div>
-                  </div>
-                </div>
-              </div>)}
-          </div>
+          
           
           <div className="flex justify-center space-x-2 mt-8">
             {testimonialsList.map((_, index) => <button key={index} onClick={() => setActiveIndex(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeIndex ? 'bg-tecentrix-orange scale-125' : 'bg-gray-300 hover:bg-gray-400'}`} aria-label={`View testimonial ${index + 1}`}></button>)}
