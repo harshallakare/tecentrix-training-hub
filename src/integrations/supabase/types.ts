@@ -38,6 +38,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          batch_details: Json | null
           color: string
           created_at: string
           curriculum: Json | null
@@ -58,6 +59,7 @@ export type Database = {
           upcomingBatches: string[] | null
         }
         Insert: {
+          batch_details?: Json | null
           color: string
           created_at?: string
           curriculum?: Json | null
@@ -78,6 +80,7 @@ export type Database = {
           upcomingBatches?: string[] | null
         }
         Update: {
+          batch_details?: Json | null
           color?: string
           created_at?: string
           curriculum?: Json | null

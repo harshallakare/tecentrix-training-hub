@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,18 +5,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Link as LinkIcon, Power, FileText, List } from 'lucide-react';
+import { Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Link as LinkIcon, Power, FileText, List, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { Course, CurriculumSection } from '@/store/contentStore';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CourseFormProps {
   initialData?: Partial<Course> | null;
   onSubmit: (data: Course) => void;
   onCancel: () => void;
+}
+
+interface BatchDetails {
+  id: string;
+  date: string;
+  time: string;
+  languages: string[];
 }
 
 const iconOptions = [
@@ -35,6 +42,17 @@ const languageOptions = [
   { value: 'Marathi', label: 'Marathi' },
   { value: 'English/Hindi', label: 'English/Hindi' },
   { value: 'English/Marathi', label: 'English/Marathi' },
+];
+
+const allLanguageOptions = [
+  { value: 'English', label: 'English' },
+  { value: 'Hindi', label: 'Hindi' },
+  { value: 'Marathi', label: 'Marathi' },
+  { value: 'Gujarati', label: 'Gujarati' },
+  { value: 'Tamil', label: 'Tamil' },
+  { value: 'Telugu', label: 'Telugu' },
+  { value: 'Kannada', label: 'Kannada' },
+  { value: 'Bengali', label: 'Bengali' },
 ];
 
 const colorOptions = [
@@ -82,7 +100,8 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     upcomingBatches: string[];
     language: string;
     paymentLink: string;
-    curriculum: CurriculumSection[]
+    curriculum: CurriculumSection[];
+    batch_details: BatchDetails[];
   }>({
     id: '',
     title: '',
@@ -100,30 +119,28 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     upcomingBatches: [''],
     language: 'English',
     paymentLink: '',
-    curriculum: [{ title: '', description: '' }]
+    curriculum: [{ title: '', description: '' }],
+    batch_details: [{ id: uuidv4(), date: '', time: '', languages: ['English'] }]
   });
 
   const [activeTab, setActiveTab] = useState('basic');
 
   useEffect(() => {
     if (initialData) {
-      // Create a merged object that maintains the complete structure required by formData
       const updatedData = {
-        ...formData, // Start with default values
-        ...initialData, // Override with provided data
-        // Handle nested arrays with special care
+        ...formData,
+        ...initialData,
         upcomingBatches: initialData.upcomingBatches || 
                         (initialData.upcomingBatch ? [initialData.upcomingBatch] : formData.upcomingBatches),
         curriculum: initialData.curriculum || formData.curriculum,
         modules: initialData.modules || formData.modules,
-        // Ensure these required fields have values
+        batch_details: initialData.batch_details || formData.batch_details,
         id: initialData.id || uuidv4(),
         enabled: initialData.enabled !== undefined ? initialData.enabled : true
       };
 
       setFormData(updatedData);
     } else {
-      // When no initialData, just ensure we have a new ID
       setFormData({
         ...formData,
         id: uuidv4(),
@@ -205,6 +222,45 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     setFormData({ ...formData, curriculum: updatedCurriculum });
   };
 
+  const handleBatchDetailChange = (index: number, field: keyof BatchDetails, value: string) => {
+    const updatedBatchDetails = [...formData.batch_details];
+    updatedBatchDetails[index] = { 
+      ...updatedBatchDetails[index], 
+      [field]: value 
+    };
+    setFormData({ ...formData, batch_details: updatedBatchDetails });
+  };
+
+  const handleBatchLanguageToggle = (batchIndex: number, language: string) => {
+    const updatedBatchDetails = [...formData.batch_details];
+    const currentBatch = updatedBatchDetails[batchIndex];
+    const currentLanguages = currentBatch.languages || [];
+    
+    if (currentLanguages.includes(language)) {
+      updatedBatchDetails[batchIndex].languages = currentLanguages.filter(l => l !== language);
+    } else {
+      updatedBatchDetails[batchIndex].languages = [...currentLanguages, language];
+    }
+    
+    setFormData({ ...formData, batch_details: updatedBatchDetails });
+  };
+
+  const handleAddBatchDetail = () => {
+    setFormData({
+      ...formData,
+      batch_details: [
+        ...formData.batch_details,
+        { id: uuidv4(), date: '', time: '', languages: ['English'] }
+      ]
+    });
+  };
+
+  const handleRemoveBatchDetail = (index: number) => {
+    const updatedBatchDetails = [...formData.batch_details];
+    updatedBatchDetails.splice(index, 1);
+    setFormData({ ...formData, batch_details: updatedBatchDetails });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -228,23 +284,34 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
     }
     
     const filteredBatches = formData.upcomingBatches.filter(batch => batch.trim() !== '');
+    const filteredBatchDetails = formData.batch_details.filter(
+      batch => batch.date.trim() !== '' || batch.time.trim() !== ''
+    );
     
     const filteredCurriculum = formData.curriculum.filter(
       item => item.title.trim() !== '' || item.description.trim() !== ''
     );
+    
+    const validBatchDetails = filteredBatchDetails.map(batch => {
+      if (!batch.languages || batch.languages.length === 0) {
+        return { ...batch, languages: ['English'] };
+      }
+      return batch;
+    });
     
     onSubmit({
       ...formData,
       modules: filteredModules,
       upcomingBatches: filteredBatches,
       curriculum: filteredCurriculum,
+      batch_details: validBatchDetails,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid grid-cols-3 w-full md:w-auto">
+        <TabsList className="mb-6 grid grid-cols-4 w-full md:w-auto">
           <TabsTrigger value="basic">
             <FileText className="h-4 w-4 mr-2" />
             Basic Info
@@ -252,6 +319,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
           <TabsTrigger value="modules">
             <List className="h-4 w-4 mr-2" />
             Modules
+          </TabsTrigger>
+          <TabsTrigger value="batches">
+            <Calendar className="h-4 w-4 mr-2" />
+            Batches
           </TabsTrigger>
           <TabsTrigger value="curriculum">
             <FileText className="h-4 w-4 mr-2" />
@@ -563,6 +634,97 @@ const CourseForm: React.FC<CourseFormProps> = ({ initialData, onSubmit, onCancel
                     </Button>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="batches" className="space-y-4">
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-tecentrix-blue">Batch Details</h3>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAddBatchDetail}
+                className="h-8"
+              >
+                <Plus className="h-4 w-4 mr-1" /> Add Batch
+              </Button>
+            </div>
+            
+            <div className="space-y-6">
+              {formData.batch_details.map((batch, index) => (
+                <Card key={batch.id || index} className="overflow-hidden">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-md font-semibold">Batch {index + 1}</h3>
+                      {formData.batch_details.length > 1 && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleRemoveBatchDetail(index)}
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`batch-date-${index}`}>Batch Date</Label>
+                        <div className="relative">
+                          <Input
+                            id={`batch-date-${index}`}
+                            value={batch.date}
+                            onChange={(e) => handleBatchDetailChange(index, 'date', e.target.value)}
+                            placeholder="May 1, 2025"
+                            className="mt-1"
+                          />
+                          <Calendar className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`batch-time-${index}`}>Batch Time</Label>
+                        <div className="relative">
+                          <Input
+                            id={`batch-time-${index}`}
+                            value={batch.time}
+                            onChange={(e) => handleBatchDetailChange(index, 'time', e.target.value)}
+                            placeholder="10:00 AM"
+                            className="mt-1"
+                          />
+                          <Clock className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label className="mb-2 block">Batch Languages</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {allLanguageOptions.map((language) => (
+                          <div key={language.value} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`lang-${index}-${language.value}`}
+                              checked={(batch.languages || []).includes(language.value)}
+                              onCheckedChange={() => handleBatchLanguageToggle(index, language.value)}
+                            />
+                            <Label 
+                              htmlFor={`lang-${index}-${language.value}`}
+                              className="text-sm cursor-pointer"
+                            >
+                              {language.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>

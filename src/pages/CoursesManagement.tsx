@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import CourseForm from '@/components/admin/CourseForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Edit, Trash, Plus, Terminal, Server, Shield, Network, Cloud, Database, Calendar, Languages, Power, FileText, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/components/ui/use-toast';
@@ -20,6 +21,13 @@ const iconMap = {
   'Database': <Database className="h-6 w-6" />,
 };
 
+interface BatchDetail {
+  id: string;
+  date: string;
+  time: string;
+  languages: string[];
+}
+
 const CoursesManagement = () => {
   const { coursesList, addCourse, updateCourse, deleteCourse } = useContentStore();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -27,6 +35,7 @@ const CoursesManagement = () => {
   const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
+  const [expandedBatchesId, setExpandedBatchesId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getIconComponent = (iconName: string) => {
@@ -93,7 +102,59 @@ const CoursesManagement = () => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
   };
 
+  const toggleBatchesExpand = (courseId: string) => {
+    setExpandedBatchesId(expandedBatchesId === courseId ? null : courseId);
+  };
+
   const renderBatchDates = (course: Course) => {
+    // Check for batch_details first
+    if (course.batch_details && Array.isArray(course.batch_details) && course.batch_details.length > 0) {
+      return (
+        <div>
+          <div 
+            className="flex items-center text-sm text-tecentrix-darkgray/80 cursor-pointer hover:text-tecentrix-blue"
+            onClick={() => toggleBatchesExpand(course.id)}
+          >
+            <Calendar className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
+            <span>
+              {expandedBatchesId === course.id 
+                ? 'Hide Batches' 
+                : `${course.batch_details.length} Upcoming Batch${course.batch_details.length > 1 ? 'es' : ''}`}
+            </span>
+            {expandedBatchesId === course.id 
+              ? <ChevronUp className="h-3 w-3 ml-1" /> 
+              : <ChevronDown className="h-3 w-3 ml-1" />}
+          </div>
+          
+          {expandedBatchesId === course.id && (
+            <div className="mt-2 pl-6 space-y-2">
+              {course.batch_details.map((batch: BatchDetail, index: number) => (
+                <div key={batch.id || index} className="p-2 bg-gray-50 rounded text-sm">
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-1.5 text-tecentrix-blue" />
+                    <span>{batch.date}</span>
+                    {batch.time && (
+                      <>
+                        <Clock className="h-3 w-3 ml-2 mr-1 text-tecentrix-blue" />
+                        <span>{batch.time}</span>
+                      </>
+                    )}
+                  </div>
+                  {batch.languages && batch.languages.length > 0 && (
+                    <div className="flex items-center mt-1 text-gray-600">
+                      <Languages className="h-3 w-3 mr-1.5 text-tecentrix-blue" />
+                      <span>{batch.languages.join(', ')}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    // Fall back to upcomingBatches
     const batches = course.upcomingBatches || (course.upcomingBatch ? [course.upcomingBatch] : []);
     
     if (batches.length === 0) return null;
@@ -278,7 +339,7 @@ const CoursesManagement = () => {
                     {course.language && (
                       <div className="flex items-center text-sm text-tecentrix-darkgray/80">
                         <Languages className="h-4 w-4 mr-1.5 text-tecentrix-blue" />
-                        <span>Language: {course.language}</span>
+                        <span>Default Language: {course.language}</span>
                       </div>
                     )}
                   </div>

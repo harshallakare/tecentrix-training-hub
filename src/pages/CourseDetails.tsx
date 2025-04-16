@@ -22,6 +22,13 @@ const iconMap = {
   'Database': <Database className="h-6 w-6" />,
 };
 
+interface BatchDetail {
+  id: string;
+  date: string;
+  time: string;
+  languages: string[];
+}
+
 const CourseDetails = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
@@ -62,8 +69,13 @@ const CourseDetails = () => {
     revealElements.forEach((el) => observer.observe(el));
 
     console.log(`CourseDetails render - Mobile: ${isMobile}, CourseID: ${courseId}, Course found: ${Boolean(course)}`);
-    if (course && course.curriculum) {
-      console.log('Course curriculum:', course.curriculum);
+    if (course) {
+      if (course.curriculum) {
+        console.log('Course curriculum:', course.curriculum);
+      }
+      if (course.batch_details) {
+        console.log('Course batch details:', course.batch_details);
+      }
     }
 
     return () => {
@@ -102,7 +114,33 @@ const CourseDetails = () => {
   };
 
   const renderBatchDates = () => {
-    if (!course.upcomingBatches || course.upcomingBatches.length === 0) return null;
+    if (course.batch_details && Array.isArray(course.batch_details) && course.batch_details.length > 0) {
+      return (
+        <div className="mb-4">
+          {course.batch_details.slice(0, 2).map((batch: BatchDetail, index: number) => (
+            <div key={batch.id || index} className="mb-2 flex items-center bg-white/80 rounded-lg px-4 py-2 inline-block mr-2">
+              <Calendar className="h-5 w-5 text-tecentrix-orange mr-2" />
+              <div>
+                <span className="font-medium">{batch.date} {batch.time && `at ${batch.time}`}</span>
+                {batch.languages && batch.languages.length > 0 && (
+                  <div className="text-xs text-tecentrix-darkgray/80 mt-1 flex items-center">
+                    <Languages className="h-3 w-3 mr-1 text-tecentrix-blue" />
+                    {batch.languages.join(', ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          {course.batch_details.length > 2 && (
+            <div className="text-sm text-tecentrix-blue mt-1 cursor-pointer hover:underline">
+              + {course.batch_details.length - 2} more batches
+            </div>
+          )}
+        </div>
+      );
+    } else if (!course.upcomingBatches || course.upcomingBatches.length === 0) {
+      return null;
+    }
     
     return (
       <div className="mb-4 flex items-center bg-white/80 rounded-lg px-4 py-2 inline-block">
@@ -321,17 +359,39 @@ const CourseDetails = () => {
                             <p className="font-medium">Expert Instructor</p>
                           </div>
                         </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-5 w-5 text-tecentrix-orange mr-3" />
+                        
+                        {(course.batch_details && course.batch_details.length > 0) ? (
                           <div>
-                            <p className="text-sm text-tecentrix-darkgray/70">Start Date</p>
-                            <p className="font-medium">
-                              {course.upcomingBatches && course.upcomingBatches.length > 0
-                                ? course.upcomingBatches[0]
-                                : "Flexible / Self-paced"}
-                            </p>
+                            <div className="flex items-center mb-2">
+                              <Calendar className="h-5 w-5 text-tecentrix-orange mr-3" />
+                              <div>
+                                <p className="text-sm text-tecentrix-darkgray/70">Available Batches</p>
+                              </div>
+                            </div>
+                            <div className="ml-8 space-y-2 max-h-40 overflow-y-auto pr-2">
+                              {course.batch_details.map((batch: BatchDetail, index: number) => (
+                                <div key={batch.id || index} className="p-2 bg-gray-50 rounded text-sm">
+                                  <div className="font-medium">{batch.date} {batch.time && `at ${batch.time}`}</div>
+                                  {batch.languages && batch.languages.length > 0 && (
+                                    <div className="text-xs flex items-center mt-1 text-gray-600">
+                                      <Languages className="h-3 w-3 mr-1" />
+                                      {batch.languages.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        ) : course.upcomingBatches && course.upcomingBatches.length > 0 ? (
+                          <div className="flex items-center">
+                            <Calendar className="h-5 w-5 text-tecentrix-orange mr-3" />
+                            <div>
+                              <p className="text-sm text-tecentrix-darkgray/70">Start Date</p>
+                              <p className="font-medium">{course.upcomingBatches[0]}</p>
+                            </div>
+                          </div>
+                        ) : null}
+                        
                         {course.language && (
                           <div className="flex items-center">
                             <Languages className="h-5 w-5 text-tecentrix-orange mr-3" />

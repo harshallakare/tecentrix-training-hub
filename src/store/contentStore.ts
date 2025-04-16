@@ -29,25 +29,33 @@ export interface CurriculumSection {
   description: string;
 }
 
+export interface BatchDetail {
+  id: string;
+  date: string;
+  time: string;
+  languages: string[];
+}
+
 export interface Course {
   id: string;
-  icon: string;
   title: string;
+  description: string;
   level: string;
   duration: string;
-  description: string;
-  modules: string[];
-  highlighted: boolean;
-  enabled: boolean;
+  price: string;
   color: string;
   iconBg: string;
   iconColor: string;
-  price: string;
-  upcomingBatches?: string[]; 
-  upcomingBatch?: string; 
+  icon: string;
+  modules: string[];
+  highlighted: boolean;
+  enabled?: boolean;
+  upcomingBatches?: string[];
+  upcomingBatch?: string;
   language?: string;
   paymentLink?: string;
-  curriculum?: CurriculumSection[]; 
+  curriculum?: CurriculumSection[];
+  batch_details?: BatchDetail[];
 }
 
 interface Testimonial {
