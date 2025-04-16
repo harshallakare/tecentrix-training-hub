@@ -28,7 +28,7 @@ export interface Database {
           paymentLink?: string;
           icon: string;
           created_at?: string;
-          curriculum?: Json; // Added curriculum field
+          curriculum?: Json; // Ensure curriculum is typed as Json
         };
         Insert: Omit<Database['public']['Tables']['courses']['Row'], 'created_at'>;
         Update: Partial<Database['public']['Tables']['courses']['Row']>;

@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -44,11 +43,11 @@ export interface Course {
   iconBg: string;
   iconColor: string;
   price: string;
-  upcomingBatches?: string[]; // Changed from upcomingBatch to upcomingBatches array
-  upcomingBatch?: string; // Keep for backward compatibility
+  upcomingBatches?: string[]; 
+  upcomingBatch?: string; 
   language?: string;
   paymentLink?: string;
-  curriculum?: CurriculumSection[]; // Added curriculum field
+  curriculum?: CurriculumSection[]; 
 }
 
 interface Testimonial {

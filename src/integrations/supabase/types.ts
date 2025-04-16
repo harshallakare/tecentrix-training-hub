@@ -40,6 +40,7 @@ export type Database = {
         Row: {
           color: string
           created_at: string
+          curriculum: Json | null
           description: string
           duration: string
           enabled: boolean
@@ -59,6 +60,7 @@ export type Database = {
         Insert: {
           color: string
           created_at?: string
+          curriculum?: Json | null
           description: string
           duration: string
           enabled?: boolean
@@ -78,6 +80,7 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string
+          curriculum?: Json | null
           description?: string
           duration?: string
           enabled?: boolean
