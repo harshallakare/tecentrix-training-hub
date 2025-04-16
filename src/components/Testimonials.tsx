@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useContentStore } from '@/store/contentStore';
-
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const { testimonialsList, isSyncing } = useContentStore();
-  
+  const {
+    testimonialsList,
+    isSyncing
+  } = useContentStore();
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -21,17 +22,14 @@ const Testimonials = () => {
       revealElements.forEach(el => observer.unobserve(el));
     };
   }, []);
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex(prevIndex => (prevIndex + 1) % testimonialsList.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonialsList.length]);
-  
   if (isSyncing && testimonialsList.length === 0) {
-    return (
-      <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
+    return <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-sm font-semibold text-tecentrix-orange uppercase tracking-wide reveal">Success Stories</h2>
@@ -43,10 +41,8 @@ const Testimonials = () => {
             </div>
           </div>
         </div>
-      </section>
-    );
+      </section>;
   }
-  
   return <section className="section-padding bg-gradient-to-b from-tecentrix-gray to-white relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/3 w-64 h-64 rounded-full bg-tecentrix-orange/10 blur-3xl"></div>
@@ -103,10 +99,7 @@ const Testimonials = () => {
           <div className="mt-12 text-center reveal">
             <p className="text-tecentrix-darkgray mb-4">Join our community of 3000+ certified Linux professionals</p>
             <div className="flex flex-wrap justify-center gap-6 mt-8">
-              <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-3">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Red_Hat_logo.svg/1200px-Red_Hat_logo.svg.png" alt="Red Hat" className="h-8" />
-                <span className="text-sm font-medium">Red Hat Certified</span>
-              </div>
+              
               <div className="bg-white p-4 rounded-lg shadow-sm flex items-center space-x-3">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/UbuntuCoF.svg/512px-UbuntuCoF.svg.png" alt="Ubuntu" className="h-8" />
                 <span className="text-sm font-medium">Ubuntu Certified</span>
@@ -121,5 +114,4 @@ const Testimonials = () => {
       </div>
     </section>;
 };
-
 export default Testimonials;
