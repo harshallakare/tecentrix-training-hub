@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -12,6 +11,7 @@ import { useContentStore } from '@/store/contentStore';
 import { toast } from 'sonner';
 import CourseSync from '@/components/CourseSync';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ReactMarkdown from 'react-markdown';
 
 const iconMap = {
   'Terminal': <Terminal className="h-6 w-6" />,
@@ -117,11 +117,8 @@ const CourseDetails = () => {
     );
   };
 
-  // Render the curriculum sections from the course data
   const renderCourseCurriculum = () => {
-    // Check if curriculum exists and is an array
     if (!course.curriculum || !Array.isArray(course.curriculum) || course.curriculum.length === 0) {
-      // If no curriculum data is available, render generic modules
       return (
         <div className="space-y-4">
           {[
@@ -182,7 +179,6 @@ const CourseDetails = () => {
       );
     }
 
-    // Render actual curriculum data
     return (
       <div className="space-y-4">
         {course.curriculum.map((section, index) => (
@@ -193,7 +189,7 @@ const CourseDetails = () => {
               </h4>
               <div className="prose prose-sm max-w-none text-tecentrix-darkgray/80">
                 {section.description ? (
-                  <div dangerouslySetInnerHTML={{ __html: section.description.replace(/\n/g, '<br />') }} />
+                  <ReactMarkdown>{section.description}</ReactMarkdown>
                 ) : (
                   <p>No details available for this module.</p>
                 )}

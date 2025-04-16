@@ -38,7 +38,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         
         <TabsContent value="preview" className="mt-0 p-0">
           <div className={`${height} overflow-y-auto p-4 prose max-w-none`}>
-            <ReactMarkdown>{value}</ReactMarkdown>
+            <ReactMarkdown>{value || ''}</ReactMarkdown>
           </div>
         </TabsContent>
       </Tabs>
