@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,9 +18,8 @@ import { initializeNavigation } from "./utils/initializeNavigation";
 import { syncContentData } from "./utils/dataSync";
 import { useMobileInfo } from "./hooks/use-mobile";
 import { useSettingsStore, refreshSettingsFromStorage } from "./store/settingsStore";
-import { useSettingsSync } from "./hooks/use-settings-sync";
+import { useSettingsSync } from "./hooks/useSettingsSync";
 
-// Configure QueryClient with better caching behavior for mobile
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -39,13 +37,11 @@ const AppRoutes = () => {
   const settings = useSettingsSync(); // Use our new settings sync hook
   const activeNavItems = navItems.filter(item => item.enabled);
   
-  // Initialize navigation on routes component mount
   useEffect(() => {
     initializeNavigation();
     syncContentData();
     refreshSettingsFromStorage(); // Ensure settings are fresh
     
-    // Log navigation state for debugging
     console.log("AppRoutes mounted - Active navigation items:", 
       activeNavItems.map(item => item.label).join(", "));
     console.log("Device info:", { isMobile, orientation, dimensions });
@@ -56,24 +52,19 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       
-      {/* Static routes for main pages */}
       <Route path="/courses" element={<Courses />} />
       <Route path="/courses/:courseId" element={<CourseDetails />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/testimonials" element={<Testimonials />} />
       
-      {/* Dynamic routes based on navigation store */}
       {activeNavItems.map(item => {
-        // Skip the routes that already have dedicated components
         if (["/", "/courses", "/about", "/contact", "/testimonials"].includes(item.path)) return null;
         return <Route key={item.id} path={item.path} element={<Index />} />;
       })}
       
-      {/* Admin route - now consolidated to a single entry point */}
       <Route path="/admin/*" element={<Admin />} />
       
-      {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -83,14 +74,11 @@ const App = () => {
   const { isMobile, orientation, dimensions } = useMobileInfo();
   const settings = useSettingsSync(); // Use our new settings sync hook
   
-  // Force data sync when app first loads
   useEffect(() => {
-    // Set device classes on root HTML element for CSS targeting
     document.documentElement.classList.toggle('is-mobile', isMobile);
     document.documentElement.classList.toggle('is-portrait', orientation === 'portrait');
     document.documentElement.classList.toggle('is-landscape', orientation === 'landscape');
     
-    // Log device info
     console.log("App initialized with device info:", { 
       isMobile, 
       orientation, 
@@ -100,33 +88,27 @@ const App = () => {
       userAgent: navigator.userAgent
     });
     
-    // Add custom data attribute for company name to document
     document.documentElement.dataset.companyName = settings.companyName;
     
     initializeNavigation(true);
     syncContentData(true);
     
-    // Silent refresh - don't show toast notifications for page load refreshes
     const { updateSettings } = useSettingsStore.getState();
     const originalUpdateSettings = updateSettings;
     
-    // Temporary override updateSettings to be silent during initial load
     useSettingsStore.setState({
       updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
     });
     
-    refreshSettingsFromStorage(); // Ensure settings are fresh, but silently
+    refreshSettingsFromStorage();
     
-    // Restore original function after initial load
     setTimeout(() => {
       useSettingsStore.setState({ updateSettings: originalUpdateSettings });
     }, 2000);
     
-    // Add manual refresh on visibility change (tab switching)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         console.log("Tab became visible, refreshing data...");
-        // Silent refresh when tab becomes visible
         syncContentData(true);
         const { updateSettings } = useSettingsStore.getState();
         const originalUpdateSettings = updateSettings;
@@ -140,13 +122,9 @@ const App = () => {
       }
     };
     
-    // Forced refresh for mobile devices to ensure proper rendering
-    // This helps keep mobile and desktop views in sync
     const isMobileDevice = /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent.toLowerCase());
     if (isMobileDevice) {
       console.log("Mobile device detected, forcing extra refreshes");
-      // Multiple refreshes at different intervals increase chance of sync
-      // but don't show notifications
       [1000, 3000, 7000].forEach(delay => {
         setTimeout(() => {
           const { updateSettings } = useSettingsStore.getState();
@@ -165,18 +143,15 @@ const App = () => {
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Listen for storage events to catch changes from other tabs/frames
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'tecentrix-settings') {
         console.log("Settings changed in storage, refreshing");
-        // Silent refresh when settings change in storage
         const { updateSettings } = useSettingsStore.getState();
         const originalUpdateSettings = updateSettings;
         useSettingsStore.setState({
           updateSettings: (newSettings) => originalUpdateSettings(newSettings, false)
         });
         refreshSettingsFromStorage();
-        // Update the document attribute
         document.documentElement.dataset.companyName = useSettingsStore.getState().settings.companyName;
         setTimeout(() => {
           useSettingsStore.setState({ updateSettings: originalUpdateSettings });
@@ -192,7 +167,6 @@ const App = () => {
     };
   }, [isMobile, orientation, dimensions, settings.companyName]);
 
-  // Update the document attribute when company name changes
   useEffect(() => {
     document.documentElement.dataset.companyName = settings.companyName;
     document.title = `${settings.companyName} - Linux Administration Training`;
