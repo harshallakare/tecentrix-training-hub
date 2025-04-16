@@ -14,7 +14,7 @@ import { useSettingsSync } from '@/hooks/useSettingsSync';
 
 const Index = () => {
   // Check network status
-  const isOnline = useNetworkSync();
+  const { isOnline } = useNetworkSync();
   const isMobile = useIsMobile();
   const { orientation } = useMobileInfo();
   // Force settings sync on homepage to ensure latest contact info
@@ -25,8 +25,8 @@ const Index = () => {
     initializeNavigation();
     syncContentData();
     
-    // Set page title
-    document.title = "Tecentrix - Professional Training and Certification";
+    // Set page title with company name from settings
+    document.title = `${settings.companyName} - Professional Training and Certification`;
     
     const handleScroll = () => {
       const revealElements = document.querySelectorAll(
@@ -75,10 +75,11 @@ const Index = () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('orientationchange', handleOrientationChange);
     };
-  }, [isMobile, orientation]);
+  }, [isMobile, orientation, settings.companyName]);
   
   // Debug info for development
-  console.log(`Render Index - Mobile: ${isMobile}, Orientation: ${orientation}, Online: ${isOnline}`);
+  console.log(`Render Index - Mobile: ${isMobile}, Orientation: ${orientation}, Online: ${isOnline?.isOnline}, Company: ${settings.companyName}`);
+  console.log(`Contact Info on Homepage:`, settings.contactInfo);
   
   return (
     <div className="overflow-x-hidden">

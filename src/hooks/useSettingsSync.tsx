@@ -50,18 +50,18 @@ export function useSettingsSync() {
         }, false); // Pass false to prevent notification for automatic syncs
       } catch (error) {
         console.error("Failed to sync settings from database:", error);
-        toast.error("Failed to load settings from database");
+        // Suppress error toasts for automatic syncs to prevent user confusion
       }
     };
     
     syncWithDatabase();
     
     // Set up interval to periodically check for settings changes
-    // This helps ensure mobile and desktop views stay in sync
+    // Increased frequency to update every 5 seconds to ensure more consistent contact info across pages
     const syncInterval = setInterval(() => {
       refreshSettingsFromStorage();
       syncWithDatabase(); // Also periodically sync with database to catch remote changes
-    }, 10000); // Check every 10 seconds to ensure homepage always has the latest settings
+    }, 5000); // Check every 5 seconds to ensure homepage always has the latest settings
     
     // Add listeners for visibility changes (tab switching, mobile app coming to foreground)
     const handleVisibilityChange = () => {
