@@ -34,7 +34,7 @@ const queryClient = new QueryClient({
 const AppRoutes = () => {
   const { navItems } = useNavigationStore();
   const { isMobile, orientation, dimensions } = useMobileInfo();
-  const settings = useSettingsSync(); // Use our new settings sync hook
+  const settings = useSettingsSync(); // Use our settings sync hook
   const activeNavItems = navItems.filter(item => item.enabled);
   
   useEffect(() => {
@@ -72,7 +72,7 @@ const AppRoutes = () => {
 
 const App = () => {
   const { isMobile, orientation, dimensions } = useMobileInfo();
-  const settings = useSettingsSync(); // Use our new settings sync hook
+  const settings = useSettingsSync(); // Use our settings sync hook
   
   useEffect(() => {
     document.documentElement.classList.toggle('is-mobile', isMobile);
