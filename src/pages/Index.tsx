@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
@@ -78,7 +77,7 @@ const Index = () => {
   }, [isMobile, orientation, settings.companyName]);
   
   // Debug info for development
-  console.log(`Render Index - Mobile: ${isMobile}, Orientation: ${orientation}, Online: ${isOnline?.isOnline}, Company: ${settings.companyName}`);
+  console.log(`Render Index - Mobile: ${isMobile}, Orientation: ${orientation}, Online: ${isOnline}, Company: ${settings.companyName}`);
   console.log(`Contact Info on Homepage:`, settings.contactInfo);
   
   return (
