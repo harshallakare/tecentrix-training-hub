@@ -30,9 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useSettingsSync } from '@/hooks/useSettingsSync';
 
 const Contact = () => {
-  const { settings } = useSettingsStore();
+  // Use the useSettingsSync hook instead of the direct store to ensure 
+  // we get the latest data from Supabase
+  const settings = useSettingsSync();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -50,6 +53,7 @@ const Contact = () => {
     }
   }, [settings.inquiryRecipients]);
 
+  // Animation effects
   useEffect(() => {
     const revealElements = () => {
       const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .scale-reveal');
@@ -109,6 +113,16 @@ const Contact = () => {
         recipientId: formData.recipientId,
       });
     }, 1500);
+  };
+
+  // Function to encode the address for Google Maps URL
+  const getGoogleMapsUrl = () => {
+    if (!settings.contactInfo || !settings.contactInfo.address) {
+      return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50470.44097869996!2d-122.44889169235412!3d37.77492951191932!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1656533278879!5m2!1sen!2sus";
+    }
+    
+    const encodedAddress = encodeURIComponent(settings.contactInfo.address);
+    return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodedAddress}`;
   };
 
   return (
@@ -286,9 +300,11 @@ const Contact = () => {
                           <div>
                             <h4 className="font-medium text-tecentrix-blue">Location</h4>
                             <address className="not-italic text-tecentrix-darkgray/80 mt-1">
-                              123 Tech Avenue<br />
-                              San Francisco, CA 94105<br />
-                              United States
+                              {settings.contactInfo && settings.contactInfo.address ? (
+                                settings.contactInfo.address
+                              ) : (
+                                "Address not configured"
+                              )}
                             </address>
                           </div>
                         </div>
@@ -304,8 +320,14 @@ const Contact = () => {
                           <div>
                             <h4 className="font-medium text-tecentrix-blue">Email Us</h4>
                             <div className="text-tecentrix-darkgray/80 mt-1 space-y-1">
-                              <p>info@tecentrix.com</p>
-                              <p>support@tecentrix.com</p>
+                              {settings.contactInfo && settings.contactInfo.email ? (
+                                <p>{settings.contactInfo.email}</p>
+                              ) : (
+                                <p>Email not configured</p>
+                              )}
+                              {settings.inquiryRecipients && settings.inquiryRecipients.length > 0 && (
+                                <p>{settings.inquiryRecipients[0].email}</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -321,8 +343,11 @@ const Contact = () => {
                           <div>
                             <h4 className="font-medium text-tecentrix-blue">Call Us</h4>
                             <div className="text-tecentrix-darkgray/80 mt-1 space-y-1">
-                              <p>Main: (415) 555-1234</p>
-                              <p>Support: (415) 555-5678</p>
+                              {settings.contactInfo && settings.contactInfo.phone ? (
+                                <p>Main: {settings.contactInfo.phone}</p>
+                              ) : (
+                                <p>Phone not configured</p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -352,18 +377,33 @@ const Contact = () => {
                 <div className="mt-8">
                   <h4 className="font-semibold text-tecentrix-blue mb-4">Follow Us</h4>
                   <div className="flex space-x-4">
-                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
-                      <LinkedinIcon className="h-5 w-5 text-tecentrix-blue" />
-                    </a>
-                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
-                      <TwitterIcon className="h-5 w-5 text-tecentrix-blue" />
-                    </a>
-                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
-                      <FacebookIcon className="h-5 w-5 text-tecentrix-blue" />
-                    </a>
-                    <a href="#" className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
-                      <InstagramIcon className="h-5 w-5 text-tecentrix-blue" />
-                    </a>
+                    {settings.socialLinks && settings.socialLinks.linkedin && (
+                      <a href={settings.socialLinks.linkedin} className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                        <LinkedinIcon className="h-5 w-5 text-tecentrix-blue" />
+                      </a>
+                    )}
+                    {settings.socialLinks && settings.socialLinks.twitter && (
+                      <a href={settings.socialLinks.twitter} className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                        <TwitterIcon className="h-5 w-5 text-tecentrix-blue" />
+                      </a>
+                    )}
+                    {settings.socialLinks && settings.socialLinks.facebook && (
+                      <a href={settings.socialLinks.facebook} className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                        <FacebookIcon className="h-5 w-5 text-tecentrix-blue" />
+                      </a>
+                    )}
+                    {settings.socialLinks && settings.socialLinks.instagram && (
+                      <a href={settings.socialLinks.instagram} className="p-2 bg-tecentrix-gray rounded-full hover:bg-tecentrix-orange/10 transition-colors">
+                        <InstagramIcon className="h-5 w-5 text-tecentrix-blue" />
+                      </a>
+                    )}
+                    {(!settings.socialLinks || 
+                      (!settings.socialLinks.linkedin && 
+                       !settings.socialLinks.twitter && 
+                       !settings.socialLinks.facebook && 
+                       !settings.socialLinks.instagram)) && (
+                      <p className="text-sm text-tecentrix-darkgray/60">No social links configured</p>
+                    )}
                   </div>
                 </div>
                 
@@ -371,7 +411,7 @@ const Contact = () => {
                   <h4 className="font-semibold text-tecentrix-blue mb-4">Our Location</h4>
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden h-[250px]">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50470.44097869996!2d-122.44889169235412!3d37.77492951191932!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1656533278879!5m2!1sen!2sus"
+                      src={getGoogleMapsUrl()}
                       width="100%"
                       height="100%"
                       style={{ border: 0 }}
