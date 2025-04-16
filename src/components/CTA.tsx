@@ -3,9 +3,11 @@ import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calendar, Phone, Mail } from 'lucide-react';
 import { useContentStore } from '@/store/contentStore';
+import { useSettingsSync } from '@/hooks/useSettingsSync';
 
 const CTA = () => {
   const { content } = useContentStore();
+  const settings = useSettingsSync(); // Use settings from the settings store
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -81,14 +83,18 @@ const CTA = () => {
                   <Phone className="h-5 w-5 text-tecentrix-orange mr-3 mt-1 shrink-0" />
                   <div>
                     <div className="text-white font-medium">Call Us</div>
-                    <div className="text-white/70 text-sm">+91 9876543210</div>
+                    <div className="text-white/70 text-sm">
+                      {settings.contactInfo && settings.contactInfo.phone ? settings.contactInfo.phone : "+91 9876543210"}
+                    </div>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <Mail className="h-5 w-5 text-tecentrix-orange mr-3 mt-1 shrink-0" />
                   <div>
                     <div className="text-white font-medium">Email</div>
-                    <div className="text-white/70 text-sm">training@tecentrix.com</div>
+                    <div className="text-white/70 text-sm">
+                      {settings.contactInfo && settings.contactInfo.email ? settings.contactInfo.email : "training@tecentrix.com"}
+                    </div>
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -98,7 +104,9 @@ const CTA = () => {
                   </svg>
                   <div>
                     <div className="text-white font-medium">Training Center</div>
-                    <div className="text-white/70 text-sm">123 Tech Park, IT Hub, Bangalore - 560001</div>
+                    <div className="text-white/70 text-sm">
+                      {settings.contactInfo && settings.contactInfo.address ? settings.contactInfo.address : "123 Tech Park, IT Hub, Bangalore - 560001"}
+                    </div>
                   </div>
                 </li>
               </ul>
