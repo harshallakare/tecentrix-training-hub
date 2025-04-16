@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -189,7 +190,9 @@ const CourseDetails = () => {
               </h4>
               <div className="prose prose-sm max-w-none text-tecentrix-darkgray/80">
                 {section.description ? (
-                  <ReactMarkdown>{section.description}</ReactMarkdown>
+                  <ReactMarkdown className="markdown-content">
+                    {section.description}
+                  </ReactMarkdown>
                 ) : (
                   <p>No details available for this module.</p>
                 )}
