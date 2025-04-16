@@ -136,9 +136,9 @@ const CoursesManagement = () => {
         {course.curriculum.map((section, index) => (
           <div key={index} className="border-b pb-4 last:border-b-0 last:pb-0">
             <h4 className="font-medium text-tecentrix-blue mb-2">{section.title || `Section ${index + 1}`}</h4>
-            <div className="prose prose-sm max-w-none">
+            <div className="prose prose-sm max-w-none markdown-content">
               {section.description ? (
-                <ReactMarkdown className="markdown-content">
+                <ReactMarkdown>
                   {section.description}
                 </ReactMarkdown>
               ) : (

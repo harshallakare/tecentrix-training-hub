@@ -183,8 +183,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         </TabsContent>
         
         <TabsContent value="preview" className="mt-0 p-0">
-          <div className={`${height} overflow-y-auto p-4 prose prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 max-w-none`}>
-            <ReactMarkdown className="markdown-content">{value || ''}</ReactMarkdown>
+          <div className={`${height} overflow-y-auto p-4 prose prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 max-w-none markdown-content`}>
+            <ReactMarkdown>{value || ''}</ReactMarkdown>
           </div>
         </TabsContent>
       </Tabs>

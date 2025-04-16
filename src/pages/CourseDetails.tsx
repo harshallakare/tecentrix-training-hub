@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -118,7 +117,7 @@ const CourseDetails = () => {
     );
   };
 
-  const renderCourseCurriculum = () => {
+  const renderCurriculum = () => {
     if (!course.curriculum || !Array.isArray(course.curriculum) || course.curriculum.length === 0) {
       return (
         <div className="space-y-4">
@@ -188,9 +187,9 @@ const CourseDetails = () => {
               <h4 className="text-lg font-semibold text-tecentrix-blue mb-3">
                 {section.title || `Module ${index + 1}`}
               </h4>
-              <div className="prose prose-sm max-w-none text-tecentrix-darkgray/80">
+              <div className="prose prose-sm max-w-none text-tecentrix-darkgray/80 markdown-content">
                 {section.description ? (
-                  <ReactMarkdown className="markdown-content">
+                  <ReactMarkdown>
                     {section.description}
                   </ReactMarkdown>
                 ) : (
@@ -292,7 +291,7 @@ const CourseDetails = () => {
                 <Separator className="my-8" />
                 
                 <h3 className="text-xl font-bold text-tecentrix-blue mb-4">Course Curriculum</h3>
-                {renderCourseCurriculum()}
+                {renderCurriculum()}
               </div>
               
               <div className="reveal-right">
