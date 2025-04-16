@@ -62,6 +62,9 @@ const CourseDetails = () => {
     revealElements.forEach((el) => observer.observe(el));
 
     console.log(`CourseDetails render - Mobile: ${isMobile}, CourseID: ${courseId}, Course found: ${Boolean(course)}`);
+    if (course && course.curriculum) {
+      console.log('Course curriculum:', course.curriculum);
+    }
 
     return () => {
       revealElements.forEach((el) => observer.unobserve(el));
@@ -110,6 +113,94 @@ const CourseDetails = () => {
             : `Next Batches: ${course.upcomingBatches.slice(0, 2).join(', ')}${course.upcomingBatches.length > 2 ? '...' : ''}`
           }
         </span>
+      </div>
+    );
+  };
+
+  // Render the curriculum sections from the course data
+  const renderCourseCurriculum = () => {
+    // Check if curriculum exists and is an array
+    if (!course.curriculum || !Array.isArray(course.curriculum) || course.curriculum.length === 0) {
+      // If no curriculum data is available, render generic modules
+      return (
+        <div className="space-y-4">
+          {[
+            {
+              title: "Module 1: Fundamentals",
+              lessons: [
+                "Introduction to core concepts",
+                "Setting up your development environment",
+                "Understanding key terminology",
+                "Best practices and industry standards"
+              ]
+            },
+            {
+              title: "Module 2: Building Your Foundation",
+              lessons: [
+                "In-depth exploration of core technologies",
+                "Practical application of fundamental concepts",
+                "Troubleshooting common issues",
+                "Building your first project"
+              ]
+            },
+            {
+              title: "Module 3: Advanced Concepts",
+              lessons: [
+                "Advanced techniques and methodologies",
+                "Integration with other systems",
+                "Performance optimization",
+                "Security considerations"
+              ]
+            },
+            {
+              title: "Module 4: Real-world Applications",
+              lessons: [
+                "Case studies and real-world scenarios",
+                "Building a comprehensive final project",
+                "Deployment and maintenance",
+                "Future trends and continuing education"
+              ]
+            }
+          ].map((module, index) => (
+            <Card key={index} className="border-none shadow-sm hover:shadow-md transition-all duration-300">
+              <CardContent className="p-6">
+                <h4 className="text-lg font-semibold text-tecentrix-blue mb-3">{module.title}</h4>
+                <ul className="space-y-2">
+                  {module.lessons.map((lesson, i) => (
+                    <li key={i} className="flex items-start">
+                      <svg className="h-5 w-5 text-tecentrix-orange mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      <span className="text-sm text-tecentrix-darkgray/80">{lesson}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      );
+    }
+
+    // Render actual curriculum data
+    return (
+      <div className="space-y-4">
+        {course.curriculum.map((section, index) => (
+          <Card key={index} className="border-none shadow-sm hover:shadow-md transition-all duration-300">
+            <CardContent className="p-6">
+              <h4 className="text-lg font-semibold text-tecentrix-blue mb-3">
+                {section.title || `Module ${index + 1}`}
+              </h4>
+              <div className="prose prose-sm max-w-none text-tecentrix-darkgray/80">
+                {section.description ? (
+                  <div dangerouslySetInnerHTML={{ __html: section.description.replace(/\n/g, '<br />') }} />
+                ) : (
+                  <p>No details available for this module.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   };
@@ -202,62 +293,7 @@ const CourseDetails = () => {
                 <Separator className="my-8" />
                 
                 <h3 className="text-xl font-bold text-tecentrix-blue mb-4">Course Curriculum</h3>
-                <div className="space-y-4">
-                  {[
-                    {
-                      title: "Module 1: Fundamentals",
-                      lessons: [
-                        "Introduction to core concepts",
-                        "Setting up your development environment",
-                        "Understanding key terminology",
-                        "Best practices and industry standards"
-                      ]
-                    },
-                    {
-                      title: "Module 2: Building Your Foundation",
-                      lessons: [
-                        "In-depth exploration of core technologies",
-                        "Practical application of fundamental concepts",
-                        "Troubleshooting common issues",
-                        "Building your first project"
-                      ]
-                    },
-                    {
-                      title: "Module 3: Advanced Concepts",
-                      lessons: [
-                        "Advanced techniques and methodologies",
-                        "Integration with other systems",
-                        "Performance optimization",
-                        "Security considerations"
-                      ]
-                    },
-                    {
-                      title: "Module 4: Real-world Applications",
-                      lessons: [
-                        "Case studies and real-world scenarios",
-                        "Building a comprehensive final project",
-                        "Deployment and maintenance",
-                        "Future trends and continuing education"
-                      ]
-                    }
-                  ].map((module, index) => (
-                    <Card key={index} className="border-none shadow-sm hover:shadow-md transition-all duration-300">
-                      <CardContent className="p-6">
-                        <h4 className="text-lg font-semibold text-tecentrix-blue mb-3">{module.title}</h4>
-                        <ul className="space-y-2">
-                          {module.lessons.map((lesson, i) => (
-                            <li key={i} className="flex items-start">
-                              <svg className="h-5 w-5 text-tecentrix-orange mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
-                              <span className="text-sm text-tecentrix-darkgray/80">{lesson}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                {renderCourseCurriculum()}
               </div>
               
               <div className="reveal-right">
