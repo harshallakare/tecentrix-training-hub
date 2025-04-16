@@ -10,12 +10,15 @@ import Footer from '@/components/Footer';
 import { initializeNavigation } from '@/utils/initializeNavigation';
 import { syncContentData, useNetworkSync } from '@/utils/dataSync';
 import { useIsMobile, useMobileInfo } from '@/hooks/use-mobile';
+import { useSettingsSync } from '@/hooks/useSettingsSync';
 
 const Index = () => {
   // Check network status
   const isOnline = useNetworkSync();
   const isMobile = useIsMobile();
   const { orientation } = useMobileInfo();
+  // Force settings sync on homepage to ensure latest contact info
+  const settings = useSettingsSync();
   
   useEffect(() => {
     // Initialize navigation items and sync data on mount
